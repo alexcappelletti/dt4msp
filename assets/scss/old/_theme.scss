@@ -1,0 +1,20 @@
+
+:root {
+  --color-primary: #0077ff;
+  --color-secondary: #ff4081;
+  --color-bg: #ffffff;
+  --color-text: #222222;
+}
+
+[data-theme='dark'] {
+  --color-primary: #66aaff;
+  --color-secondary: #ff80b3;
+  --color-bg: #121212;
+  --color-text: #eeeeee;
+}
+
+// SCSS helper
+$color-primary: var(--color-primary);
+$color-secondary: var(--color-secondary);
+$color-bg: var(--color-bg);
+$color-text: var(--color-text);

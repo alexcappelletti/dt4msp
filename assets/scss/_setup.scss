@@ -1,0 +1,13 @@
+
+
+// Mixin
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+// Funzioni (se servono)
+@function rem($px) {
+  @return ($px / 16) * 1rem;
+}

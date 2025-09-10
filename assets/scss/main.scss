@@ -1,0 +1,23 @@
+@use 'variables' as *;
+@use 'base' as *;
+// @use 'breakpoints';
+// @use 'theme';
+
+// // Esempio di utilizzo
+// body {
+//   background-color: $color-bg;
+//   color: $color-text;
+// }
+
+// .button {
+//   background-color: $color-primary;
+//   color: $color-bg;
+
+//   @include respond(md) {
+//     padding: rem(16);
+//   }
+
+//   @include respond(xl) {
+//     padding: rem(24);
+//   }
+// }

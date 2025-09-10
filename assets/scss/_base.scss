@@ -1,0 +1,23 @@
+@use 'setup' as *;
+@use 'variables' as *;
+
+// Font
+@font-face {
+	font-family: 'Roboto';
+	src: url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+}
+
+body {
+	font-family: $font-primary;
+	color: $color-text;
+	line-height: 1.6;
+}
+
+// Reset base
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}

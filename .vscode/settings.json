@@ -1,0 +1,28 @@
+{
+	"typescript.tsdk": "node_modules/typescript/lib",
+	"typescript.preferences.importModuleSpecifier": "shortest",
+	"typescript.tsconfig": "tsconfig.editor.json",
+	"editor.detectIndentation": false,
+	"editor.insertSpaces": false,
+	"editor.tabSize": 4,
+	"[vue]": {
+		"editor.defaultFormatter": "vscode.typescript-language-features"
+	},
+	"editor.formatOnSave": true,
+	"workbench.colorCustomizations": {
+		"activityBar.background": "#d3d4c9",
+		"activityBar.dropBorder": "#77036d",
+		"activityBar.foreground": "#a254b6",
+		"activityBar.inactiveForeground":"#bca7c4",
+		"activityBar.border":"#8f918a",
+		"activityBarBadge.background":"#c50ca08e",
+		"activityBarBadge.foreground": "#faf9fa",
+		"sideBar.background":"#eeeeee",
+		"so"
+		"statusBar.background": "#c9cac2",
+		"editor.foreground": "#333333",
+		"list.activeSelectionForeground": "#e66108",
+		"list.focusBackground": "#db9595"
+	},
+	"editor.fontSize": 14,
+}
