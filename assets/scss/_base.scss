@@ -1,5 +1,3 @@
-@use 'setup' as *;
-@use 'variables' as *;
 
 // Font
 @font-face {
@@ -7,17 +5,14 @@
 	src: url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 }
 
-body {
-	font-family: $font-primary;
-	color: $color-text;
-	line-height: 1.6;
+// Mixin
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-// Reset base
-*,
-*::before,
-*::after {
-	box-sizing: border-box;
-	margin: 0;
-	padding: 0;
+// Funzioni (se servono)
+@function rem($px) {
+  @return ($px / 16) * 1rem;
 }

@@ -1,6 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import { defineNuxtConfig } from 'nuxt/config'
 import { resolve } from 'path'
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineNuxtConfig({
 	compatibilityDate: '2025-07-15',
@@ -19,7 +20,10 @@ export default defineNuxtConfig({
 		// Usa app/app.vue come root: Nuxt 4 lo rileva automaticamente se presente
 	},
 
-	css: ['@/assets/scss/main.scss'],
+	css: [
+		'@/assets/css/tailwind.css',   // Tailwind prima
+		'@/assets/scss/main.scss'
+	],
 
 	alias: {
 		'@': resolve(__dirname),
@@ -43,6 +47,7 @@ export default defineNuxtConfig({
 				}
 			}
 		},
+		plugins: [tailwindcss()],
 		resolve: {
 			alias: {
 				'@': resolve(__dirname)

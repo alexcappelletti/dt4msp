@@ -1,5 +1,19 @@
+// 1. Moduli SCSS (variabili, mixin, ecc.)
+
 @use 'variables' as *;
 @use 'base' as *;
+
+// 2. Tailwind (utility e componenti)
+//importato di default da nuxt.config.ts (via postcss
+
+body {
+	font-family: $font-primary;
+	color: $color-text;
+	line-height: 1.6;
+}
+
+
+
 // @use 'breakpoints';
 // @use 'theme';
 

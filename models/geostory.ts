@@ -27,8 +27,6 @@ export class Section {
 		return title;
 	}
 
-
-
 }
 
 

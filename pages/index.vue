@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Benvenut* nella Landing page di Geostory viewer</h2>
+    <h2>Landing page Geostory viewer</h2>
     <LocalDataLoader />
   </div>
 </template>
