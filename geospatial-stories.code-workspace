@@ -6,10 +6,10 @@
 	],
 	"settings": {
 		"workbench.colorCustomizations": {
-			"terminal.background": "#F4F3EC",
+			"terminal.background": "#1b1b1a",
 			"terminal.foreground": "#5F5E4E",
-			"terminalCursor.background": "#5F5E4E",
-			"terminalCursor.foreground": "#5F5E4E",
+			"terminalCursor.background": "#dddbbf",
+			"terminalCursor.foreground": "#ddd019",
 			"terminal.ansiBlack": "#F4F3EC",
 			"terminal.ansiBlue": "#36A166",
 			"terminal.ansiBrightBlack": "#878573",
@@ -18,14 +18,19 @@
 			"terminal.ansiBrightGreen": "#7D9726",
 			"terminal.ansiBrightMagenta": "#5F9182",
 			"terminal.ansiBrightRed": "#BA6236",
-			"terminal.ansiBrightWhite": "#22221B",
+			"terminal.ansiBrightWhite": "#eeeee5",
 			"terminal.ansiBrightYellow": "#A5980D",
 			"terminal.ansiCyan": "#5B9D48",
 			"terminal.ansiGreen": "#7D9726",
 			"terminal.ansiMagenta": "#5F9182",
 			"terminal.ansiRed": "#BA6236",
-			"terminal.ansiWhite": "#5F5E4E",
+			"terminal.ansiWhite": "#5f534e",
 			"terminal.ansiYellow": "#A5980D"
-		}
+		},
+		"editor.insertSpaces": false,
+		"editor.tabSize": 4,
+		"editor.detectIndentation": true,
+
+
 	}
 }

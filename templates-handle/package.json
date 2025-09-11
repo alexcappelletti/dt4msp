@@ -1,0 +1,24 @@
+{
+	"name": "templates-handle",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"dev": "ts-node-dev --respawn src/index.ts",
+		"test": "vitest"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"type": "module",
+	"devDependencies": {
+		"@types/node": "^24.3.0",
+		"@vitest/ui": "^3.2.4",
+		"ts-node-dev": "^2.0.0",
+		"typescript": "^5.9.2",
+		"vitest": "^3.2.4"
+	},
+	"dependencies": {
+		"eta": "^3.5.0"
+	}
+}

@@ -3,6 +3,7 @@ import HomeView from '@/views/HomeView.vue'
 import WmsMapView from '@/views/WmsMapView.vue'
 import IFrameMapView from '@/views/IFrameMapView.vue'
 import MapLibreView from '@/views/MaplibreView.vue'
+import MapLibreView2 from '@/views/Maplibre2View.vue'
 import WFSMapView from '@/views/WFSMapView.vue'
 import RemoteLayerView from '@/views/RemoteLayerView.vue'
 import StoryView from '@/views/StoryView.vue'
@@ -20,6 +21,7 @@ const router = createRouter({
 			// this generates a separate chunk (WmsMapView.[hash].js) for this rout},
 		{ path: '/wfs-map', name: 'wfs-map', component: WFSMapView },
 		{ path: '/story', name: 'view-story', component: StoryView },
+		{ path: '/msp', name: 'view-msp', component: MapLibreView2 },
 		// {
 		// 	path: '/about',
 		// 	name: 'about',

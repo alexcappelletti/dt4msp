@@ -1,12 +1,14 @@
 <template>
     <div>
         <p>to be defined</p>
+        <map-component-geonode></map-component-geonode>
+        
     </div>
 
 </template>
 
 
 <script setup lang="ts">
-import MapComponent from '@/components/MapComponent.vue';
+import MapComponentGeonode from '@/components/MapComponentGeonode.vue';
 
 </script>

@@ -24,4 +24,26 @@ export default defineConfig({
       }
     }
   },
+  server: {
+    proxy: {
+      '/geoserver': {
+        target: 'https://geoplatform.tools4msp.eu',
+        changeOrigin: true,
+        rewrite: path => path.replace(/^\/geoserver/, '/geoserver')
+       },
+      // '/wms': {
+      //   target: 'https://www.sid.mit.gov.it/ppsm2',
+      //   changeOrigin: true,
+      //   rewrite: path => path.replace(/^\/wms/, '/wms' )
+      // },
+      '/wfs': {
+        target: 'https://www.sid.mit.gov.it/ppsm2',
+        changeOrigin: true,
+        rewrite: path => path.replace(/^\/wfs/, '/wfs' )
+      }
+
+      
+    }
+  }
+
 })
