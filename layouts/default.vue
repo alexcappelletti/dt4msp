@@ -1,7 +1,7 @@
 <template>
-	<div>
+	<div class="flex flex-col w-full h-screen">
 		<Header />
-		<main>
+		<main class="flex-1 min-h-[70vh] p-8">
 			<slot />
 		</main>
 		<Footer />
@@ -14,8 +14,4 @@ import Footer from '@/components/footer.vue'
 </script>
 
 <style scoped lang="scss">
-main {
-	min-height: 70vh;
-	padding: 2rem;
-}
 </style>

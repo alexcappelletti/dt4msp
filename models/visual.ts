@@ -7,22 +7,30 @@ export abstract class Visual {
 export class MapVisual extends Visual {
 	readonly format = "MAP";
 	readonly contentType = "application/xml";
-	wfsUrl: string;
+	serviceUrl: string;
 	layerName?: string;
+	layerType?: string;
 	zoomLevel?: number;
 
-	constructor(wfsUrl: string, layerName?: string, zoomLevel?: number) {
+	constructor(
+		options: { 
+			url: string; 
+			layerName?: string; 
+			layerType?: string;	
+			zoomLevel?: number }){
+		
 		super();
-		this.wfsUrl = wfsUrl;
-		this.layerName = layerName;
-		this.zoomLevel = zoomLevel;
+		this.serviceUrl = options.url;
+		this.layerName = options.layerName;
+		this.layerType = options.layerType;
+		this.zoomLevel = options.zoomLevel;
 	}
 
 	getUrl(): string {
 		const params: string[] = [];
-		if (this.layerName) params.push(`layer=${encodeURIComponent(this.layerName)}`);
+		if (this.layerName) params.push(`layers=${encodeURIComponent(this.layerName)}`);
 		if (this.zoomLevel !== undefined) params.push(`zoom=${this.zoomLevel}`);
-		return params.length > 0 ? `${this.wfsUrl}?${params.join("&")}` : this.wfsUrl;
+		return params.length > 0 ? `${this.serviceUrl}?${params.join("&")}` : this.serviceUrl;
 	}
 }
 
@@ -85,7 +93,10 @@ export function createVisualFromJson(data: VisualInput): Visual {
 		case "IMAGE":
 			return new ImageVisual(data.url, data.altText, data.attribution);
 		case "MAP":
-			return new MapVisual(data.url, data.layerName, data.zoomLevel);
+			return new MapVisual({
+				url:data.url, 
+				layerName: data.layerName, 
+				zoomLevel: data.zoomLevel});
 		default:
 			throw new Error(`Unsupported visual format: ${data.format}`);
 	}

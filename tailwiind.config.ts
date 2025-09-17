@@ -1,13 +1,18 @@
 import type { Config } from 'tailwindcss'
 
-const config: Config = {
+export default {
   theme: {
-    extend: {
-      colors: {
-        primary: '#007bff', // oppure importa da SCSS se usi un plugin
-      }
+    
+  },
+  plugins: [
+    function ({ addBase, theme }) {
+      addBase({
+        ':root': {
+          '--color-primary': theme('colors.primary'),
+          '--color-secondary': theme('colors.secondary')
+        }
+      })
     }
-  }
+  ]
 }
 
-export default config

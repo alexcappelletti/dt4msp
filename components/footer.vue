@@ -1,7 +1,7 @@
 <template>
-	<footer class="footer">
-		<p>&copy; 2025 Geostoria • Creato con ❤️ [nuxt]</p>
-	</footer>
+	 <footer class="px-6 py-3 bg-gray-800 text-gray-300 text-center bg-primary">
+      <p>&copy; 2025 GeoStories. Tutti i diritti riservati. • Creato con ❤️ [nuxt]</p>
+    </footer>
 </template>
 
 <script setup lang="ts">
@@ -13,7 +13,6 @@
 	text-align: center;
 	padding: 1rem;
 	background-color: #f0f0f0;
-	color: #333;
 	font-size: 0.9rem;
 }
 </style>
