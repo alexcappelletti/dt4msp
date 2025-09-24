@@ -1,0 +1,25 @@
+{
+	"folders": [
+		{
+			"path": "../.."
+		}
+	],
+	"settings": {
+		"typescript.tsdk": "node_modules/typescript/lib",
+		"workbench.colorCustomizations": {
+
+			"activityBar.background": "#ece9e7",
+			"activityBar.dropBorder": "#e7971f",
+			"activityBar.foreground": "#b7bb45",
+			"activityBar.inactiveForeground": "#703f19",
+			"activityBar.border": "#8f918a",
+			"activityBarBadge.background": "#6665138e",
+			"activityBarBadge.foreground": "#faf9fa",
+			"sideBar.background": "#eeeeee",
+			"editor.foreground": "#595552",
+			"list.activeSelectionForeground": "#e6e6cd",
+			"list.activeSelectionBackground": "#555936",
+			"list.focusBackground": "#db9595"
+		}
+	}
+}
