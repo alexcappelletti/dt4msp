@@ -1,18 +1,20 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import { defineNuxtConfig } from 'nuxt/config'
-import { resolve } from 'path'
-import tailwindcss from "@tailwindcss/vite";
+import tailwindcssPlugin from '@tailwindcss/vite'
+import { normalize, resolve } from 'path'
+
 
 export default defineNuxtConfig({
 	compatibilityDate: '2025-07-15',
-
 	devtools: { enabled: true },
 
 	modules: [
-		'@nuxt/fonts',
+		//'@nuxt/fonts',
 		'@nuxt/icon',
 		'@nuxt/test-utils/module',
-		'nuxt-pdfmake'
+		'@nuxt/ui',
+		'nuxt-pdfmake',
+
 	],
 
 	app: {
@@ -21,21 +23,13 @@ export default defineNuxtConfig({
 	},
 
 	css: [
-		'@/assets/css/tailwind.css',   // Tailwind prima
-		'@/assets/scss/main.scss'
-	],
+		'./app/assets/css/tailwind.css',
+		'./app/assets/scss/main.scss'],
 
-	alias: {
-		'@': resolve(__dirname),
-		'@assets': resolve(__dirname, 'assets'),
-		'@components': resolve(__dirname, 'components'),
-		'@utils': resolve(__dirname, 'utils')
-	},
 
 	nitro: {
 		preset: 'node'
 	},
-
 	vite: {
 		server: {
 			port: 3000
@@ -47,11 +41,25 @@ export default defineNuxtConfig({
 				}
 			}
 		},
-		plugins: [tailwindcss()],
-		resolve: {
-			alias: {
-				'@': resolve(__dirname)
-			}
-		}
-	}
+		plugins: [
+			tailwindcssPlugin(),
+		],
+		// resolve: {
+		// 	alias: {
+		// 		'@': resolve(__dirname, 'app')
+		// 	}
+		// }
+	},
+	// fonts: {
+	// 	families: [
+	// 		{name: 'Roboto', weights: [400, 700], styles: ['normal', 'italic']}, // Google Fonts with weights and italics	
+	// 		// 'DynaPuff', // Google Fonts without weights (all weights included by default		
+	// 		// 'Fira Code', // Fontsource (npm) font
+	// 		// 'Bitcount Single Ink' // Fontsource (npm) font
+	// 		{name: 'DynaPuff'},
+	// 		{name: 'Fira Code', },
+	// 		{name: 'Bitcount Single Ink', weights: [400]}
+	// 	]
+	// }
 })
+// 
