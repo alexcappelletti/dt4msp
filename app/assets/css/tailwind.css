@@ -1,31 +1,15 @@
 
+@import url('https://fonts.cdnfonts.com/css/nbp-sydnie2-scoreboard');
 @import "tailwindcss";
 /* 
 per verfica compila in file di esempio:  
 npx @tailwindcss/cli -i app/assets/css/tailwind.css -o .output-workaround.css --config tailwind.config.ts
 */
 
-/* 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;  
-*/
-
 @font-face {
-  font-family: 'Killos', sans-serif;;
-  src: url('@/assets/fonts/killos.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
+  font-family: 'Killos';
+  src: url('../fonts/killos.ttf') format('truetype');
 }
-
-@font-face {
-  font-family: '60s Scoreboard', sans-serif;
-  src: url('@/assets/fonts/scoreboard.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-
 
 @theme {
 	--alex: #ff006e;
@@ -34,32 +18,33 @@ npx @tailwindcss/cli -i app/assets/css/tailwind.css -o .output-workaround.css --
 	--color-debug: #e59b46;
     --debug: #aa23cd; 
 	--font-roboto: 'Roboto',sans-serif;
-	--font-bitcount: "Bitcount Single Ink", system-ui;
+	--font-mio: "Sansation";
 	--font-family-dynapuff: "DynaPuff", system-ui;
-	--font-family-killos: "Killos", sans-serif;
-	--font-family-scoreboard: "60s Scoreboard", sans-serif;
+	--font-family-killos: 'Killos', sans-serif;
+	--font-family-scoreboard: 'NBP Sydnie2 Scoreboard', sans-serif;
 } 
 
-/* Manual utilities that reference the CSS variables defined above.
-	This ensures classes like .text-alex and .bg-alex are available
-	without relying on runtime plugin generation. */
+
+
 @layer utilities {
 	.font-roboto {
     	font-family: 'Roboto', sans-serif;
 	}
-	.font-bitcount {
-		font-family: var(--font-bitcount);
+	.font-mio {
+		font-family: var(--font-mio);
 	}
 	.font-dynapuff {
 		font-family: var(--font-family-dynapuff);
   	}
 	.font-killos {
 		font-family: var(--font-family-killos);
-		
+		color:var(--color-debug);
+		background-color: var(--debug);
 	}
 	.font-sb{
 		font-family: var(--font-family-scoreboard);
 	}
 	
 }
+
 

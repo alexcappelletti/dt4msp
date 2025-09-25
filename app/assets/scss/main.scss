@@ -1,39 +1,25 @@
-// 1. Moduli SCSS (variabili, mixin, ecc.)
+/* 1. Moduli SCSS (variabili, mixin, ecc.)*/
 @use 'variables' as *;
 @use 'base' as *;
-
-
-// 2. Tailwind (utility e componenti)
-//importato di default da nuxt.config.ts 
-
-
-
-body {
-	//font-family: $font-primary;
-	color: $color-text;
-	line-height: 1.6;
+/* 2. Tailwind (utility e componenti)*/
+@import url('https://fonts.cdnfonts.com/css/nbp-sydnie2-scoreboard');
+@font-face {
+  font-family: 'Killos';
+  src: url('../fonts/killos.ttf') format('truetype');
 }
 
 
+/* Manual utilities that reference the CSS variables defined above.
+	This ensures classes like .text-alex and .bg-alex are available
+	without relying on runtime plugin generation. */
 
-// @use 'breakpoints';
-// @use 'theme';
 
-// // Esempio di utilizzo
+
 // body {
-//   background-color: $color-bg;
-//   color: $color-text;
+// 	//font-family: $font-primary;
+// 	color: $color-text;
+// 	line-height: 1.6;
 // }
 
-// .button {
-//   background-color: $color-primary;
-//   color: $color-bg;
 
-//   @include respond(md) {
-//     padding: rem(16);
-//   }
 
-//   @include respond(xl) {
-//     padding: rem(24);
-//   }
-// }

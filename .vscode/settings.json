@@ -24,4 +24,20 @@
 		"list.focusBackground": "#db9595"
 	},
 	"editor.fontSize": 14,
+	"files.associations": {
+		"*.css": "tailwindcss"
+	},
+	"editor.quickSuggestions": {
+		"strings": "on"
+	},
+	"tailwindCSS.classAttributes": [
+		"class",
+		"ui"
+	],
+	"tailwindCSS.experimental.classRegex": [
+		[
+			"ui:\\s*{([^)]*)\\s*}",
+			"(?:'|\"|`)([^']*)(?:'|\"|`)"
+		]
+	]
 }

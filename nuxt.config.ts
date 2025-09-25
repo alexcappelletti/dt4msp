@@ -9,10 +9,9 @@ export default defineNuxtConfig({
 	devtools: { enabled: true },
 
 	modules: [
-		//'@nuxt/fonts',
+		'@nuxt/fonts',
 		'@nuxt/icon',
 		'@nuxt/test-utils/module',
-		'@nuxt/ui',
 		'nuxt-pdfmake',
 
 	],
@@ -32,7 +31,11 @@ export default defineNuxtConfig({
 	},
 	vite: {
 		server: {
-			port: 3000
+			watch: {
+				// force polling on environments where native file watching is unreliable (Windows, Docker, WSL)
+				usePolling: true,
+				interval: 100,
+			},
 		},
 		css: {
 			preprocessorOptions: {
@@ -50,6 +53,13 @@ export default defineNuxtConfig({
 		// 	}
 		// }
 	},
+	postcss: {
+		plugins: {
+			'@tailwindcss/postcss': {},
+			autoprefixer: {},
+		},
+	},
+
 	// fonts: {
 	// 	families: [
 	// 		{name: 'Roboto', weights: [400, 700], styles: ['normal', 'italic']}, // Google Fonts with weights and italics	
