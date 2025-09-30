@@ -1,12 +1,12 @@
 <template>
-    <div class="min-h-screen bg-white text-gray-800">
+    <div class="min-h-screen bg-white text-primary">
         <!-- Hero Section -->
         <section
-            class="flex flex-col items-center justify-center text-center px-6 py-24 bg-gradient-to-br from-blue-600 to-indigo-700 text-white">
+            class="flex flex-col items-center justify-center text-center px-6 py-24 bg-gradient-to-br from-primary to-gray-700 text-white">
             <h1 class="text-4xl md:text-6xl font-bold mb-6">Geostory viewer</h1>
             <p class="text-lg md:text-xl mb-8 max-w-2xl">Una piattaforma potente per raccontare storie geospaziali.</p>
             <NuxtLink to="load-content"
-                class="bg-white text-blue-700 font-semibold px-6 py-3 rounded-full shadow hover:bg-gray-100 transition">
+                class="bg-white text-primary font-semibold px-6 py-3 rounded-full shadow hover:bg-blue-100 transition">
                 Inizia ora
             </NuxtLink>
         </section>

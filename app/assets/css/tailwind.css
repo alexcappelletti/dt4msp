@@ -12,16 +12,23 @@ npx @tailwindcss/cli -i app/assets/css/tailwind.css -o .output-workaround.css --
 }
 
 @theme {
-	--alex: #ff006e;
-	--color-primary: #0077B6;
+	/* Color Theme Swatches in Hex */
+	--color-ux1: #16733E; 
+	--color-ux2: #498C66; 
+	--color-ux3: #038C25; 
+	--color-ux4: #8C3D35; 
+	--color-ux5: #F2F2F2; 
+	--color-alex: #ff006e;
+	--color-primary: var(--color-ux3);
+	--color-text: #0077B7;
 	--color-secondary: #ffb703;
 	--color-debug: #e59b46;
     --debug: #aa23cd; 
 	--font-roboto: 'Roboto',sans-serif;
 	--font-mio: "Sansation";
-	--font-family-dynapuff: "DynaPuff", system-ui;
-	--font-family-killos: 'Killos', sans-serif;
-	--font-family-scoreboard: 'NBP Sydnie2 Scoreboard', sans-serif;
+	--font-dynapuff: "DynaPuff", system-ui;
+	--font-killos: 'Killos', sans-serif;
+	--font-scoreboard: 'NBP Sydnie2 Scoreboard', sans-serif;
 } 
 
 
@@ -34,15 +41,15 @@ npx @tailwindcss/cli -i app/assets/css/tailwind.css -o .output-workaround.css --
 		font-family: var(--font-mio);
 	}
 	.font-dynapuff {
-		font-family: var(--font-family-dynapuff);
+		font-family: var(--font-dynapuff);
   	}
 	.font-killos {
-		font-family: var(--font-family-killos);
+		font-family: var(--font-killos);
 		color:var(--color-debug);
 		background-color: var(--debug);
 	}
 	.font-sb{
-		font-family: var(--font-family-scoreboard);
+		font-family: var(--font-scoreboard);
 	}
 	
 }

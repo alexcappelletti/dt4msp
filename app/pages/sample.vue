@@ -22,15 +22,25 @@
 
   </div>
 
+  <button
+  	
+	class="my-b">
+caricamento
+      </button>
+
+
 </template>
 
 
 
 
 <style lang="css" scoped>
-@reference "tailwindcss";
+@reference "@/assets/css/tailwind.css";
 
+.my-b {
+	@apply bg-ux2 py-3 font-roboto text-lg rounded-md text-ux5 hover:bg-ux1 disabled:bg-gray-300 disabled:cursor-not-allowed transition;
 
+}
 
 .titolo-custom {
   @apply text-5xl text-purple-300; 

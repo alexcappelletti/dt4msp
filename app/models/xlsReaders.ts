@@ -102,7 +102,8 @@ export class GeostoryXlsxReader {
 
 			const storyElement = new StoryElement(
 				Number(row.order) || index,
-				row.section_title || '',
+				row.title || '',
+				row.section_id || "-",
 				row.id || `element-${index + 1}`,
 				row.structure || 'undefined_structure',
 				this.extractTags(row.item_tags),

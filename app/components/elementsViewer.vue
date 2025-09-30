@@ -49,7 +49,7 @@ const toc = computed(() => {
 		tocStructure.push({ title, element: firstElement });
 		insertedTitles.add(title);
 	}
-	tocStructure.sort((a, b) => a.title.localeCompare(b.title));
+	//tocStructure.sort((a, b) => a.title.localeCompare(b.title));
 	return tocStructure;
 });
 
@@ -88,7 +88,7 @@ function formatDate(date: Date) {
 			</h1>
 			<button 
 				@click="showMobileToc = !showMobileToc"
-				class="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition-colors"
+				class="nav-button"
 			>
 				{{ showMobileToc ? 'Nascondi indice' : 'Mostra indice' }}
 			</button>
@@ -125,7 +125,7 @@ function formatDate(date: Date) {
 							@click="goAtElement(item.element)"
 							class="block cursor-pointer px-2 py-2 sm:py-1 rounded transition-colors duration-200 text-sm sm:text-base hover:bg-gray-200" 
 							:class="{
-								'bg-gray-300 font-bold': item.element.sectionTitle === currentElement?.sectionTitle,
+								'bg-gray-300 font-bold': item.element.sectionID === currentElement?.sectionID
 							}"
 						>
 							{{ item.title }}
@@ -174,7 +174,7 @@ function formatDate(date: Date) {
 			<!-- Paginazione responsive -->
 			<div class="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 mt-4 p-3 sm:p-4 bg-gray-100 rounded-lg shadow-sm flex-shrink-0">
 				<button
-					class="flex items-center gap-2 bg-blue-500 text-white hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 px-3 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg w-full sm:w-auto text-sm sm:text-base"
+					class="nav-button2"
 					@click="prev" 
 					:disabled="index === 0"
 				>
@@ -182,14 +182,15 @@ function formatDate(date: Date) {
 					<span>Indietro</span>
 				</button>
 				
-				<div class="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white rounded-full shadow-sm order-first sm:order-none">
+				<div class="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white rounded-full 
+				shadow-sm order-first mt-2 sm:order-none">
 					<span class="text-xs sm:text-sm font-medium whitespace-nowrap">
 						Pagina {{ index + 1 }} di {{ geostory.elements.length }}
 					</span>
 				</div>
 				
 				<button
-					class="flex items-center gap-2 bg-blue-500 text-white hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 px-3 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg w-full sm:w-auto text-sm sm:text-base"
+					class="nav-button2"
 					@click="next" 
 					:disabled="index === geostory.elements.length - 1"
 				>
@@ -200,3 +201,15 @@ function formatDate(date: Date) {
 		</main>
 	</div>
 </template>
+
+<style scoped lang="css">
+@reference "@/assets/css/tailwind.css";
+.nav-button2 {
+  @apply mt-2 px-4 py-2 bg-primary text-ux5 rounded-full text-sm hover:bg-ux1 transition-colors flex items-center gap-x-2;
+}
+.nav-button{
+	@apply mt-2 px-4 py-2 bg-primary text-ux5 rounded-lg text-sm hover:bg-ux1 transition-colors;
+}
+
+
+</style>

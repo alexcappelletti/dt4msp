@@ -59,6 +59,10 @@ export default defineNuxtConfig({
 			autoprefixer: {},
 		},
 	},
+	icon: {
+		mode: 'css',
+		cssLayer: 'base'
+	}
 
 	// fonts: {
 	// 	families: [
