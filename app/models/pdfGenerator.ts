@@ -1,7 +1,9 @@
 import type { StyleDictionary, TDocumentDefinitions } from 'pdfmake/interfaces';
 import PdfPrinter from 'pdfmake';
 import path from 'path';
-import fs from 'fs';
+import fs from 'fs/promises';
+import concat from 'concat-stream';
+
 
 import { Geostory, Section, StoryElement } from "./geostory";
 import type { ImageVisual } from './visual';
@@ -204,31 +206,31 @@ export class GeostoryToPDF {
 		}
 	}
 
-	async exportGeostory(geostory: Geostory): Promise<void> {
+	async exportGeostory(geostory: Geostory): Promise<Buffer> {
 		try {
 			if (geostory.title === undefined) {
 				console.warn("trying to export an empty geostory")
-				return
+				return Buffer.from("")
 			}
 			this.currentGeostory = geostory;
 
 			const docDefinition = await this.buildPdfDefinition();
 			const pdfDoc = this.printer.createPdfKitDocument(docDefinition);
-			const filePath = path.resolve('out/geostory.pdf');
-			const writeStream = fs.createWriteStream(filePath);
-			pdfDoc.pipe(writeStream);
-			pdfDoc.end();
-
-			writeStream.on('finish', () => {
-				console.log("downloaded!")
-				//res.download(filePath, 'geostory.pdf');
-			});
+			const buffer = await new Promise<Buffer>((resolve, reject) =>{
+				pdfDoc.pipe(concat(resolve))
+				pdfDoc.on("error", reject);
+				pdfDoc.end();
+				console.log("pdf created!")
+			})
+			await fs.writeFile('out/geostory.pdf', buffer);
+			return buffer;
 
 		}
 		catch (err) {
 			console.error(err);
 
 		}
+		return Buffer.from("")
 	}
 }
 

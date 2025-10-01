@@ -20,7 +20,7 @@ export const useGeostoryPdf = () => {
 		const body = g.toJson()
 		const res = await fetch('/api/geostories', {
 			method: 'POST',
-			//headers: { 'Content-Type': 'application/json' },
+			headers: { 'Content-Type': 'application/json' },
 			body: body
 		})
 		console.log("print done!")
