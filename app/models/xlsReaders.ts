@@ -51,7 +51,7 @@ export class GeostoryXlsxReader {
 
 	private getVisual(row: Record<string, any>): Visual | null {
 		if (!row.visual) return null;
-		console.log("visual type:" + row.visual.substring(0, 10))
+		//console.log("visual type:" + row.visual.substring(0, 10))
 		if (row.visual.startsWith('img:')) {
 			const imgUrl = row.visual.split('img:')[1].split(';')[0].trim();
 			const altText = row.visual.includes('alt:') ? row.visual.split('alt:')[1].trim() : undefined;
@@ -63,6 +63,7 @@ export class GeostoryXlsxReader {
 			const zoomLevel = params[2] ? parseInt(params[2].trim(), 10) : undefined;
 			return new MapVisual(wfsUrl, layerName, zoomLevel);
 		}
+		
 		return null;
 	}
 
@@ -83,9 +84,7 @@ export class GeostoryXlsxReader {
 
 		const rows = XLSX.utils.sheet_to_json<Record<string, any>>(storySheet);
 		const features = this.sheetToKeyValueJson(featuresSheet);
-
 		const storyElements = rows.map((row, index) => {
-
 			const storyItem = new StoryItem({
 				id: row.item_id || `item-${index + 1}`,
 				title: row.item_title || 'Unknown title',
@@ -97,6 +96,7 @@ export class GeostoryXlsxReader {
 				comments: row.comment || '',
 				visual: this.getVisual(row) || null,
 			})
+			
 
 
 

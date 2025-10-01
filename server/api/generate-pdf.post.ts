@@ -8,22 +8,13 @@ import { Geostory, StoryElement, parseGeostoryFromRaw } from '@/models/geostory'
 import { ImageVisual } from '~/models/visual'
 import { GeostoryToPDF } from '@/models/pdfGenerator'
 
-// const fonts = {
-// 	Roboto: {
-// 		normal: path.resolve('fonts/Roboto-Regular.ttf'),
-// 		bold: path.resolve('fonts/Roboto-Medium.ttf'),
-// 		italics: path.resolve('fonts/Roboto-Italic.ttf'),
-// 		bolditalics: path.resolve('fonts/Roboto-MediumItalic.ttf')
-// 	}
-// }
-
+const generator = new GeostoryToPDF();
 
 export default defineEventHandler(async (event) => {
 	try {
 		const story = parseGeostoryFromRaw(
 			await readBody(event)) 
-		const generator = new GeostoryToPDF(story);
-		await generator.exportGeostory();
+		await generator.exportGeostory(story);
 // 		const printer = new PdfPrinter(fonts)
 // 		event.node.res.setHeader('Content-Type', 'application/pdf')
 // 		event.node.res.setHeader('Content-Disposition', 'attachment; filename=alex.pdf')
@@ -111,108 +102,3 @@ export default defineEventHandler(async (event) => {
 
 
 
-
-async function generateStorySections(elements: StoryElement[]) {
-	const sections = await Promise.all(
-		elements.map(async (el) => {
-			const item = el.storyItems[0]
-			const imageUrl = item?.visual?.format === 'IMAGE'
-				? (item.visual as ImageVisual).imageUrl
-				: undefined
-
-			return await createSection(el.sectionTitle, item?.text || '', imageUrl)
-		})
-	)
-
-	return sections
-
-}
-
-async function createSection(
-	title: string,
-	text: string,
-	imageUrl?: string
-) {
-	const sectionContent: any[] = [
-		{
-			text: text || 'Contenuto non disponibile',
-			margin: [0, 0, 0, 10]
-		}
-	]
-
-	if (imageUrl) {
-		try {
-			const base64 = await fetchImageAsBase64(imageUrl)
-			sectionContent.push({
-				image: base64,
-				width: 400,
-				alignment: 'center',
-				margin: [0, 10, 0, 10]
-			})
-		} catch (err) {
-			console.warn(`Errore nel caricamento immagine: ${imageUrl}`, err)
-			sectionContent.push({
-				text: 'Immagine non disponibile',
-				italics: true,
-				alignment: 'center',
-				color: 'gray',
-				margin: [0, 10, 0, 10]
-			})
-		}
-	}
-
-	return [
-		{
-			text: title,
-			style: 'sectionTitle',
-			
-		},
-		{
-		stack: sectionContent,
-		pageBreak: 'after'
-	}]
-}
-
-
-
-function getHeaderStyle(): Style {
-	return {
-		fontSize: 26,
-		bold: true,
-		alignment: 'center',
-		characterSpacing: 1.5,
-		textTransform: 'uppercase'
-	} as Style
-
-}
-
-const VALID_IMAGE_TYPES = [
-	'image/jpeg',
-	'image/png',
-	'image/webp',
-	'image/gif',
-	'image/svg+xml'
-]
-
-async function fetchImageAsBase64(url: string): Promise<string> {
-	console.log("fetiching " + url)
-	const response = await fetch(url)
-
-	if (!response.ok) {
-		throw new Error(`Impossibile scaricare l'immagine da ${url} - Status: ${response.status}`)
-	}
-
-	const contentType = response.headers.get('content-type')?.split(';')[0] || ''
-
-	if (!VALID_IMAGE_TYPES.includes(contentType)) {
-		throw new Error(`Tipo MIME non supportato: ${contentType}`)
-	}
-
-	const arrayBuffer = await response.arrayBuffer()
-	const buffer = Buffer.from(arrayBuffer)
-	if (buffer.length > 5 * 1024 * 1024) {
-		throw new Error('Immagine troppo grande')
-	}
-
-	return `data:${contentType};base64,${buffer.toString('base64')}`
-}

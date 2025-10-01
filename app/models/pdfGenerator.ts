@@ -3,8 +3,17 @@ import PdfPrinter from 'pdfmake';
 import path from 'path';
 import fs from 'fs';
 
-import { Geostory, Section } from "./geostory";
+import { Geostory, Section, StoryElement } from "./geostory";
+import type { ImageVisual } from './visual';
 
+
+const VALID_IMAGE_TYPES = [
+	'image/jpeg',
+	'image/png',
+	'image/webp',
+	'image/gif',
+	'image/svg+xml'
+]
 const fonts = {
 	Roboto: {
 		normal: path.resolve('app/assets/fonts/Roboto-Regular.ttf'),
@@ -18,7 +27,10 @@ const localStyles: StyleDictionary = {
 	header: { 
 		fontSize: 24, 
 		bold: true,
-		color: '#16733E'
+		color: '#16733E',
+		characterSpacing: 2,
+
+		
 	},
 	subheader: { fontSize: 10, italics: true },
 	tocTitle: { 
@@ -39,17 +51,36 @@ const localStyles: StyleDictionary = {
 	itemText: { fontSize: 12 },
 	itemMeta: { fontSize: 10, italics: true, color: '#666' }
 }
+async function fetchImageAsBase64(url: string): Promise<string> {
+	console.log("fetiching " + url)
+	const response = await fetch(url)
+	if (!response.ok) {
+		throw new Error(`Impossibile scaricare l'immagine da ${url} - Status: ${response.status}`)
+	}
+	const contentType = response.headers.get('content-type')?.split(';')[0] || ''
+
+	if (!VALID_IMAGE_TYPES.includes(contentType)) {
+		throw new Error(`Tipo MIME non supportato: ${contentType}`)
+	}
+
+	const arrayBuffer = await response.arrayBuffer()
+	const buffer = Buffer.from(arrayBuffer)
+	if (buffer.length > 5 * 1024 * 1024) {
+		throw new Error('Immagine troppo grande')
+	}
+
+	return `data:${contentType};base64,${buffer.toString('base64')}`
+}
 
 
 export class GeostoryToPDF {
-	geostory: Geostory;
+	currentGeostory: Geostory = {} as Geostory;
 	printer: PdfPrinter;
-	constructor(g: Geostory) {
-		this.geostory = g;
+	constructor() {
 		this.printer = new PdfPrinter(fonts);
-	}
+	}	
 
-	parseMixedList(input: string): any[] {
+	private parseMixedList(input: string): any[] {
 		const listRegex = /\\list\{([^}]+)\}/g;
 		const parts: any[] = [];
 		let lastIndex = 0;
@@ -77,13 +108,67 @@ export class GeostoryToPDF {
 		}
 		return parts;
 	}
-	buildPdfDefinition(): TDocumentDefinitions {
-		const sections = Array.from(this.geostory.sections.values());
+
+	private async parseImage(element: StoryElement): Promise<Array<any>> {
+		const visual = element.storyItems[0]?.visual ?? {} as ImageVisual;
+		const imageUrl = visual?.format === 'IMAGE'
+				? (visual as ImageVisual).imageUrl
+				: undefined
+		if (imageUrl === undefined){return []}
+		try {
+			//console.log("loading image:  " + imageUrl)
+			const base64 = await fetchImageAsBase64(imageUrl)
+			return [{
+				image: base64,
+				width: 400,
+				alignment: 'center',
+				margin: [0, 10, 0, 10]
+			}]
+		} catch (err) {
+			console.warn(`Errore nel caricamento immagine: ${imageUrl}`, err)
+		}
+		return [{
+				text: 'Immagine non disponibile',
+				italics: true,
+				alignment: 'center',
+				color: 'gray',
+				margin: [0, 10, 0, 10]
+			}]
+	}
+	private async buildSectionsContent(sections: Array<Section>){
+		const contentChunks = await Promise.all(
+			sections.map(async (section) =>{
+				const chunk = []
+				chunk.push({
+					text: section.getTitle(),
+					style: 'sectionTitle',
+					tocItem: true,
+					id: section.sectionId
+				});
+				const elementChunks = await Promise.all(
+					section.elements.map(async (el) => {	
+						const storyText = el.storyItems.at(0)?.text ?? "";
+						const parsedText = this.parseMixedList(storyText);
+						const parsedImages = await this.parseImage(el);
+						return [...parsedText, ...parsedImages];
+					})
+				) //inner p.all loop - element
+				elementChunks.forEach(elChunk => chunk.push(...elChunk));
+      			chunk.push({ text: '', pageBreak: 'after' });
+			    return chunk;
+    		})
+		); //outer p.all - section
+		return contentChunks.flat()
+	}
+
+
+	private async buildPdfDefinition(): Promise<TDocumentDefinitions> {
+		const sections = Array.from(this.currentGeostory.sections.values());
 		const content: any[] = [];
 
 		// Titolo principale
 		content.push({
-			text: this.geostory.title || 'Geo Story ',
+			text: (this.currentGeostory.title || 'unknown title').toUpperCase(),
 			style: 'header',
 			alignment: 'center',
 			margin: [0, 0, 0, 20]
@@ -91,7 +176,7 @@ export class GeostoryToPDF {
 
 		// Autore e data
 		content.push({
-			text: `Autore: ${this.geostory.author || 'N/D'} | Data: ${this.geostory.timestamp.toLocaleDateString('it-IT')}`,
+			text: `Autore: ${this.currentGeostory.author || 'N/D'} | Data: ${this.currentGeostory.timestamp.toLocaleDateString('it-IT')}`,
 			style: 'subheader',
 			alignment: 'center',
 			margin: [0, 0, 0, 30]
@@ -108,63 +193,26 @@ export class GeostoryToPDF {
 			pageBreak: 'after'
 		});
 		//sezioni 
-		sections.forEach((section, idx) => {
-			content.push({
-				text: section.getTitle(),
-				style: 'sectionTitle',
-				tocItem: true,
-				id: section.sectionId
-			});
-			section.elements.forEach((el, idx) => {
-				content.push(...(this.parseMixedList(el.storyItems.at(0)?.text ?? "")))
-			})
-			content.push({ text: '', pageBreak: 'after' });
-		});//fine della sezione
-
-
-		// content.push({ text: '', margin: [0, 0, 0, 20] });
-
-		// // Sezioni
-		// sections.forEach((section, idx) => {
-		// 	content.push({ text: `Sezione ${idx + 1}: ${section.getTitle()}`, style: 'sectionTitle', margin: [0, 10, 0, 6] });
-
-		// 	section.elements.sort((a, b) => a.order - b.order).forEach((el, elIdx) => {
-		// 		const item = el.storyItems[0];
-		// 		if (!item) return;
-
-		// 		content.push({
-		// 			text: `Elemento ${elIdx + 1}: ${item.title}`,
-		// 			style: 'itemTitle',
-		// 			margin: [0, 6, 0, 2]
-		// 		});
-
-		// 		content.push({
-		// 			text: item.text,
-		// 			style: 'itemText',
-		// 			margin: [0, 0, 0, 4]
-		// 		});
-
-		// 		content.push({
-		// 			text: `Autore: ${item.author} | Data: ${item.timestamp.toLocaleDateString('it-IT')}`,
-		// 			style: 'itemMeta',
-		// 			margin: [0, 0, 0, 10]
-		// 		});
-		// 	});
-		// });
-
+		content.push(...(await(this.buildSectionsContent(sections))))
 		return {
 			content,
-			styles: localStyles,
-			defaultStyle: {
-				font: 'Roboto',
-				alignment: 'justify'
-			}
-		};
+    		styles: localStyles,
+    		defaultStyle: {
+      			font: 'Roboto',
+      			alignment: 'justify'
+    		}
+		}
 	}
 
-	async exportGeostory(): Promise<void> {
+	async exportGeostory(geostory: Geostory): Promise<void> {
 		try {
-			const docDefinition = this.buildPdfDefinition();
+			if (geostory.title === undefined) {
+				console.warn("trying to export an empty geostory")
+				return
+			}
+			this.currentGeostory = geostory;
+
+			const docDefinition = await this.buildPdfDefinition();
 			const pdfDoc = this.printer.createPdfKitDocument(docDefinition);
 			const filePath = path.resolve('out/geostory.pdf');
 			const writeStream = fs.createWriteStream(filePath);
@@ -181,11 +229,7 @@ export class GeostoryToPDF {
 			console.error(err);
 
 		}
-
-
 	}
-
-
 }
 
 

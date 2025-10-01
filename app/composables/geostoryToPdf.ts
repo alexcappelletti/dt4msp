@@ -25,8 +25,6 @@ export const useGeostoryPdf = () => {
 		})
 		console.log("print done!")
 	}
-
-
 	return { 
 		generatePdf, 
 		printGeostory
