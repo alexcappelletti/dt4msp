@@ -5,7 +5,7 @@ export const useGeostoryPdf = () => {
 		const res = await fetch('/api/generate-pdf', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(geostory)
+			body: geostory.toJson()
 		})
 
 		const blob = await res.blob()
@@ -15,6 +15,21 @@ export const useGeostoryPdf = () => {
 		link.download = 'downloaded-geostory.pdf'
 		link.click()
 	}
+	const printGeostory = async (g:Geostory) => {
+		console.log(g.toJson())
+		const body = g.toJson()
+		const res = await fetch('/api/geostories', {
+			method: 'POST',
+			//headers: { 'Content-Type': 'application/json' },
+			body: body
+		})
+		console.log("print done!")
+	}
 
-	return { generatePdf }
+
+	return { 
+		generatePdf, 
+		printGeostory
+	 }
 }
+

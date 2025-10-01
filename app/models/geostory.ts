@@ -47,7 +47,7 @@ export class Geostory {
 		language: string,
 		target: string,
 		exportType: string,
-		elements?: StoryElement[],
+		elements: StoryElement[],
 		author?: string,
 		timestamp?: Date
 	}
@@ -63,9 +63,20 @@ export class Geostory {
 		this.exportType = params.exportType;
 		this.elements = params?.elements || [];
 		this.sections = groupBySectionID(this.elements)
+		console.log("numero elementi " + this.elements.length)
+		console.log("numero sezioni " + this.sections.size)
+
+
 	}
 
 	getSections(): Map<string, Section> { return this.sections }
+	toJson(): string {
+		const plain = {
+			...this,
+			sections: Object.fromEntries(this.sections), // converte la Map in oggetto semplice
+		};
+		return JSON.stringify(plain, null, 2); // con indentazione leggibile
+	}
 }
 ///ritorna una mappa dove gli storyElemens sono ordinati per "order" 
 export function groupBySectionID(elements: StoryElement[]): Map<string, Section> {
@@ -183,21 +194,68 @@ export class StoryItem {
 
 	}
 
-	// 	updateContent(newContent: string | Visual, changedBy: string): void {
-	// 		const change = new ChangeEvent(
-	// 			changedBy,
-	// 			new Date(),
-	// 			"content",
-	// 			this.content,
-	// 			newContent
-	// 		);
-	// 		this.changes.push(change);
-	// 		this.content = newContent;
-	// 	}
-
-
 }
 
+
+export function parseGeostoryFromJson(text: string): Geostory {
+	const raw = JSON.parse(text);
+
+	const elements = (raw.elements || []).map((el: any) => {
+		const storyItems = (el.storyItems || []).map((item: any) => new StoryItem(item));
+		return new StoryElement(
+			el.order,
+			el.sectionTitle,
+			el.sectionID,
+			el.id,
+			el.style,
+			el.tags,
+			el.actions,
+			storyItems
+		);
+	})
+
+	return new Geostory({
+		id: raw.id,
+		title: raw.title,
+		topic: raw.topic,
+		scenario: raw.scenario,
+		language: raw.language,
+		target: raw.target,
+		exportType: raw.exportType,
+		author: raw.author,
+		timestamp: raw.timestamp ? new Date(raw.timestamp) : new Date(),
+		elements
+	});
+}
+
+export function parseGeostoryFromRaw(raw: any): Geostory {
+	const elements = (raw.elements || []).map((el: any) => {
+		const storyItems = (el.storyItems || []).map((item: any) => new StoryItem(item))
+		return new StoryElement(
+			el.order,
+			el.sectionTitle,
+			el.sectionID,
+			el.id,
+			el.style,
+			el.tags,
+			el.actions,
+			storyItems
+		)
+	})
+	const story = new Geostory({
+		id: raw.id,
+		title: raw.title,
+		topic: raw.topic,
+		scenario: raw.scenario,
+		language: raw.language,
+		target: raw.target,
+		exportType: raw.exportType,
+		author: raw.author,
+		timestamp: raw.timestamp ? new Date(raw.timestamp) : new Date(),
+		elements: elements
+	})
+	return story;
+}
 
 
 

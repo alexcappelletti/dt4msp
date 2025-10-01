@@ -4,10 +4,10 @@
 		<Icon name="gis:contour-map" size="64" class=" text-4xl" />
 		<h1 class="font-roboto text-3xl">Geo Story viewer</h1>
 		<nav class="ml-auto flex gap-4 font-roboto text-2xl">
-		<NuxtLink to="/">Home</NuxtLink>
-			<NuxtLink to="/geostory-info-page">Info</NuxtLink>
-			<NuxtLink to="/geostory-page">Details</NuxtLink>
-			<NuxtLink to="/geostory">Navigate</NuxtLink>
+			<NuxtLink active-class="router-link-exact-active" to="/" >Home</NuxtLink>
+			<NuxtLink active-class="router-link-exact-active" to="/geostory-info-page" >Info</NuxtLink>
+			<NuxtLink active-class="router-link-exact-active" to="/geostory-page" >Details</NuxtLink>
+			<NuxtLink active-class="router-link-exact-active" to="/geostory">Navigate</NuxtLink>
 		</nav>
 </header>
 </template>
@@ -23,6 +23,15 @@
 	padding: 1rem 2rem;
 	background-color: var(--color-ux3);
 	
+}
+.router-link-exact-active {
+	text-decoration: underline;
+  	color: var(--color-ux5); // oppure un colore evidenziato
+	transition: color 0.2s ease;
+	&:hover {
+		color: var(--color-ux1); // colore alternativo per hover
+    	//text-decoration: underline;
+  	}
 }
 
 nav a {

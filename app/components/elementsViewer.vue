@@ -125,7 +125,7 @@ function formatDate(date: Date) {
 							@click="goAtElement(item.element)"
 							class="block cursor-pointer px-2 py-2 sm:py-1 rounded transition-colors duration-200 text-sm sm:text-base hover:bg-gray-200" 
 							:class="{
-								'bg-gray-300 font-bold': item.element.sectionID === currentElement?.sectionID
+								'bg-ux3 text-ux5 font-bold': item.element.sectionID === currentElement?.sectionID
 							}"
 						>
 							{{ item.title }}

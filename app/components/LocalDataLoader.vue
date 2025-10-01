@@ -1,3 +1,53 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import { read } from 'xlsx'
+import { useGeostoryStore } from '@/stores/geostoryStore'
+import { GeostoryXlsxReader, ScenarioXlsxReader } from '~/models/xlsReaders'
+import { useGeostoryPdf } from '@/composables/geostoryToPdf'
+import type { Geostory } from '~/models/geostory'
+
+const store = useGeostoryStore()
+const loadingS = ref(false)
+const loadingG = ref(false)
+const { generatePdf, printGeostory } = useGeostoryPdf()
+
+async function loadScenario() {
+
+	loadingS.value = true
+  try {
+    const response = await fetch('/data/final_scenario_bd.xlsx')
+    const arrayBuffer = await response.arrayBuffer()
+    const workbook = read(new Uint8Array(arrayBuffer), { type: 'array' })
+    const reader = new ScenarioXlsxReader(workbook)
+    store.setScenario(reader.readScenario())
+    store.setThemes(reader.readThemesFromSheet())
+  } catch (error) {
+    console.error('Errore nella lettura del file Excel:', error)
+  } finally {
+    loadingS.value = false
+  }
+}
+
+async function loadGeostory() {
+  loadingG.value = true
+  try {
+    const response = await fetch('/data/np_geostory_2025-09-30.xlsx')
+    const arrayBuffer = await response.arrayBuffer()
+    const workbook = read(new Uint8Array(arrayBuffer), { type: 'array' })
+    const reader = new GeostoryXlsxReader(workbook)
+    store.selectStory(reader.loadGeoStory())
+  } catch (error) {
+    console.error('Errore nella lettura del file Excel:', error)
+  } finally {
+    loadingG.value = false
+  }
+}
+
+async function exportToPDF() {
+	await generatePdf(store.selectedStory as Geostory)
+	//await printGeostory(store.selectedStory as Geostory)
+}
+</script>
 
 <template>
   <div class="max-w-md mx-auto mt-10 p-6 border border-ux3 rounded-lg text-center bg-ux5 shadow font-roboto">
@@ -38,54 +88,6 @@
     </button>	
   </div>
 </template>
-<script setup lang="ts">
-import { ref } from 'vue'
-import { read } from 'xlsx'
-import { useGeostoryStore } from '@/stores/geostoryStore'
-import { GeostoryXlsxReader, ScenarioXlsxReader } from '~/models/xlsReaders'
-import { useGeostoryPdf } from '@/composables/geostoryToPdf'
-import type { Geostory } from '~/models/geostory'
-
-const store = useGeostoryStore()
-const loadingS = ref(false)
-const loadingG = ref(false)
-const { generatePdf } = useGeostoryPdf()
-
-async function loadScenario() {
-  loadingS.value = true
-  try {
-    const response = await fetch('/data/final_scenario_bd.xlsx')
-    const arrayBuffer = await response.arrayBuffer()
-    const workbook = read(new Uint8Array(arrayBuffer), { type: 'array' })
-    const reader = new ScenarioXlsxReader(workbook)
-    store.setScenario(reader.readScenario())
-    store.setThemes(reader.readThemesFromSheet())
-  } catch (error) {
-    console.error('Errore nella lettura del file Excel:', error)
-  } finally {
-    loadingS.value = false
-  }
-}
-
-async function loadGeostory() {
-  loadingG.value = true
-  try {
-    const response = await fetch('/data/np_geostory_2025-09-30.xlsx')
-    const arrayBuffer = await response.arrayBuffer()
-    const workbook = read(new Uint8Array(arrayBuffer), { type: 'array' })
-    const reader = new GeostoryXlsxReader(workbook)
-    store.selectStory(reader.loadGeoStory())
-  } catch (error) {
-    console.error('Errore nella lettura del file Excel:', error)
-  } finally {
-    loadingG.value = false
-  }
-}
-
-function exportToPDF() {
-  generatePdf(store.selectedStory as Geostory)
-}
-</script>
 
 
 
