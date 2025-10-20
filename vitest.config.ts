@@ -8,7 +8,7 @@ export default defineVitestConfig({
 		globals: true,
 		include: ['tests/**/*.test.ts'],
 		alias: {
-			'@': resolve(__dirname, './')
+			'@': resolve(__dirname, './app/')
 		},
 		coverage: {
 			reporter: ['text', 'json', 'html'],
