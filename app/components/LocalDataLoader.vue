@@ -5,6 +5,7 @@ import { useGeostoryStore } from '@/stores/geostoryStore'
 import { GeostoryXlsxReader, ScenarioXlsxReader } from '~/models/xlsReaders'
 import { useGeostoryPdf } from '@/composables/geostoryToPdf'
 import type { Geostory } from '~/models/geostory'
+import treeView from './treeView.vue'
 
 const store = useGeostoryStore()
 const loadingS = ref(false)
@@ -43,6 +44,23 @@ async function loadGeostory() {
   }
 }
 
+
+const treeData = computed(() => {
+  const scenario = store.scenario
+  if (!scenario){
+    return {}
+  } 
+  return {
+    temi: scenario.temi,
+    maps: scenario.maps,
+    datasets: scenario.datasets,
+    extendedAspects: scenario.extendedAspects,
+    objectives: scenario.objectives,
+  }
+})
+
+
+
 async function exportToPDF() {
 	await generatePdf(store.selectedStory as Geostory)
 	//await printGeostory(store.selectedStory as Geostory)
@@ -50,43 +68,52 @@ async function exportToPDF() {
 </script>
 
 <template>
-  <div class="max-w-md mx-auto mt-10 p-6 border border-ux3 rounded-lg text-center bg-ux5 shadow font-roboto">
-    <h2 class="text-2xl  mb-6">Carica i file Locali</h2>
-    <div class="flex flex-col gap-4">
-      <button
-        @click="loadScenario"
-        :disabled="loadingS || store.scenario !== null"
-        class="my-button"
-      >
-        {{ loadingS ? 'Caricamento...' : 'Carica Scenario' }}
-      </button>
+  <div class="container">
+    <div class="max-w-md mx-auto mt-10 p-6 border border-ux3 rounded-lg text-center bg-ux5 shadow font-roboto">
+      <h2 class="text-2xl  mb-6">Carica i file Locali</h2>
+      <div class="flex flex-col gap-4">
+        <button
+          @click="loadScenario"
+          :disabled="loadingS || store.scenario !== null"
+          class="my-button"
+        >
+          {{ loadingS ? 'Caricamento...' : 'Carica Scenario' }}
+        </button>
 
-      <button
-        @click="loadGeostory"
-        :disabled="loadingG || store.selectedStory !== null"
-        class="my-button"
-      >
-        {{ loadingG ? 'Caricamento...' : 'Carica Geostoria' }}
-      </button>
+        <button
+          @click="loadGeostory"
+          :disabled="loadingG || store.selectedStory !== null"
+          class="my-button"
+        >
+          {{ loadingG ? 'Caricamento...' : 'Carica Geostoria' }}
+        </button>
+      </div>
     </div>
-  </div>
 
   <div v-if="store.scenario" class="max-w-md mx-auto mt-8 bg-gray-50 p-4 rounded shadow">
     <h3 class="text-xl font-semibold mb-2">Scenario caricato: {{ store.scenario?.name }}</h3>
     <p class="text-gray-700">Numero di temi: {{ store.themes.length }}</p>
+    <tree-view
+        v-if="store.scenario"
+        :label="store.scenario.id" :data="treeData"
+        class="max-w-4xl max-h-[30vh] mx-auto mt-10 overflow-auto"></tree-view>    
   </div>
 
-  <div v-if="store.selectedStory" class="max-w-md mx-auto mt-8 bg-gray-50 p-4 rounded shadow">
+  <div v-if="store.selectedStory" class="max-w-md mx-auto mt-8 bg-gray-200 p-4 rounded shadow">
     <div class="mb-4">
       <h3 class="text-xl font-semibold">Geostoria caricata: {{ store.selectedStory?.title }}</h3>
       <p class="text-gray-700">Numero di elementi: {{ store.selectedStory?.elements.length }}</p>
-    </div>
+  </div>
+    
     <button
       @click="exportToPDF"
       class="my-button">
       Esporta Geostoria in PDF
     </button>	
   </div>
+</div>
+
+  
 </template>
 
 

@@ -2,7 +2,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import ScenarioDetails from '@/components/scenarioDetails.vue'
-import commandPreview from '~/components/commandPreview.vue';
 
   
 // const layers = [
@@ -13,9 +12,10 @@ import commandPreview from '~/components/commandPreview.vue';
 </script>
 
 <template>
-	<CommandPreview></CommandPreview>
-	<!-- <ScenarioDetails></ScenarioDetails> -->
-   
+	<div class="container">
+	  <h1>Informazioni sulla Geostoria</h1>
+		<ScenarioDetails></ScenarioDetails> 
+</div>
 </template>
 
 <style scoped lang="scss">
