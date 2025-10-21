@@ -1,19 +1,37 @@
 // vitest.config.ts
-import { defineVitestConfig } from '@nuxt/test-utils/config'
+import { defineConfig } from 'vitest/config'
+import { defineVitestProject } from '@nuxt/test-utils/config'
 import { resolve } from 'path'
 
-export default defineVitestConfig({
+export default defineConfig({
 	test: {
-		environment: 'nuxt',
+		include: ['tests/{e2e,unit}/*.{test,spec}.ts'],
+		environment: 'jsdom',
 		globals: true,
-		include: ['tests/**/*.test.ts'],
+	},
+	resolve: {
 		alias: {
-			'@': resolve(__dirname, './app/')
+			'@': resolve(__dirname, 'app/'),
 		},
-		coverage: {
-			reporter: ['text', 'json', 'html'],
-			exclude: ['tests/', 'vitest.config.ts']
-		}
-
-	}
+	},
 })
+
+
+// import { defineVitestConfig } from '@nuxt/test-utils/config'
+// import { resolve } from 'path'
+
+// export default defineVitestConfig({
+// 	test: {
+// 		environment: 'nuxt',
+// 		globals: true,
+// 		include: ['tests/**/*.test.ts'],
+// 		alias: {
+// 			'@': resolve(__dirname, './app/')
+// 		},
+// 		coverage: {
+// 			reporter: ['text', 'json', 'html'],
+// 			exclude: ['tests/', 'vitest.config.ts']
+// 		}
+
+// 	}
+// })

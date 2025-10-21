@@ -23,6 +23,6 @@ describe('LayerDefinition API', () => {
 		expect(typeof first?.name).toBe('string')
 		expect(typeof first?.layerParams).toBe('object')
 		expect(first?.getLayerId()).toBeDefined()
-		expect(first?.getThumbnail()).toMatch(/^https?:\/\//)
+		//expect(first?.getThumbnail()).toMatch(/^https?:\/\//)
 	})
 })

@@ -3,7 +3,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]  // Adatta se la tua cartella sorgente non è "src"
+      "@": ["./app"],  // Adatta se la tua cartella sorgente non è "src"
+	  "@/*": ["./app/*"]
+
     },
     "types": ["nuxt"],
     "moduleResolution": "node",
@@ -16,5 +18,5 @@
     "skipLibCheck": true
 
   },
-  "include": ["./", "./tests"]
+  "include": ["app", "tests"]
 }

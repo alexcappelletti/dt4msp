@@ -1,12 +1,8 @@
-<template>
-	<ScenarioDetails></ScenarioDetails>
-   
-</template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import ScenarioDetails from '@/components/scenarioDetails.vue'
-
+import commandPreview from '~/components/commandPreview.vue';
 
   
 // const layers = [
@@ -15,6 +11,12 @@ import ScenarioDetails from '@/components/scenarioDetails.vue'
 // 	{ id: 'layer-003', name: 'Popolazione', type: 'vector' }
 // ]
 </script>
+
+<template>
+	<CommandPreview></CommandPreview>
+	<!-- <ScenarioDetails></ScenarioDetails> -->
+   
+</template>
 
 <style scoped lang="scss">
 

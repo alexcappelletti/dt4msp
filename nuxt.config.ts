@@ -15,7 +15,6 @@ export default defineNuxtConfig({
 		'nuxt-pdfmake',
 
 	],
-
 	app: {
 		rootId: 'nuxt-root', // opzionale, se vuoi personalizzare l'ID del root element
 		// Usa app/app.vue come root: Nuxt 4 lo rileva automaticamente se presente

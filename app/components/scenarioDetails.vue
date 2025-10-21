@@ -1,6 +1,6 @@
 <template>
   <div class="scenario-details">
-    <h1>{{ scenario.name }}</h1>
+    <h1>{{ scenario?.name }}</h1>
     <p><strong>ID:</strong> {{ scenario.id }}</p>
     <p><strong>Descrizione generale:</strong> {{ scenario.generalDescription }}</p>
     <p><strong>Narrativa:</strong> {{ scenario.narrative }}</p>
@@ -65,7 +65,7 @@ import type { Scenario } from '@/models/scenario'
 import { useGeostoryStore } from '@/stores/geostoryStore';
 
 const store = useGeostoryStore()
-const scenario = store.scenario as Scenario	
+const scenario = store.scenario || {} as Scenario;
 </script>
 
 <style scoped>

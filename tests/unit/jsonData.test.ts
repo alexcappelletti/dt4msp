@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Impact, MapLayer, Scenario, Theme } from "@/models/scenario";
+import { Impact, MapLayer, Scenario, Theme } from "../../app/models/scenario";
 import { readFileSync, writeFileSync } from 'fs'
 
 describe("fixture on json rapresentations of data", () => {
