@@ -1,24 +1,18 @@
 <script lang="ts" setup>
-definePageMeta({
-	layout: 'default'
-});
+import twoColGridLayout from '~/layouts/twoColGridLayout.vue';
 import LocalDataLoader from '@/components/LocalDataLoader.vue'
 import CommandPreview from '@/components/commandPreview.vue'
 
 </script>
 
 <template>
-<div class="grid grid-cols-[1fr_0.9fr] w-screen h-screen min-w-0 overflow-hidden border-amber-300">
-  <!-- Colonna sinistra: Local Data Loader -->
-  <div class="flex items-start justify-start w-full px-4">
-    <LocalDataLoader class="flex-grow min-h-[200px]" />
-  </div>
+    <two-col-grid-layout left-class="px-4" right-class="px-4 bg-gray-50">
+        <template #left>
+            <LocalDataLoader class="w-full h-full min-h-[200px]" />
+        </template>
+        <template #right>
+            <CommandPreview class="w-full min-h-[200px] bg-gray-50" />
+        </template>
 
-  <!-- Colonna destra: Command Preview -->
-  <div class="flex items-start justify-start w-full px-4">
-    <CommandPreview class="flex-grow min-w-[45vw] min-h-[200px] bg-gray-50" />
-  </div>
-</div>
-
-
+    </two-col-grid-layout>
 </template>

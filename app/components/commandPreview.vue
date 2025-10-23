@@ -87,7 +87,7 @@ function setInput(template: string, id: string){
 </script>
 
 <template>
-	<div class="p-4 max-w-xl mx-auto mb-6">
+	<div class="p-4 min-w-0 mx-auto mb-6">
 		<h1 class="text-2xl font-bold mb-4">Anteprima Comandi</h1>
 		<p class="mb-4">Inserisci un comando JSON nel campo sottostante per vedere il risultato basato sui dati correnti dello scenario e della geostoria.</p>
 	
@@ -105,21 +105,7 @@ function setInput(template: string, id: string){
 			</ul>
 		</div>
 
-		<div class="max-w-xl mx-auto pt-4 space-y-3">
-			<label for="commandInput" class="block font-semibold">Inserisci comando:</label>
-			<textarea
-				id="commandInput"
-				v-model="input"
-				rows="4"
-				class="w-full border rounded p-2 font-mono"
-				placeholder='Scenario 3: Blue Development (BD): {"command":"text", "path": "scenarioSoS_bd.general_description", "params":["bold"]}'
-			></textarea>
-
-			<div class=" pt-4 rounded">
-				<p>Rendered:</p>
-				<div class="mt-2 whitespace-pre-wrap prose max-v-none bg-gray-300 p-8" v-html="output"</div>
-			</div>
-		</div>
+		
 	</div>
 </template>
 

@@ -163,7 +163,7 @@ function formatDate(date: Date) {
 						</p>
 						<MapViewer
 							v-if="storyItem.visual?.format === 'MAP'"
-							:visual="storyItem.visual as MapVisual"
+							:visuals="[storyItem.visual as MapVisual]"
 							class="mt-4 h-96 rounded-lg overflow-hidden shadow"
 							/>
 
