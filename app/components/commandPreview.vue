@@ -87,16 +87,23 @@ function setInput(template: string, id: string){
 </script>
 
 <template>
-	<div class="p-4 min-w-0 mx-auto mb-6">
-		<h1 class="text-2xl font-bold mb-4">Anteprima Comandi</h1>
+	<div class="p-4 min-w-0 mx-auto mb-6 text-xl">
+		<h1 class="font-bold mb-4">Anteprima Comandi</h1>
 		<p class="mb-4">Inserisci un comando JSON nel campo sottostante per vedere il risultato basato sui dati correnti dello scenario e della geostoria.</p>
-	
-		<div class="space-y-2 pb-4">
-			<strong class="block">Esempi query predefinite</strong>
+		<textarea
+				id="commandInput"
+				v-model="input"
+				rows="4"
+				class="w-full border rounded p-2 font-mono text-3xl "
+				placeholder='Scenario 3: Blue Development (BD): {"command":"text", "path": "scenarioSoS_bd.general_description", "params":["bold"]}'
+			></textarea>
+		<div class="mt-6">
+			<div class="space-y-2 pb-4">
+			<strong class="block font-semibold">Esempi query predefinite</strong>
 			<ul class="space-y-1">
 				<li v-for="example in examples" :key="example.label">
 					<button
-						class="text-ux2 hover:underline text-sm"
+						class="text-ux2 text-xl hover:underline"
 						@click="setInput(example.value, scenario?.id || 'defaultScenario')"
 					>
 						{{ example.label }}
@@ -105,7 +112,11 @@ function setInput(template: string, id: string){
 			</ul>
 		</div>
 
-		
+			<div class=" pt-8 rounded">
+				<p>Rendered:</p>
+				<div class="text-3xl mt-2 whitespace-pre-wrap prose max-v-none bg-gray-300 p-8" v-html="output"</div>
+			</div>
+		</div>
 	</div>
 </template>
 
