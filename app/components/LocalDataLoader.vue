@@ -68,9 +68,9 @@ async function exportToPDF() {
 </script>
 
 <template>
-  <div class="container">
+  <div class="container flex">
     <div class="max-w-md mx-auto mt-10 p-6 border border-ux3 rounded-lg text-center bg-ux5 shadow font-roboto">
-      <h2 class="text-2xl  mb-6">Carica i file Locali</h2>
+      <h2 class="text-2xl  mb-6">Scenario</h2>
       <div class="flex flex-col gap-4">
         <button
           @click="loadScenario"
@@ -89,7 +89,7 @@ async function exportToPDF() {
         </button>
       </div>
     </div>
-
+<!-- 
   <div v-if="store.scenario" class="max-w-md mx-auto mt-8 bg-gray-50 p-4 rounded shadow">
     <h3 class="text-xl font-semibold mb-2">Scenario caricato: {{ store.scenario?.name }}</h3>
     <p class="text-gray-700">Numero di temi: {{ store.themes.length }}</p>
@@ -110,7 +110,7 @@ async function exportToPDF() {
       class="my-button">
       Esporta Geostoria in PDF
     </button>	
-  </div>
+  </div> -->
 </div>
 
   
