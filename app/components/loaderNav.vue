@@ -76,7 +76,6 @@ async function handleFileUpload(event: Event, type: 'scenario' | 'geostory') {
 // 	}
 // }
 
-
 const treeData = computed(() => {
 	const scenario = store.scenario
 	if (!scenario){
@@ -97,6 +96,15 @@ async function exportToPDF() {
 	await generatePdf(store.selectedStory as Geostory)
 	//await printGeostory(store.selectedStory as Geostory)
 }
+const viewGeostory = () => {
+	navigateTo('/geostory-page');
+
+	// if (store.selectedStory) {
+	// 	const url = '/geostory-page';
+	// 	window.open(url, '_blank');
+	// }
+};
+
 </script>
 
 <template>
@@ -104,7 +112,8 @@ async function exportToPDF() {
 		<div class="flex flex-col">
 			<span class="text-2xl">Scenario</span>
 			<label class="input-label">
-				<Icon name="i-gis:map-book"class="self-center" style="color: black" />
+				<!-- i-gis:map-book -->
+				<Icon name="mdi:map-check"class="self-center" style="color: black" />
 				<span class="mx-1.5">Carica file:</span>
 				<input 
 					type="file" accept=".xlsx"
@@ -112,7 +121,7 @@ async function exportToPDF() {
 				<span v-if="fileScenario" class="mr-2 text-ux1">{{fileScenario}}</span>
 			</label>
 		</div>
-		<div class="mt-4">
+		<div class="mt-4 flex flex-col gap-4">
 			<span class="text-2xl">Geostoria</span>
 			<label class="input-label">
 				<Icon name="mdi:map-legend" class="self-center" style="color: black" />
@@ -121,13 +130,22 @@ async function exportToPDF() {
 					@change="e => handleFileUpload(e, 'geostory')"></input>
 				<span v-if="fileGeostory" class="mr-2 text-ux1">{{fileGeostory}}</span>
 			</label>	
-			<button
+			<v-btn
+				variant="outlined"
 				@click="exportToPDF"
 				:disabled="!store.selectedStory"
 				v-if="store.selectedStory"
 				class="ex-button">
 					Esporta Geostoria in PDF
-			</button>
+			</v-btn>
+			<v-btn
+				variant="outlined"
+				@click="viewGeostory"
+				:disabled="!store.selectedStory"
+				v-if="store.selectedStory"
+				class="ex-button">
+					Visualizza
+			</v-btn>
 		</div>	
 	</div>
 
@@ -151,7 +169,8 @@ async function exportToPDF() {
 }
 
 .ex-button{
-	@apply border-ux1 px-2 py-1 mx-3 mt-2 text-lg rounded-xl text-ux1 border-1 hover:bg-ux2
+	@apply border-ux1 px-2 py-1 mx-4 mt-2 rounded-lg text-ux1 border-1 
+	
 	 transition
 	/* background-color: var(--color-debug); */
 

@@ -7,23 +7,26 @@ import { normalize, resolve } from 'path'
 export default defineNuxtConfig({
 	compatibilityDate: '2025-07-15',
 	devtools: { enabled: true },
-
-	modules: [
-		'@nuxt/fonts',
+	modules: ['@nuxt/fonts',
 		'@nuxt/icon',
+		'@nuxt/ui',
 		'@nuxt/test-utils/module',
 		'nuxt-pdfmake',
-
-	],
+		'vuetify-nuxt-module'],
 	app: {
 		rootId: 'nuxt-root', // opzionale, se vuoi personalizzare l'ID del root element
 		// Usa app/app.vue come root: Nuxt 4 lo rileva automaticamente se presente
 	},
-
 	css: [
-		'./app/assets/css/tailwind.css',
-		'./app/assets/scss/main.scss'],
+		'./app/assets/css/tailwind.css', 
+		'./app/assets/scss/main.scss',
+		// 'vuetify/styles', // Rimosso: il modulo Vuetify gestisce già gli stili
+		// '@mdi/font/css/materialdesignicons.css' // Rimosso: il modulo Vuetify gestisce già le icone MDI
+	],
 
+	build: {
+		transpile: ['vuetify'] // Aggiunto: necessario per l'SSR e per risolvere l'errore .css
+	},
 
 	nitro: {
 		preset: 'node'
@@ -61,8 +64,7 @@ export default defineNuxtConfig({
 	icon: {
 		mode: 'css',
 		cssLayer: 'base'
-	}
-
+	},
 	// fonts: {
 	// 	families: [
 	// 		{name: 'Roboto', weights: [400, 700], styles: ['normal', 'italic']}, // Google Fonts with weights and italics	
@@ -74,5 +76,16 @@ export default defineNuxtConfig({
 	// 		{name: 'Bitcount Single Ink', weights: [400]}
 	// 	]
 	// }
+	vuetify: {
+		moduleOptions: {
+			/* module specific options */
+			prefixComposables: true, // Renames `useLocale` to `vUseLocale`
+		},
+		vuetifyOptions: {
+			/* vuetify options */
+			icons: {
+				defaultSet: 'mdi'
+			}
+		}
+	},
 })
-// 
