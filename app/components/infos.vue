@@ -55,7 +55,7 @@ function runQuery() {
 </script>
 
 <template>
-	<v-container>
+	<v-container>	
 		
 		<v-tabs v-model="activeTab" background-color="primary" fixed-tabs class="vtabs-local">
 		  <v-tab v-for="item in items" :key="item.title" :value="item.title">{{ item.title }}</v-tab>
@@ -94,10 +94,10 @@ function runQuery() {
 <style scoped>
 @reference "@/assets/css/tailwind.css";
 .vtabs-local{
-	@apply text-2xl font-roboto text-ux1;
+	@apply tw:text-2xl tw:font-roboto tw:text-ux1;
 }
 .details {
-	@apply flex flex-row gap-4 py-1.5 text-xl;
+	@apply tw:flex tw:flex-row tw:gap-4 tw:py-1.5 tw:text-xl;
 	
 }
 

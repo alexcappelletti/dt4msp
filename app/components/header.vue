@@ -1,8 +1,8 @@
 <template>
-	<header class="header flex items-center gap-4 text-ux5 bg-gradient-to-b from-ux1">
+	<div class="tw:flex tw:items-center tw:text-ux5 tw:bg-linear-to-b tw:from-ux1">
 		<!-- <Icon name="uil:github" style="color: black" class="text-3xl" /> -->
-		<Icon name="gis:contour-map" size="64" class=" text-4xl" />
-		<h1 class="flex-grow font-roboto text-3xl">Geo Story viewer</h1>
+		<v-icon icon="mdi-information" size="large"></v-icon>
+		<h1 class="tw:font-roboto tw:text-3xl">Geo Story viewer</h1>
 		<!-- <nav class="ml-auto flex gap-4 font-roboto text-2xl">
 			<NuxtLink active-class="router-link-exact-active" to="/" >Home</NuxtLink>
 			<NuxtLink active-class="router-link-exact-active" to="/geostory">Horz</NuxtLink>
@@ -10,7 +10,7 @@
 			<NuxtLink active-class="router-link-exact-active" to="/geostory-page" >Vert</NuxtLink>
 			
 		</nav> -->
-</header>
+	</div>
 </template>
 
 <script setup lang="ts">

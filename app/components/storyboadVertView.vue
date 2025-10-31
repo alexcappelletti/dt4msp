@@ -11,6 +11,7 @@ import MapViewer from '@/components/mapViewer.vue'
 
 
 const index = ref(0)
+const currentSection = ref<string | null>(null)
 const geostory = useGeostoryStore().selectedStory
 const containerRef = ref<HTMLElement | null>(null)
 const elementRefs = ref<Record<string, Element | null>>({})
@@ -81,11 +82,30 @@ function setRef(el: Element | ComponentPublicInstance | null, id: string) {
 </script>
 
 <template>
-	<!-- Breadcrumb -->
-	<div class="z-20 bg-white/80 mt-1 
-		backdrop-blur-sm px-4 flex flex-wrap gap-2  m-5"
-	>
-		<button
+	<v-responsive class="border rounded" >
+	<!-- pseudo navigation -->
+	<v-slide-group 
+		v-model="currentSection"
+		class="m-10 px-4"
+		mandatory
+
+		selected-class="bg-black">
+		<v-slide-group-item
+			v-for="(item, idx) in toc"
+			:key="item.element.id"
+			:value="item.element.sectionID"
+			v-slot="{ isSelected, selectedClass}"
+			class="m-4">
+			<v-btn
+				:color="isSelected ? 'primary' : undefined"
+				@click="scrollTo(item.element.id)">
+				{{ item.title || 'Sezione' }}
+			</v-btn>
+		</v-slide-group-item>	
+
+	</v-slide-group>
+	<!-- <div class="z-20 bg-white/80 mt-1 backdrop-blur-sm px-4 flex flex-wrap gap-2  m-5"> -->
+		<!-- <button
 			v-for="(item, idx) in toc"
 			:key="item.element.id"
 			@click="scrollTo(item.element.id)"
@@ -96,71 +116,15 @@ function setRef(el: Element | ComponentPublicInstance | null, id: string) {
 				: 'bg-ux5 text-ux1 hover:bg-neutral-400 hover:text-white'
 			]"
 		>
-			{{ item.title || 'Sezione' }}
+			
 		</button>
-	</div>
+	</div> -->
 
-	<!-- Story Elements here-->
-	<div class="relative h-[82vh] snap-y snap-mandatory scroll-p-5
-	overflow-y-auto px-4 py-6 bg-white-200" 
-
-	ref="containerRef" >
-		<div v-for="(element, idx) in elements"
-			:key="element.id"
-			:ref="el => setRef(el, element.id)"
-			:data-id="element.id"
-			:class="['shadow snap-start overflow-hidden m-5 border rounded-2xl border-ux3 element-full-h-02',
-				isVisible(element.id) ? 'ring-4 ring-ux1' : 'border-ux3'			
-			]
-
-			">
-			<div :class="['grid h-full', 
-				element.storyItems[0]?.visual?.format === 'MAP' ? 
-				'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'
-
-			]">
-				<!-- Content Section with Background -->
-				<div class="relative flex flex-col justify-center"
-				:style="getBackgroundStyle(element)">
-					<div class="relative pa-4 m-4 z-10 rounded-2xl bg-black/40 backdrop-blur-sm p-6">
-						<h2 class="mb-2  text-white drop-shadow-lg">
-							{{element.storyItems[0]?.title}}
-						</h2>
-						<p class="text-white drop-shadow-md mb-4 mt-5">
-							{{element.storyItems[0]?.text}}
-						</p>
-					</div>
-				</div>
-				<!-- Visual Section -->
-
-				<MapViewer v-if="element.storyItems[0]?.visual?.format === 'MAP'"
-							:visuals="[element.storyItems[0]?.visual as MapVisual]"
-							class="h-96 rounded-lg overflow-hidden shadow"
-							/>
-
-
-			 </div>
-		</div>
-	</div> 
-	<!-- Navigation Buttons -->
-  	<div class="
-		relative bottom-0 left-0 
-		w-full flex justify-end gap-4 px-6 -top-7 z-10">
-		<button :disabled="index <= 0"
-			class="nav-button"
-			@click="scrollToPreviousElement">
-			<ChevronUpIcon class="w-4 h-4 sm:w-5 sm:h-5" />
-		</button>
-
-		<button :disabled="index >= elements.length - 1"
-			class="nav-button"
-			@click="scrollToNextElement">
-				<ChevronDownIcon class="w-4 h-4 sm:w-5 sm:h-5" />
-		</button>
-	</div>	
-
+	</v-responsive>
 </template>
-
+<!--
+	
+-->
 
 <style lang="css" scoped>
 @reference "@/assets/css/tailwind.css";

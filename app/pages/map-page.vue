@@ -34,5 +34,5 @@ const vs = ref<MapVisual[]>([
 </template> -->
 
 <template>
-    <mapViewer :visuals="vs" class="h-full w-full"/>  
+    <mapViewer :visuals="vs" class="tw-h-full tw-w-full"/>  
 </template> 

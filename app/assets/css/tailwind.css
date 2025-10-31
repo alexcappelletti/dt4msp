@@ -1,19 +1,16 @@
 
-@import url('https://fonts.cdnfonts.com/css/nbp-sydnie2-scoreboard');
-@import "tailwindcss";
-@import "@nuxt/ui";
+/* @import url('https://fonts.cdnfonts.com/css/nbp-sydnie2-scoreboard'); */
+@import "tailwindcss"  prefix(tw);
 /* 
 per verfica compila in file di esempio:  
 npx @tailwindcss/cli -i app/assets/css/tailwind.css -o .output-workaround.css --config tailwind.config.ts
 */
-
+/* 
 @font-face {
   font-family: 'Killos';
   src: url('../fonts/killos.ttf') format('truetype');
 }
-
 @theme {
-	/* Color Theme Swatches in Hex */
 	--color-ux1: #16733E; 
 	--color-ux2: #498C66; 
 	--color-ux3: #038C25; 
@@ -54,5 +51,4 @@ npx @tailwindcss/cli -i app/assets/css/tailwind.css -o .output-workaround.css --
 	}
 	
 }
-
-
+*/

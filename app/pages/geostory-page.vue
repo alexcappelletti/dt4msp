@@ -1,10 +1,8 @@
 <script setup lang="ts">
-	import storyElementsViewer from '~/components/storyElementsViewer.vue';
+	import storyboardVertView from '@/components/storyboadVertView.vue';
 </script>
 <template>
-	<story-elements-viewer>
-
-	</story-elements-viewer>
+	<storyboard-vert-view/>
 </template>
 
 <style scoped lang="scss">

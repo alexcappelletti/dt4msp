@@ -108,28 +108,24 @@ const viewGeostory = () => {
 </script>
 
 <template>
-	<div class="flex flex-col gap-4 p-4 bg-ux5 font-roboto">
-		<div class="flex flex-col">
+	<div class="!tw:p-4">
+		<div class="tw:flex tw-flex-col tw-gap-4 tw-w-full">
 			<span class="text-2xl">Scenario</span>
-			<label class="input-label">
-				<!-- i-gis:map-book -->
-				<Icon name="mdi:map-check"class="self-center" style="color: black" />
-				<span class="mx-1.5">Carica file:</span>
-				<input 
-					type="file" accept=".xlsx"
-					@change="e => handleFileUpload(e, 'scenario')"/> 
-				<span v-if="fileScenario" class="mr-2 text-ux1">{{fileScenario}}</span>
-			</label>
+			<v-file-input 
+				accept=".xlsx"
+				label="carica file scenario"
+				@change="e => handleFileUpload(e, 'scenario')">
+			</v-file-input>
+			
 		</div>
-		<div class="mt-4 flex flex-col gap-4">
+		<div class="tw:flex tw-flex-col tw-gap-4 tw-w-full">
 			<span class="text-2xl">Geostoria</span>
-			<label class="input-label">
-				<Icon name="mdi:map-legend" class="self-center" style="color: black" />
-				<span class="mx-1.5">Carica file:</span>
-				<input type="file" accept=".xlsx"
-					@change="e => handleFileUpload(e, 'geostory')"></input>
-				<span v-if="fileGeostory" class="mr-2 text-ux1">{{fileGeostory}}</span>
-			</label>	
+			<v-file-input 
+				accept=".xlsx"
+				label="carica file geostoria"
+				@change="e => handleFileUpload(e, 'geostory')">
+			</v-file-input>	
+			
 			<v-btn
 				variant="outlined"
 				@click="exportToPDF"
@@ -158,7 +154,7 @@ const viewGeostory = () => {
 <style scoped lang="css">
 @reference "@/assets/css/tailwind.css";
 
-.input-label {
+/* .input-label {
 	@apply flex flex-row text-lg  hover:bg-ux2 hover:text-ux5 
 	rounded-xl mx-2 p-1 w-full
 	ml-2 gap-1;
@@ -166,12 +162,11 @@ const viewGeostory = () => {
 
 .input-label input[type="file"] {
   @apply hidden block m-2;
-}
+} */
 
 .ex-button{
-	@apply border-ux1 px-2 py-1 mx-4 mt-2 rounded-lg text-ux1 border-1 
-	
-	 transition
+	@apply tw:border-ux1 tw:text-ux1 
+	tw:transition;
 	/* background-color: var(--color-debug); */
 
 }

@@ -1,0 +1,59 @@
+
+	<!-- Story Elements here-->
+	<div class="relative h-[82vh] snap-y snap-mandatory scroll-p-5
+	overflow-y-auto px-4 py-6 bg-white-200" 
+
+	ref="containerRef" >
+		<div v-for="(element, idx) in elements"
+			:key="element.id"
+			:ref="el => setRef(el, element.id)"
+			:data-id="element.id"
+			:class="['shadow snap-start overflow-hidden m-5 border rounded-2xl border-ux3 element-full-h-02',
+				isVisible(element.id) ? 'ring-4 ring-ux1' : 'border-ux3'			
+			]
+
+			">
+			<div :class="['grid h-full', 
+				element.storyItems[0]?.visual?.format === 'MAP' ? 
+				'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'
+
+			]">
+				<!-- Content Section with Background -->
+				<div class="relative flex flex-col justify-center"
+				:style="getBackgroundStyle(element)">
+					<div class="relative pa-4 m-4 z-10 rounded-2xl bg-black/40 backdrop-blur-sm p-6">
+						<h2 class="mb-2  text-white drop-shadow-lg">
+							{{element.storyItems[0]?.title}}
+						</h2>
+						<p class="text-white drop-shadow-md mb-4 mt-5">
+							{{element.storyItems[0]?.text}}
+						</p>
+					</div>
+				</div>
+				<!-- Visual Section -->
+
+				<MapViewer v-if="element.storyItems[0]?.visual?.format === 'MAP'"
+							:visuals="[element.storyItems[0]?.visual as MapVisual]"
+							class="h-96 rounded-lg overflow-hidden shadow"
+							/>
+
+
+			 </div>
+		</div>
+	</div> 
+	<!-- Navigation Buttons -->
+  	<div class="
+		relative bottom-0 left-0 
+		w-full flex justify-end gap-4 px-6 -top-7 z-10">
+		<button :disabled="index <= 0"
+			class="nav-button"
+			@click="scrollToPreviousElement">
+			<ChevronUpIcon class="w-4 h-4 sm:w-5 sm:h-5" />
+		</button>
+
+		<button :disabled="index >= elements.length - 1"
+			class="nav-button"
+			@click="scrollToNextElement">
+				<ChevronDownIcon class="w-4 h-4 sm:w-5 sm:h-5" />
+		</button>
+	</div>	

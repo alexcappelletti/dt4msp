@@ -3,7 +3,6 @@ import { Geostory, defaultGeostory, StoryElement, StoryItem } from './geostory';
 
 import { Scenario, Theme, MapLayer, Impact } from '@/models/scenario';
 import { ImageVisual, MapVisual, Visual } from './visual';
-import { log } from 'handlebars';
 
 export class GeostoryXlsxReader {
 	workbook: XLSX.WorkBook | null = null;
