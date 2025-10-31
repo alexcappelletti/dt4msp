@@ -81,46 +81,88 @@ const output = computed(() => parseTextWithCommands(context.value, input.value))
 function setInput(template: string, id: string){
 	input.value = template.replace('${0}', id)
 }
-
+const rules = [
+    value => !!value || 'Required.',
+    value => (value && value.length >= 2) || 'Min 3 characters',
+	value => {
+          try {
+            if (value) JSON.parse(value); // Tenta il parsing solo se il campo non è vuoto
+          } catch (e) {
+            return "Sintassi JSON non corretta"; // Restituisce il messaggio di errore se il parsing fallisce
+          }
+          return true; // Valido se il parsing riesce o se il campo è vuoto (gestito dalla prima regola)
+        }
+  ]
 
 
 </script>
 
 <template>
-	<div class="p-4 min-w-0 mx-auto mb-6 text-xl">
-		<h1 class="font-bold mb-4">Anteprima Comandi</h1>
+	<div class="p-4 mb-6  tw:text-xl tw:font-roboto">
+		<h1 class="tw:font-bold tw:mb-4">Anteprima Comandi</h1>
 		<p class="mb-4">Inserisci un comando JSON nel campo sottostante per vedere il risultato basato sui dati correnti dello scenario e della geostoria.</p>
-		<textarea
+		<div class="tw:grid tw:grid-cols-2 tw:border-1 tw:border-green-300">
+			<v-textarea
+				:rules="rules"
+				class="tw:h-80"
+				hide-details="auto"
+				clearable no-resize
+				variant="outlined"
+				:model-value="input"
+				placeholder='Scenario 3: Blue Development (BD): {"command":"text", "path": "scenarioSoS_bd.general_description", "params":["bold"]}'
+				label="Query"
+    		></v-textarea>
+
+			<div class="mt-4 ml-4 tw:flex tw:flex-col tw:gap-4">
+				<h2 class="tw:font-semibold">Esempi query predefinite</h2>
+				<ul class="tw:flex tw:flex-col tw:space-y-2 tw:gap-2">
+					<li v-for="example in examples" :key="example.label" >
+						<!-- <div>{{ example.label }}</div> -->
+						<v-btn
+							class="ex-button"
+							variant="outlined"						
+							@click="setInput(example.value, scenario?.id || 'defaultScenario')">
+							{{ example.label }}
+						</v-btn>
+					</li>
+				</ul>
+				
+			</div>
+    	
+		<!-- </div><textarea
 				id="commandInput"
 				v-model="input"
 				rows="4"
 				class="w-full border rounded p-2 font-mono text-3xl "
 				placeholder='Scenario 3: Blue Development (BD): {"command":"text", "path": "scenarioSoS_bd.general_description", "params":["bold"]}'
-			></textarea>
-		<div class="mt-6">
-			<div class="space-y-2 pb-4">
-			<strong class="block font-semibold">Esempi query predefinite</strong>
-			<ul class="space-y-1">
-				<li v-for="example in examples" :key="example.label">
-					<button
-						class="text-ux2 text-xl hover:underline"
-						@click="setInput(example.value, scenario?.id || 'defaultScenario')"
-					>
-						{{ example.label }}
-					</button>
-				</li>
-			</ul>
+			></textarea> -->
 		</div>
-
-			<div class=" pt-8 rounded">
+		<div class=" pt-8 rounded">
 				<p>Rendered:</p>
-				<div class="text-3xl mt-2 whitespace-pre-wrap prose max-v-none bg-gray-300 p-8" v-html="output"</div>
+				<div class="rendered-label" v-html="output"</div>
 			</div>
-		</div>
 	</div>
+	<div> COMMAND PREVIEW COMPONENT </div>
 </template>
 
 <style scoped>
+@reference "@/assets/css/tailwind.css";
+
+.rendered-label{
+	@apply tw:mt-2 tw:bg-gray-300 tw:text-3xl
+		tw:whitespace-pre-wrap 
+		tw:p-2
+}
+.ex-button{
+	@apply tw:border-ux1 tw:text-ux1 
+	tw:transition;
+	/* background-color: var(--color-debug); */
+
+
+
+}
+
+
 textarea {
 	font-size: 0.9rem;
 }

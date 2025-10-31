@@ -1,76 +1,61 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import Header from '@/components/header.vue'
+import { useWindowSize } from '@vueuse/core';
+import { useDisplay } from 'vuetify';
+import loaderNav from '~/components/loaderNav.vue';
+const { width } = useWindowSize(); 
+const { mdAndUp } = useDisplay();
 
-
-// Referenza per la larghezza della finestra, inizializzata a 0 per la compatibilità SSR
-const windowWidth = ref(0);
+const MIN_DRAWER_WIDTH = 290;
 
 const drawerWidth = computed(() => {
-  const width = windowWidth.value;
-  // Calcola la larghezza proporzionale e la converte in pixel
-  const result = Math.round(width * (2 / 12)); 
-  return result;
+	// Se lo schermo è 'mdAndUp' (medio o più grande), usiamo la logica dei 290 minimi
+	if (mdAndUp.value) {
+		// Calcolo proporzionale reattivo
+		const proportionalWidth = Math.round(width.value * (2 / 12));
+		console.log(`Larghezza browser: ${width.value}px, Larghezza proporzionale drawer: ${proportionalWidth}px`);
+		// Restituisce il valore più grande tra la larghezza proporzionale e la larghezza minima
+		return Math.max(proportionalWidth, MIN_DRAWER_WIDTH);
+	}
+	// Per schermi più piccoli, usiamo una larghezza fissa o proporzionale ridotta.
+	return 300; 
 });
 
-// Funzione per aggiornare la larghezza della finestra
-function handleResize() {
-  windowWidth.value = window.innerWidth;
-}
+const drawerOpen = ref(false);
 
-onMounted(() => {
-  // Imposta la larghezza iniziale
-  handleResize();
-  // Aggiunge il listener per l'evento di resize della finestra
-  window.addEventListener('resize', handleResize);
-});
 
-onBeforeUnmount(() => {
-  // Rimuove il listener prima che il componente venga smontato
-  window.removeEventListener('resize', handleResize);
-});
-
-// import Header from '@/components/header.vue'
-import loaderNav from '~/components/loaderNav.vue';
 </script>
 
-
 <template>
-	<v-responsive>
+	
 		<v-app >
 			<v-app-bar 
 				elevation="0" 
-				class="appBar"
-				title="Geostory analyzer" >
+				color="primary"
+				title="Geostory analyzer --" >
 				
+				<!-- pulsante per aprire il drawer su schermi piccoli -->
+				<template v-if="!mdAndUp">
+					<v-app-bar-nav-icon @click="drawerOpen = !drawerOpen"></v-app-bar-nav-icon>
+				</template>
+
 			</v-app-bar>
 			<v-navigation-drawer
-				permanent
+				:permanent="mdAndUp"
+				:temporary="!mdAndUp"
+				v-model="drawerOpen"
 				:width="drawerWidth">
-				<loader-nav></loader-nav>
+				<loaderNav/>				
 			</v-navigation-drawer>
-			<v-main  class="tw-bg-gray-100">
+			<v-main >
 				<slot>
 					<p >⚠️ Slot "body" non ricevuto</p>
 				</slot>	
 			</v-main>
 
 		</v-app>
-	</v-responsive>
 	
 </template>
 <style scoped >
-@reference "@/assets/css/tailwind.css";
-
-
-.appBar {
-  @apply tw:bg-ux1 tw:text-ux5 tw:font-roboto;
-  
-}
-
-.custom-drawer-width {
-  /* // Imposta la larghezza a 25% con una larghezza minima di 500px
-	width: clamp(600px, 25%, 100vw) !important; */
-}
 
 </style>

@@ -5,7 +5,6 @@
 per verfica compila in file di esempio:  
 npx @tailwindcss/cli -i app/assets/css/tailwind.css -o .output-workaround.css --config tailwind.config.ts
 */
-/* 
 @font-face {
   font-family: 'Killos';
   src: url('../fonts/killos.ttf') format('truetype');
@@ -51,4 +50,3 @@ npx @tailwindcss/cli -i app/assets/css/tailwind.css -o .output-workaround.css --
 	}
 	
 }
-*/

@@ -63,17 +63,17 @@ function runQuery() {
 
 		<v-tabs-window v-model="activeTab">
 		  <v-tabs-window-item v-for="item in items" :key="item.title" :value="item.title">
-				<v-card flat>
+				<v-card flat class="tw:text-2xl tw:font-roboto">
 					<v-card-text>
 						<!-- Mostriamo i dettagli della scheda selezionata -->
 						<div v-if="activeTab === 'Scenario' && item.details">
 							<div v-for="(value, key) in item.details" :key="key" class="details">
-								<p class="">{{key }}:</p> <div class="text-ux2">{{ value || "--" }}</div>
+								<p class="">{{key }}:</p> <div class="highlight">{{ value || "--" }}</div>
 							</div>
 						</div>
 						<div v-else-if="activeTab=== 'Geostoria' && item.details">
 							<div v-for="(value, key) in item.details" :key="key" class="details">
-								<p class="">{{key }}:</p> <div class="text-ux2">{{ value || "--" }}</div>
+								<p class="">{{key }}:</p> <div class="highlight">{{ value || "--" }}</div>
 							</div>
 						</div>
 						<div v-else-if="activeTab === 'Query builder' && hasContents">
@@ -94,10 +94,15 @@ function runQuery() {
 <style scoped>
 @reference "@/assets/css/tailwind.css";
 .vtabs-local{
-	@apply tw:text-2xl tw:font-roboto tw:text-ux1;
+	@apply tw:font-roboto tw:text-ux1;
+}
+.highlight {
+	@apply tw:text-ux2
+
+
 }
 .details {
-	@apply tw:flex tw:flex-row tw:gap-4 tw:py-1.5 tw:text-xl;
+	@apply tw:flex tw:flex-row tw:gap-4 tw:py-1.5 tw:text-xl tw:font-roboto
 	
 }
 

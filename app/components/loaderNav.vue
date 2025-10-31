@@ -108,18 +108,14 @@ const viewGeostory = () => {
 </script>
 
 <template>
-	<div class="!tw:p-4">
-		<div class="tw:flex tw-flex-col tw-gap-4 tw-w-full">
-			<span class="text-2xl">Scenario</span>
-			<v-file-input 
-				accept=".xlsx"
-				label="carica file scenario"
-				@change="e => handleFileUpload(e, 'scenario')">
-			</v-file-input>
-			
-		</div>
-		<div class="tw:flex tw-flex-col tw-gap-4 tw-w-full">
-			<span class="text-2xl">Geostoria</span>
+	<v-container class="vert-item">
+		<span>Scenario</span>
+		<v-file-input 
+			accept=".xlsx"
+			label="carica file scenario"
+			@change="e => handleFileUpload(e, 'scenario')">
+		</v-file-input>
+		<span>Geostoria</span>
 			<v-file-input 
 				accept=".xlsx"
 				label="carica file geostoria"
@@ -142,8 +138,8 @@ const viewGeostory = () => {
 				class="ex-button">
 					Visualizza
 			</v-btn>
-		</div>	
-	</div>
+		
+	</v-container>
 
 
 
@@ -154,6 +150,9 @@ const viewGeostory = () => {
 <style scoped lang="css">
 @reference "@/assets/css/tailwind.css";
 
+.vert-item {
+	@apply tw:flex tw:flex-col tw:gap-2 tw:mb-4 tw:text-xl;
+}	
 /* .input-label {
 	@apply flex flex-row text-lg  hover:bg-ux2 hover:text-ux5 
 	rounded-xl mx-2 p-1 w-full

@@ -35,6 +35,8 @@
     "@types/lodash": "^4.17.20",
     "@vitest/ui": "^3.2.4",
     "@vue/test-utils": "^2.4.6",
+    "@vueuse/core": "^14.0.0",
+    "@vueuse/nuxt": "^14.0.0",
     "autoprefixer": "^10.4.21",
     "happy-dom": "^18.0.1",
     "jsdom": "^26.1.0",

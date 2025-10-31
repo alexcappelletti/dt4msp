@@ -1,14 +1,12 @@
 
 
 <script setup lang="ts">
-import Header from '@/components/header.vue'
-import Footer from '@/components/footer.vue'
 </script>
 
 <template>
-	<div class="flex flex-col w-full h-screen">
-	  	<slot />
-  	</div>
+	<v-container class="ma-2 pa-0">
+		<slot />
+	</v-container>
 </template>
 
 

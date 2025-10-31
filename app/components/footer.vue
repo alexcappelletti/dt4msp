@@ -1,5 +1,5 @@
 <template>
-	 <footer class="px-10 py-3 text-ux5 text-center bg-primary">
+	 <footer class="">
       <p>&copy; 2025 GeoStories. Tutti i diritti riservati. • Creato con ❤️ [nuxt]</p>
     </footer>
 </template>
@@ -9,5 +9,5 @@
 </script>
 
 <style scoped lang="scss">
-
+ //px-10 py-3 text-ux5 text-center bg-primary
 </style>

@@ -7,7 +7,7 @@ import { useVisibleStoryElement } from '@/composables/trackingStoryElement'
 import type { MapVisual } from '~/models/visual'
 
 import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/24/solid'
-import MapViewer from '@/components/mapViewer.vue'
+//import MapViewer from '@/components/mapViewer.vue'
 
 
 const index = ref(0)
@@ -82,30 +82,86 @@ function setRef(el: Element | ComponentPublicInstance | null, id: string) {
 </script>
 
 <template>
-	<v-responsive class="border rounded" >
+	<div class="border-md  tw:min-h-100">
+		
 	<!-- pseudo navigation -->
-	<v-slide-group 
+	<v-item-group 
 		v-model="currentSection"
-		class="m-10 px-4"
+		class="d-flex flex-columns ga-4 "
 		mandatory
-
-		selected-class="bg-black">
-		<v-slide-group-item
-			v-for="(item, idx) in toc"
+		selected-class="bg-primary">
+		<v-item v-for="(item, idx) in toc"
 			:key="item.element.id"
 			:value="item.element.sectionID"
-			v-slot="{ isSelected, selectedClass}"
-			class="m-4">
+			v-slot="{isSelected, selectedClass}"
+			class="">
 			<v-btn
-				:color="isSelected ? 'primary' : undefined"
+				variant="outlined"
+				
 				@click="scrollTo(item.element.id)">
 				{{ item.title || 'Sezione' }}
 			</v-btn>
-		</v-slide-group-item>	
+		</v-item>	
 
-	</v-slide-group>
-	<!-- <div class="z-20 bg-white/80 mt-1 backdrop-blur-sm px-4 flex flex-wrap gap-2  m-5"> -->
-		<!-- <button
+	</v-item-group> 
+	<!-- Story Elements here-->
+	<div class="st-element" ref="containerRef" >
+		<div v-for="(element, idx) in elements"
+			:key="element.id"
+			:ref="el => setRef(el, element.id)"
+			:data-id="element.id"
+			:class="['selected-element',
+				isVisible(element.id) ? 'tw:ring-4 tw:ring-ux4' : 'deep-orange-accent-3'			
+			]
+
+			">
+			<div :class="['tw:grid tw:h-full', 
+				element.storyItems[0]?.visual?.format === 'MAP' ? 
+				'tw:grid-cols-1 tw:md:grid-cols-2' : 'tw:grid-cols-1'
+
+			]">
+				<!-- Content Section with Background -->
+				<div class="relative flex flex-col justify-center"
+				:style="getBackgroundStyle(element)">
+					<div class="relative pa-4 m-4 z-10 rounded-2xl bg-black/40 backdrop-blur-sm p-6">
+						<h2 class="mb-2  text-white drop-shadow-lg">
+							{{element.storyItems[0]?.title}}
+						</h2>
+						<p class="text-white drop-shadow-md mb-4 mt-5">
+							{{element.storyItems[0]?.text}}
+						</p>
+					</div>
+				</div>
+				<!-- Visual Section -->
+
+				<!-- <MapViewer v-if="element.storyItems[0]?.visual?.format === 'MAP'"
+							:visuals="[element.storyItems[0]?.visual as MapVisual]"
+							class="h-96 rounded-lg overflow-hidden shadow"
+							/> -->
+
+
+			 </div>
+		</div>
+	</div> 
+	<!-- Navigation Buttons -->
+  	<!-- <div class="
+		relative bottom-0 left-0 
+		w-full flex justify-end gap-4 px-6 -top-7 z-10">
+		<button :disabled="index <= 0"
+			class="nav-button"
+			@click="scrollToPreviousElement">
+			<ChevronUpIcon class="w-4 h-4 sm:w-5 sm:h-5" />
+		</button>
+
+		<button :disabled="index >= elements.length - 1"
+			class="nav-button"
+			@click="scrollToNextElement">
+				<ChevronDownIcon class="w-4 h-4 sm:w-5 sm:h-5" />
+		</button>
+	</div>	 -->
+
+	<!--<div class="z-20 bg-white/80 mt-1 backdrop-blur-sm px-4 flex flex-wrap gap-2  m-5"> 
+		<button
 			v-for="(item, idx) in toc"
 			:key="item.element.id"
 			@click="scrollTo(item.element.id)"
@@ -117,20 +173,39 @@ function setRef(el: Element | ComponentPublicInstance | null, id: string) {
 			]"
 		>
 			
-		</button>
+		</button> 
 	</div> -->
+	</div>	
 
-	</v-responsive>
 </template>
-<!--
-	
--->
-
 <style lang="css" scoped>
 @reference "@/assets/css/tailwind.css";
-.element-full-h-02 {
-	height: calc(100% - 0.2rem); /* poco meno del contenitore */
+
+.sam {
+	@apply tw:mt-8
+
 }
+
+.st-element {
+	@apply 
+		tw:relative tw:h-[82vh] 
+		tw:snap-y tw:snap-mandatory 
+		tw:scroll-p-5
+		tw:overflow-y-auto 
+		tw:px-4 
+		tw:py-6 
+		tw:bg-gray-200;
+}
+.selected-element{
+	@apply tw:shadow tw:snap-start 
+	tw:overflow-hidden 
+	tw:m-5 
+	tw:border tw:rounded-2xl tw:border-ux3;
+	height: calc(100% - 0.2rem); /* poco meno del contenitore */
+
+}
+
+
 .element-full-h {
 	height: 100%;
 }
@@ -140,9 +215,9 @@ function setRef(el: Element | ComponentPublicInstance | null, id: string) {
     background-position: center center;
     background-repeat: no-repeat;
 }
-.nav-button {
-	@apply mt-2 px-4 py-2 bg-primary text-ux5 rounded-lg text-sm hover:bg-ux1 transition-colors;
+/* .nav-button {
+	@apply tw:mt-2 px-4 py-2 bg-primary text-ux5 rounded-lg text-sm hover:bg-ux1 transition-colors;
 
 
-}
+} */
 </style>
