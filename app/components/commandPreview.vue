@@ -82,9 +82,9 @@ function setInput(template: string, id: string){
 	input.value = template.replace('${0}', id)
 }
 const rules = [
-    value => !!value || 'Required.',
-    value => (value && value.length >= 2) || 'Min 3 characters',
-	value => {
+    (value:string) => !!value || 'Required.',
+    (value:string) => (value && value.length >= 2) || 'Min 3 characters',
+	(value:string) => {
           try {
             if (value) JSON.parse(value); // Tenta il parsing solo se il campo non è vuoto
           } catch (e) {

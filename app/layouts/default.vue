@@ -4,7 +4,7 @@
 </script>
 
 <template>
-	<v-container class="ma-2 pa-0">
+	<v-container fluid class="pa-2 ">
 		<slot />
 	</v-container>
 </template>

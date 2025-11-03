@@ -1,4 +1,4 @@
-import type { isExpressionWithTypeArguments } from "typescript";
+import type { isExpressionWithTypeArguments, StringLiteral } from "typescript";
 import { ChangeEvent } from "./changeEvent";
 import { Visual } from "./visual";
 
@@ -164,6 +164,7 @@ export class StoryItem {
 	comments: string;
 	////////: string; // Optional structure field
 	structure: string; // Optional structure field
+	style: StoryItemStyle
 	constructor(p: {
 		id: string,
 		visual: Visual | null,
@@ -173,7 +174,8 @@ export class StoryItem {
 		author: string,
 		tags?: string[],
 		comments?: string,
-		structure: string
+		structure: string,
+		style?: StoryItemStyle 
 	}) {
 		this.id = p.id;
 		this.text = p.text;
@@ -191,11 +193,23 @@ export class StoryItem {
 		this.comments = p.comments || '';
 		this.structure = p.structure || 'undefined_structure';
 		this.tags = p.tags || [];
+		this.style = p.style || new StoryItemStyle()
 
 	}
 
 }
 
+export type TextAlignment = 'top' | 'center' | 'bottom' | 'justify';
+export type VisualPosition = 'left' | 'right';
+export type ScrollBehavior = 'fixed' | 'scroll';
+
+export class StoryItemStyle {
+	textAlignment: TextAlignment = 'center'; // Imposta un default, se serve
+	visualPos: VisualPosition = 'left'; // Imposta un default, se serve
+	backgroundScroll: ScrollBehavior = 'fixed';
+	visualScroll: ScrollBehavior = 'fixed';
+}
+;
 
 export function parseGeostoryFromJson(text: string): Geostory {
 	const raw = JSON.parse(text);

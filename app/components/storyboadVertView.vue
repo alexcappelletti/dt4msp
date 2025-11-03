@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 
-import { Geostory, Section, StoryElement, StoryItem } from '@/models/geostory'
+import { Geostory, Section, StoryElement, StoryItem, StoryItemStyle } from '@/models/geostory'
 import { useGeostoryStore } from '@/stores/geostoryStore'
 import { useVisibleStoryElement } from '@/composables/trackingStoryElement'
 import type { MapVisual } from '~/models/visual'
 
 import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/24/solid'
-//import MapViewer from '@/components/mapViewer.vue'
+import MapViewer from '@/components/mapViewer.vue'
 
 const index = ref(0)
 const geostory = useGeostoryStore().selectedStory
@@ -58,6 +58,36 @@ const currentSectionModel = computed({
 		if (element) {scrollTo(element.id);}
 	}
 });
+function getVerticalAlignmentClass(element: StoryElement): string {
+    // Dovrai adattare questo percorso se lo stile non si trova qui esattamente
+    const pos = element.storyItems?.[0]?.style?.textAlignment || 'center'; 
+
+    switch (pos) {
+        case 'top':
+            return 'tw:justify-start'; // Allinea in alto
+        case 'bottom':
+            return 'tw:justify-end';   // Allinea in basso
+        case 'center':
+        default:
+            return 'tw:justify-center'; // Allinea al centro
+    }
+}
+
+function isMapOnLeft(element: StoryElement): boolean {
+    const visualPos = element.storyItems?.[0]?.style?.visualPos || 'right';
+    return visualPos === 'left';
+}
+
+
+
+function setAlignment(propName: keyof StoryItemStyle, value: string){
+	if (activeElement.value?.storyItems?.[0]?.style) {
+		(activeElement.value.storyItems[0].style as any)[propName] = value;
+	}
+	else {
+		console.warn('Impossibile impostare lo stile: activeElement o i suoi item non sono definiti.');
+	}
+}
 
 function scrollToPreviousElement() {
 	const prev = elements.value[Math.max(0, activeIndex.value - 1)]
@@ -134,7 +164,7 @@ function close() {
 				:ref="el => setRef(el, element.id)"
 				:data-id="element.id"
 				:class="['selected-element',
-					isVisible(element.id) ? 'tw:ring-4 tw:ring-ux4' : 'deep-orange-accent-3'			
+					isVisible(element.id) ? 'tw:ring-4 tw:ring-ux2' : 'tw:bg-ux5'			
 				]
 
 				">
@@ -143,24 +173,30 @@ function close() {
 					'tw:grid-cols-1 tw:md:grid-cols-2' : 'tw:grid-cols-1'
 
 				]">
-					<!-- Content Section with Background -->
-					<div class="relative flex flex-col justify-center"
-					:style="getBackgroundStyle(element)">
-						<div class="relative pa-4 m-4 z-10 rounded-2xl bg-black/40 backdrop-blur-sm p-6">
-							<h2 class="mb-2  text-white drop-shadow-lg">
-								{{element.storyItems[0]?.title}}
-							</h2>
-							<p class="text-white drop-shadow-md mb-4 mt-5">
-								{{element.storyItems[0]?.text}}
-							</p>
-						</div>
+					<!-- Text with Background content -->
+					<div 
+						:class="[
+							'tw:relative tw:flex tw:flex-col',
+							getVerticalAlignmentClass(element),
+							{ 'tw:md:order-2': isMapOnLeft(element) } 
+						]"
+						:style="getBackgroundStyle(element)">
+						<div class="tw:p-6  tw:z-10 
+							tw:bg-black/40 tw:backdrop-blur-sm">
+						
+						<h2 class="tw:mb-2 tw:text-xl tw:text-ux1 ">
+							{{element.storyItems[0]?.title}}
+						</h2>
+						<p class="tw:text-white tw:text-2xl tw:mb-4 tw:mt-5">
+							{{element.storyItems[0]?.text}}
+						</p>
+					</div>
 					</div>
 					<!-- Visual Section -->
-
-					<!-- <MapViewer v-if="element.storyItems[0]?.visual?.format === 'MAP'"
-								:visuals="[element.storyItems[0]?.visual as MapVisual]"
-								class="h-96 rounded-lg overflow-hidden shadow"
-								/> -->
+					<MapViewer v-if="element.storyItems[0]?.visual?.format === 'MAP'"
+						:visuals="[element.storyItems[0]?.visual as MapVisual]"
+						:class="['tw:h-96 tw:rounded-lg tw:overflow-hidden tw:shadow',
+							{'tw:md:order-1': isMapOnLeft(element)}]"/> 
 
 
 				</div>
@@ -199,6 +235,19 @@ function close() {
 		</button> 
 	</div> -->
 	</div>	
+		<div class="tw:mt-10 tw:pl-10 tw:flex tw:flex-row tw:gap-4 tw:bg-alex">
+			<v-btn @click="setAlignment('textAlignment', 'top')">text@top</v-btn>
+			<v-btn @click="setAlignment('textAlignment', 'center')">centerd</v-btn>
+			<v-btn @click="setAlignment('textAlignment', 'bottom')">text@bottom</v-btn>
+			<v-btn class="tw:ml-20" @click="setAlignment('visualPos', 'left')">map@left</v-btn>
+			<v-btn @click="setAlignment('visualPos', 'right')">map@right</v-btn>
+		</div>
+
+		
+		<!-- <v-btn @click="activeElement?.style?.textAlignment = 'center'"></v-btn>
+		<v-btn @click="activeElement?.style?.textAlignment = 'bottom'"></v-btn> -->
+
+
 
 </template>
 <style lang="css" scoped>

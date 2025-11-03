@@ -113,13 +113,13 @@ const viewGeostory = () => {
 		<v-file-input 
 			accept=".xlsx"
 			label="carica file scenario"
-			@change="e => handleFileUpload(e, 'scenario')">
+			@change="(e:any) => handleFileUpload(e, 'scenario')">
 		</v-file-input>
 		<span>Geostoria</span>
 			<v-file-input 
 				accept=".xlsx"
 				label="carica file geostoria"
-				@change="e => handleFileUpload(e, 'geostory')">
+				@change="(e:any) => handleFileUpload(e, 'geostory')">
 			</v-file-input>	
 			
 			<v-btn

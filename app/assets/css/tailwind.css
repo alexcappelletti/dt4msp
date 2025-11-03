@@ -1,6 +1,6 @@
 
 /* @import url('https://fonts.cdnfonts.com/css/nbp-sydnie2-scoreboard'); */
-@import "tailwindcss"  prefix(tw);
+@import "tailwindcss"  prefix(tw) important;
 /* 
 per verfica compila in file di esempio:  
 npx @tailwindcss/cli -i app/assets/css/tailwind.css -o .output-workaround.css --config tailwind.config.ts

@@ -52,14 +52,16 @@ onMounted(() => {
 		//oom: props.visual.zoomLevel ?? 2
 	})
 	map.value.on('load', () => {
-		console.log('Map loaded')
+		console.log('Base Map loaded')
 		// Aggiungi il layer WMS
 		props.visuals.forEach((visual, index) => {
 			try {
 				if (map.value && visual.serviceUrl && visual.layerName) {
+					console.log("prova a leggere visual")
 					setSource(visual, map.value);
 					activeLayers.value[getLayerId(visual)] = true;
 				}
+				else (console.log("invalid visual"))
 			}
 			catch (error) {
 				console.error(`Errore nell'aggiunta della sorgente/layer per visual ${index}:`, error)
@@ -95,6 +97,7 @@ function getLayerId(visual: MapVisual): string {
 function setSource(visual: MapVisual, map: maplibregl.Map) {
 	const sourceId = `source-${visual.layerName?.replace(/[^a-zA-Z0-9]/g, '-')}`;
 	const proxyUrl = `/api/geoserver-proxy?wfs=${visual.getUrl()}`;
+	console.log("proxy" + proxyUrl)
 	if (visual.layerType && visual.layerType.toLowerCase() === 'vector') {
 		map.addSource(sourceId, {
 			type: 'vector',
@@ -218,11 +221,11 @@ function flyToPosition(options: FlyOptions) {
 </script>
 
 <template>
-	<div class="relative h-full w-full bg-green-500">
-		<div ref="mapContainer" class="h-full w-full" />
+	<div class="tw:relative tw:h-full tw:w-full tw:bg-green-500">
+		<div ref="mapContainer" class="tw:h-full tw:w-full" />
 
 		<!-- Pannello laterale -->
-		<div class="absolute top-4 left-4 bg-white bg-opacity-90 rounded shadow-md p-3 w-82 text-sm space-y-3 z-10">
+		<div class="cmd-panel">
 			<div>
 				<strong>Centro:</strong><br />
 				{{ centerCoords[0].toFixed(5) }}, {{ centerCoords[1].toFixed(5) }}
@@ -241,16 +244,18 @@ function flyToPosition(options: FlyOptions) {
 				<span v-else>–</span>
 			</div>
 
-			<div class="space-y-2 pt-2">
-				<div v-for="visual in props.visuals" :key="visual.layerName" class="flex items-center justify-between">
+			<div class="tw:space-y-2 tw:pt-2">
+				<div v-for="visual in props.visuals" :key="visual.layerName" 
+					class="tw:flex tw:items-center tw:justify-between">
 					<label>{{ visual.layerName }}</label>
-					<input type="checkbox" :checked="activeLayers[getLayerId(visual)]"
-						@change="toggleLayer(getLayerId(visual))" class="toggle-switch px-4 py-2 rounded hover:bg-purple-800/80" />
+					<input type="checkbox" 
+						:checked="activeLayers[getLayerId(visual)]"
+						class="toggle-switch tw:px-4 tw:py-2 tw:rounded tw:hover:bg-purple-800/80"
+						@change="toggleLayer(getLayerId(visual))"  />
 				</div>
 			</div>
-
-			<div class="flex flex-col pt-2">
-				<button @click="flyToPosition({
+			<div class="tw:flex tw:flex-col tw:pt-2 ga-4">
+				<v-btn @click="flyToPosition({
 					from: SaintLucia.center as [number, number],
 					to: Messina.center as [number, number],
 					fromZoom: SaintLucia.zoom,
@@ -258,10 +263,10 @@ function flyToPosition(options: FlyOptions) {
 					speed: 0.8,
 					curve: 1.5,
 					delay: 1000
-				})" class="w-full px-2 py-1 bg-sky-700 text-white rounded hover:bg-purple-800/80">
+				})" class="">
 					Stretto di Messina
-				</button>
-				<button @click="flyToPosition({
+				</v-btn>
+				<v-btn @click="flyToPosition({
 					from: Messina.center as [number, number],
 					to: StraitOfSicily.center as [number, number],
 					fromZoom: Messina.zoom,
@@ -269,11 +274,8 @@ function flyToPosition(options: FlyOptions) {
 					speed: 0.3,
 					curve: 1.5,
 					delay: 2000
-				})" class="w-full mt-2 px-2 py-1 bg-sky-700 text-white rounded hover:bg-purple-800">
-					Canale di Sicilia
-				</button>
-
-
+				})" >Canale di Sicilia
+				</v-btn> 
 			</div>
 
 		</div>
@@ -282,16 +284,32 @@ function flyToPosition(options: FlyOptions) {
 
 
 
-<style scoped lang="scss">
-$p : var(--color-primary); // Tailwind gray-200
-$bg: var(--color-secondary); // Tailwind gray-200
-$gray-800: #1f2937; // Tailwind gray-800
+<style scoped lang="css">
+@reference "@/assets/css/tailwind.css";
+
+.cmd-panel {
+	@apply tw:absolute 
+		tw:top-4 tw:left-4 
+		tw:p-3 tw:w-82
+		tw:space-y-3 
+		tw:z-10
+		tw:bg-white/90
+		tw:rounded 
+		tw:shadow-md 
+		tw:text-sm 
+
+
+}
+
+
+
+
 .toggle-switch {
   appearance: none;
-  width: 3rem; // w-12
-  height: 1.5rem; // h-6
+  width: 3rem; 
+  height: 1.5rem; 
   background-color: #eeecf6;
-  border-radius: 9999px; // rounded-full
+  border-radius: 9999px; 
   position: relative;
   cursor: pointer;
   transition: background-color 0.3s ease;
@@ -299,9 +317,9 @@ $gray-800: #1f2937; // Tailwind gray-800
   &::before {
     content: "";
     position: absolute;
-    top: 0.125rem; // top-0.5
+    top: 0.125rem; 
     left: 0.125rem;
-    width: 1.25rem; // w-5
+    width: 1.25rem;
     height: 1.25rem;
     background-color: white;
     border-radius: 9999px;
@@ -309,16 +327,16 @@ $gray-800: #1f2937; // Tailwind gray-800
   }
 
   &:checked {
-    background-color: $p;//(Tailwind: purple-600)
+    background-color:  var(--color-primary); /*(Tailwind: purple-600)*/
 
     &::before {
-      transform: translateX(1.5rem); // sposta il pallino a destra
+      transform: translateX(1.5rem); /*sposta il pallino a destra*/
     }
   }
 
   &:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px #c4b5fd; // ring-purple-300
+    box-shadow: 0 0 0 2px #c4b5fd; /* ring-purple-300*/
   }
 }
 
