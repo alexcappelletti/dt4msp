@@ -9,9 +9,7 @@ import type { MapVisual } from '~/models/visual'
 import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/24/solid'
 //import MapViewer from '@/components/mapViewer.vue'
 
-
 const index = ref(0)
-const currentSection = ref<string | null>(null)
 const geostory = useGeostoryStore().selectedStory
 const containerRef = ref<HTMLElement | null>(null)
 const elementRefs = ref<Record<string, Element | null>>({})
@@ -51,6 +49,15 @@ const toc = computed(() => {
 	return tocStructure;
 });
 
+// 
+const currentSectionModel = computed({
+	get: () => activeElement.value?.sectionID ?? null,
+	set: (sectionId) => {
+		// Quando l'utente clicca sul bottone, il v-model chiama il setter.
+		const element = elements.value.find(el => el.sectionID === sectionId);
+		if (element) {scrollTo(element.id);}
+	}
+});
 
 function scrollToPreviousElement() {
 	const prev = elements.value[Math.max(0, activeIndex.value - 1)]
@@ -79,70 +86,86 @@ function setRef(el: Element | ComponentPublicInstance | null, id: string) {
 		elementRefs.value[id] = el
 	}
 }
+
+function close() {
+	navigateTo('/')
+	
+}
 </script>
 
 <template>
 	<div class="border-md  tw:min-h-100">
-		
-	<!-- pseudo navigation -->
-	<v-item-group 
-		v-model="currentSection"
-		class="d-flex flex-columns ga-4 "
-		mandatory
-		selected-class="bg-primary">
-		<v-item v-for="(item, idx) in toc"
-			:key="item.element.id"
-			:value="item.element.sectionID"
-			v-slot="{isSelected, selectedClass}"
-			class="">
-			<v-btn
-				variant="outlined"
+		<div class="tw:flex tw:flex-row ">
+			<!-- pseudo navigation on sections-->
+			<v-item-group 
+				v-model="currentSectionModel"
+				class="d-flex ga-4 ml-10 align-center"
+				mandatory>
 				
-				@click="scrollTo(item.element.id)">
-				{{ item.title || 'Sezione' }}
+				<v-item 
+					v-for="(item, idx) in toc"
+					:key="item.element.id"
+					:value="item.element.sectionID"
+					v-slot="{ isSelected }">
+					<!-- Usa :color per cambiare il colore del pulsante e renderlo flat (elevation-0) -->
+					<v-btn
+						:variant="isSelected ? 'flat' : 'outlined'" 
+						:color="isSelected ? 'primary' : ''"
+						@click="scrollTo(item.element.id)">
+						
+						{{ item.title || 'Sezione' }}
+					</v-btn>
+				</v-item>	
+			</v-item-group>
+			<v-btn
+				class="ml-auto mr-10"
+				variant="outlined"
+				icon="mdi-close"
+				@click="close">
+
 			</v-btn>
-		</v-item>	
+			
 
-	</v-item-group> 
-	<!-- Story Elements here-->
-	<div class="st-element" ref="containerRef" >
-		<div v-for="(element, idx) in elements"
-			:key="element.id"
-			:ref="el => setRef(el, element.id)"
-			:data-id="element.id"
-			:class="['selected-element',
-				isVisible(element.id) ? 'tw:ring-4 tw:ring-ux4' : 'deep-orange-accent-3'			
-			]
-
-			">
-			<div :class="['tw:grid tw:h-full', 
-				element.storyItems[0]?.visual?.format === 'MAP' ? 
-				'tw:grid-cols-1 tw:md:grid-cols-2' : 'tw:grid-cols-1'
-
-			]">
-				<!-- Content Section with Background -->
-				<div class="relative flex flex-col justify-center"
-				:style="getBackgroundStyle(element)">
-					<div class="relative pa-4 m-4 z-10 rounded-2xl bg-black/40 backdrop-blur-sm p-6">
-						<h2 class="mb-2  text-white drop-shadow-lg">
-							{{element.storyItems[0]?.title}}
-						</h2>
-						<p class="text-white drop-shadow-md mb-4 mt-5">
-							{{element.storyItems[0]?.text}}
-						</p>
-					</div>
-				</div>
-				<!-- Visual Section -->
-
-				<!-- <MapViewer v-if="element.storyItems[0]?.visual?.format === 'MAP'"
-							:visuals="[element.storyItems[0]?.visual as MapVisual]"
-							class="h-96 rounded-lg overflow-hidden shadow"
-							/> -->
-
-
-			 </div>
 		</div>
-	</div> 
+		<!-- Story Elements here-->
+		<div class="st-element" ref="containerRef" >
+			<div v-for="(element, idx) in elements"
+				:key="element.id"
+				:ref="el => setRef(el, element.id)"
+				:data-id="element.id"
+				:class="['selected-element',
+					isVisible(element.id) ? 'tw:ring-4 tw:ring-ux4' : 'deep-orange-accent-3'			
+				]
+
+				">
+				<div :class="['tw:grid tw:h-full', 
+					element.storyItems[0]?.visual?.format === 'MAP' ? 
+					'tw:grid-cols-1 tw:md:grid-cols-2' : 'tw:grid-cols-1'
+
+				]">
+					<!-- Content Section with Background -->
+					<div class="relative flex flex-col justify-center"
+					:style="getBackgroundStyle(element)">
+						<div class="relative pa-4 m-4 z-10 rounded-2xl bg-black/40 backdrop-blur-sm p-6">
+							<h2 class="mb-2  text-white drop-shadow-lg">
+								{{element.storyItems[0]?.title}}
+							</h2>
+							<p class="text-white drop-shadow-md mb-4 mt-5">
+								{{element.storyItems[0]?.text}}
+							</p>
+						</div>
+					</div>
+					<!-- Visual Section -->
+
+					<!-- <MapViewer v-if="element.storyItems[0]?.visual?.format === 'MAP'"
+								:visuals="[element.storyItems[0]?.visual as MapVisual]"
+								class="h-96 rounded-lg overflow-hidden shadow"
+								/> -->
+
+
+				</div>
+			</div>
+		</div> 
 	<!-- Navigation Buttons -->
   	<!-- <div class="
 		relative bottom-0 left-0 
