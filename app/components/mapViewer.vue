@@ -12,6 +12,7 @@ const props = defineProps<{
 const ESRI_APIKEY = "AAPTxy8BH1VEsoebNVZXo8HurE5LO4FUhatJdc1IZlmsXTNIlRYVvxbQjLzaP8nBzH_b9mqspYcaz4ndzHeyjVzD3ZEbNgRdTUwCPlZDm5A2xuAFgzeES7XcWB0s81eXFW7FIr0z0OTu27HBXm2W81y4Sca7zEGL9BQg-bq8vMU28suXRlP-AyOWLXBNadCQrNZl53Yo3tO2BWKB_qjyUXVOeuDLMMOeI0oMgyGKV95U8Gk.AT1_UFi7OU63"
 //secret client: 07d01b791f7144f692e6b8f2fcd3a60a
 const basemapURL = "https://basemapstyles-api.arcgis.com/arcgis/rest/services/styles/v2/styles";
+const proxyUrl = '/api/geoserver-proxy?wfs='
 
 //const basemapEnum = "arcgis/streets";
 //const basemapEnum = "arcgis/navigation";
@@ -47,18 +48,18 @@ onMounted(() => {
 	map.value = new maplibregl.Map({
 		container: mapContainer.value!,
 		style: `${basemapURL}/${basemapEnum}?token=${ESRI_APIKEY}`,
-		center: SaintLucia.center, // [lng, lat]
-		zoom: SaintLucia.zoom,
+		center: StraitOfSicily.center, // [lng, lat]
+		zoom: StraitOfSicily.zoom,
 		//oom: props.visual.zoomLevel ?? 2
 	})
-	map.value.on('load', () => {
+	map.value?.on('load', () => {
 		console.log('Base Map loaded')
 		// Aggiungi il layer WMS
 		props.visuals.forEach((visual, index) => {
 			try {
 				if (map.value && visual.serviceUrl && visual.layerName) {
 					console.log("prova a leggere visual")
-					setSource(visual, map.value);
+					setSource(visual);
 					activeLayers.value[getLayerId(visual)] = true;
 				}
 				else (console.log("invalid visual"))
@@ -68,6 +69,12 @@ onMounted(() => {
 			}
 		});
 		updateMapInfo();
+		nextTick(() => {
+			if (map) {
+				map.value?.resize(); // Metodo specifico di Maplibre/Mapbox
+				//con Leaflet, il comando è map.invalidateSize()
+			}
+    	});
 	});
 	map.value.on('error', (e) => {
 		console.error('Errore mappa:', e)
@@ -76,7 +83,8 @@ onMounted(() => {
 		updateMapInfo()
 	});
 
-
+	/*ridimensiona map*/
+	
 
 
 	// // Marker opzionale con popup
@@ -94,17 +102,21 @@ function getLayerId(visual: MapVisual): string {
 	return `layer-source-${visual.layerName?.replace(/[^a-zA-Z0-9]/g, '-')}`;
 }
 
-function setSource(visual: MapVisual, map: maplibregl.Map) {
+function setSource(visual: MapVisual) {
 	const sourceId = `source-${visual.layerName?.replace(/[^a-zA-Z0-9]/g, '-')}`;
-	const proxyUrl = `/api/geoserver-proxy?wfs=${visual.getUrl()}`;
-	console.log("proxy" + proxyUrl)
+	const mapObj = map.value
+	if (mapObj === null) {
+		console.error("null map!")
+		return;
+	}
 	if (visual.layerType && visual.layerType.toLowerCase() === 'vector') {
-		map.addSource(sourceId, {
+		const tilesURL =  `${proxyUrl}${encodeURIComponent(visual.getWFSUri())}`
+		mapObj.addSource(sourceId, {
 			type: 'vector',
-			tiles: [proxyUrl],
+			tiles: [tilesURL],
 			minzoom: visual.zoomLevel || 0,
 		});
-		map.addLayer({
+		mapObj.addLayer({
 			id: `layer-${sourceId}`,
 			type: 'fill',
 			source: sourceId,
@@ -116,31 +128,30 @@ function setSource(visual: MapVisual, map: maplibregl.Map) {
 			}
 		});
 	} else if (visual.layerType && visual.layerType.toLowerCase() === 'raster') {
-		map.addSource(sourceId, {
+		//console.log("addo layer " + sourceId + " @ " + visual.getMapLibreRasterUri())
+		mapObj.addSource(sourceId, {
 			type: 'raster',
-			tiles: [visual.serviceUrl],
+			tiles: [visual.getMapLibreRasterUri()],
 			tileSize: 256
 		});
-		map.addLayer({
+		mapObj.addLayer({
 			id: `layer-${sourceId}`,
 			type: 'raster',
 			source: sourceId,
 			paint: {}
 		});
 	} else if (visual.layerType && visual.layerType.toLowerCase() === 'geojson') {
-		map.addSource(sourceId, {
+		const dataUrl = `${proxyUrl}${encodeURIComponent(
+			visual.getMapLibreJSONFeatureUri())}`
+		mapObj.addSource(sourceId, {
 			type: 'geojson',
-			data: visual.serviceUrl
+			data: dataUrl
 		});
-		map.addLayer({
+		mapObj.addLayer({
 			id: `layer-${sourceId}`,
 			type: 'fill',
 			source: sourceId,
-			paint: {
-				'fill-color': '#e2acf4',
-				'fill-opacity': 0.8,
-				'fill-outline-color': '#000000'
-			}
+			paint: visual.viewStyle
 		});
 	}
 	else { throw new Error(`Unsupported layer type: ${visual.layerType ?? 'undefined'}`) }
@@ -221,8 +232,9 @@ function flyToPosition(options: FlyOptions) {
 </script>
 
 <template>
-	<div class="tw:relative tw:h-full tw:w-full tw:bg-green-500">
-		<div ref="mapContainer" class="tw:h-full tw:w-full" />
+	<div class="tw:relative tw:bg-green-500 tw:border-1 tw:h-full tw:w-full">
+		
+		<div ref="mapContainer" class="tw:h-full tw:w-full"></div> 
 
 		<!-- Pannello laterale -->
 		<div class="cmd-panel">
@@ -241,7 +253,7 @@ function flyToPosition(options: FlyOptions) {
 					{{ getBoundingBox()![2].toFixed(5) }},
 					{{ getBoundingBox()![3].toFixed(5) }}
 				</span>
-				<span v-else>–</span>
+				<span v-else>-</span>
 			</div>
 
 			<div class="tw:space-y-2 tw:pt-2">
@@ -276,7 +288,7 @@ function flyToPosition(options: FlyOptions) {
 					delay: 2000
 				})" >Canale di Sicilia
 				</v-btn> 
-			</div>
+			</div> 
 
 		</div>
 	</div>

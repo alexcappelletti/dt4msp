@@ -10,27 +10,55 @@ export class MapVisual extends Visual {
 	serviceUrl: string;
 	layerName?: string;
 	layerType?: string;
+	viewStyle ?: Record<string, any>
 	zoomLevel?: number;
+	mapServiceParams?: string
 
 	constructor(
-		options: { 
-			url: string; 
-			layerName?: string; 
-			layerType?: string;	
-			zoomLevel?: number }){
-		
+		options: {
+			url: string;
+			layerName?: string;
+			layerType?: string;
+			zoomLevel?: number;
+			serviceParams?: string
+			viewStyle?: Record<string, any>
+		}) {
+
 		super();
 		this.serviceUrl = options.url;
 		this.layerName = options.layerName;
 		this.layerType = options.layerType;
 		this.zoomLevel = options.zoomLevel;
+		this.mapServiceParams = options.serviceParams;
+		this.viewStyle = options.viewStyle
 	}
 
 	getUrl(): string {
-		const params: string[] = [];
-		if (this.layerName) params.push(`layers=${encodeURIComponent(this.layerName)}`);
-		if (this.zoomLevel !== undefined) params.push(`zoom=${this.zoomLevel}`);
-		return params.length > 0 ? `${this.serviceUrl}?${params.join("&")}` : this.serviceUrl;
+		// const params: string[] = [];
+		// if (this.layerName) params.push(`layers=${encodeURIComponent(this.layerName)}`);
+		// if (this.zoomLevel !== undefined) params.push(`zoom=${this.zoomLevel}`);
+		// return params.length > 0 ? `${this.serviceUrl}?${params.join("&")}` : this.serviceUrl;
+		return ""
+	}
+
+
+	getMapLibreRasterUri(): string {
+		const params: string[] = []
+		if (this.mapServiceParams) { params.push(this.mapServiceParams) }
+		if (this.layerName) { params.push(`&layers=${this.layerName}`) }
+		params.push('&CRS=EPSG:3857&BBOX={bbox-epsg-3857}') //placeholder x layer raster in maplibre
+		return `${this.serviceUrl}${params.join("")}`
+	}
+	getMapLibreJSONFeatureUri(): string{
+		const params: string[] = []
+		if (this.mapServiceParams) { params.push(this.mapServiceParams) }
+		if (this.layerName) {params.push(`&typeName=${this.layerName}`)}
+		return `${this.serviceUrl}${params.join('')}`
+	}
+	getWFSUri(): string {
+		const params: string[] = []
+		if (this.mapServiceParams) { params.push(this.mapServiceParams) }
+		return `${this.serviceUrl}${params.join('')}`
 	}
 }
 
@@ -94,9 +122,10 @@ export function createVisualFromJson(data: VisualInput): Visual {
 			return new ImageVisual(data.url, data.altText, data.attribution);
 		case "MAP":
 			return new MapVisual({
-				url:data.url, 
-				layerName: data.layerName, 
-				zoomLevel: data.zoomLevel});
+				url: data.url,
+				layerName: data.layerName,
+				zoomLevel: data.zoomLevel
+			});
 		default:
 			throw new Error(`Unsupported visual format: ${data.format}`);
 	}

@@ -32,6 +32,8 @@ async function handleFileUpload(event: Event, type: 'scenario' | 'geostory') {
 		} else {
 			const reader = new GeostoryXlsxReader(workbook)
 			store.selectStory(reader.loadGeoStory())
+			//questo é solo per la demo: nella versione finale visual maps sono letti dal file xls
+			applyHCMaps()
 			fileGeostory.value = file.name;
 		}
 	} catch (err) {
@@ -41,40 +43,21 @@ async function handleFileUpload(event: Event, type: 'scenario' | 'geostory') {
 	}
 }
 
+function applyHCMaps(){
+	store.selectedStory?.elements.forEach(e =>{
+		
+		if (e.storyItems[0]?.visual) {
+
+
+		}
 
 
 
-// async function loadScenario() {
+	})
 
-// 	loadingS.value = true
-// 	try {
-// 		const response = await fetch('/data/final_scenario_bd.xlsx')
-// 		const arrayBuffer = await response.arrayBuffer()
-// 		const workbook = read(new Uint8Array(arrayBuffer), { type: 'array' })
-// 		const reader = new ScenarioXlsxReader(workbook)
-// 		store.setScenario(reader.readScenario())
-// 		store.setThemes(reader.readThemesFromSheet())
-// 	} catch (error) {
-// 		console.error('Errore nella lettura del file Excel:', error)
-// 	} finally {
-// 		loadingS.value = false
-// 	}
-// }
 
-// async function loadGeostory() {
-// 	loadingG.value = true
-// 	try {
-// 		const response = await fetch('/data/np_geostory_2025-09-30.xlsx')
-// 		const arrayBuffer = await response.arrayBuffer()
-// 		const workbook = read(new Uint8Array(arrayBuffer), { type: 'array' })
-// 		const reader = new GeostoryXlsxReader(workbook)
-// 		store.selectStory(reader.loadGeoStory())
-// 	} catch (error) {
-// 		console.error('Errore nella lettura del file Excel:', error)
-// 	} finally {
-// 		loadingG.value = false
-// 	}
-// }
+}
+
 
 const treeData = computed(() => {
 	const scenario = store.scenario
