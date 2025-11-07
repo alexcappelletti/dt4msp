@@ -3,6 +3,7 @@ import { Geostory, defaultGeostory, StoryElement, StoryItem } from './geostory';
 
 import { Scenario, Theme, MapLayer, Impact } from '@/models/scenario';
 import { ImageVisual, MapVisual, Visual } from './visual';
+import type {MapVisualOptions} from './visual';
 
 export class GeostoryXlsxReader {
 	workbook: XLSX.WorkBook | null = null;
@@ -57,12 +58,13 @@ export class GeostoryXlsxReader {
 			return new ImageVisual(imgUrl, altText);
 		} else if (row.visual.startsWith('map:')) {
 			const params = row.visual.split('map:')[1].split(';');
-			const wfsUrl = params[0].trim();
-			const layerName = params[1]?.trim();
-			const zoomLevel = params[2] ? parseInt(params[2].trim(), 10) : undefined;
-			return new MapVisual(wfsUrl, layerName, zoomLevel);
+			return new MapVisual({
+				url: params[0].trim(),
+				layerName: params[1]?.trim(),
+				standardType: params[2]?.trim(),
+				layerType: params[2]?.trim()
+			} as MapVisualOptions)
 		}
-		
 		return null;
 	}
 
@@ -245,8 +247,8 @@ export class ScenarioXlsxReader {
 					const rawLayers = row.layers || ''
 					const layerNames = rawLayers
 						.split(/[\n;]+/)
-						.map(l => l.trim())
-						.filter(l => l && l !== 'NA')
+						.map((l:string) => l.trim())
+						.filter((l:string) => l && l !== 'NA')
 
 					const layers: MapLayer[] = layerNames.map((name: string, idx: number) => new MapLayer({
 						id: `${row.pr || 'impact'}_layer_${idx + 1}`,
@@ -290,9 +292,9 @@ export class ScenarioXlsxReader {
 				const rawLayers = row['layers/risorsa geospaziale'] || ''
 				const layerNames = rawLayers
 					.split(/[\n;]+/)
-					.map(l => l.trim())
-					.filter(l => l && l !== 'NA')
-				const geospatialResources: MapLayer[] = layerNames.map((name, idx) => new MapLayer({
+					.map((l:string) => l.trim())
+					.filter((l:string) => l && l !== 'NA')
+				const geospatialResources: MapLayer[] = layerNames.map((name:string, idx:any) => new MapLayer({
 					id: `${row.theme_id || 'theme'}_layer_${idx + 1}`,
 					name,
 					type: 'undefined',

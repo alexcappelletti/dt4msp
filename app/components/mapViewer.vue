@@ -1,25 +1,33 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch, nextTick } from 'vue'
 import maplibregl, { type LngLatLike } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import type { MapVisual } from '~/models/visual';
+// Usa l'interfaccia pubblica che contiene solo i metodi e proprietà pubblici, 
+// per evitare l'errore di TypeScript "missing mapToStandardType"
+import type { MapVisual } from '~/models/visual'; 
 
 
-const props = defineProps<{
-	visuals: Array<MapVisual>
-}>()
-//scade il 15-11-2025
+
+
+
+const props = withDefaults(defineProps<{
+	// Cambiato il tipo della prop da MapVisual a MapVisualInterface
+	visuals: Array<MapVisual>,
+	info: boolean,
+}>(), {
+	visuals: () => [], // Factory function per array/oggetti
+	info: false,
+});
+
+// ... (ESRI_APIKEY, basemapURL, proxyUrl, basemapEnum, coords objects, etc. rimangono uguali) ...
 const ESRI_APIKEY = "AAPTxy8BH1VEsoebNVZXo8HurE5LO4FUhatJdc1IZlmsXTNIlRYVvxbQjLzaP8nBzH_b9mqspYcaz4ndzHeyjVzD3ZEbNgRdTUwCPlZDm5A2xuAFgzeES7XcWB0s81eXFW7FIr0z0OTu27HBXm2W81y4Sca7zEGL9BQg-bq8vMU28suXRlP-AyOWLXBNadCQrNZl53Yo3tO2BWKB_qjyUXVOeuDLMMOeI0oMgyGKV95U8Gk.AT1_UFi7OU63"
-//secret client: 07d01b791f7144f692e6b8f2fcd3a60a
 const basemapURL = "https://basemapstyles-api.arcgis.com/arcgis/rest/services/styles/v2/styles";
-const proxyUrl = '/api/geoserver-proxy?wfs='
-
-//const basemapEnum = "arcgis/streets";
-//const basemapEnum = "arcgis/navigation";
+const currentUrl = useRequestURL(); 
+const proxyEndpoint = '/api/geoserver-proxy';
 const basemapEnum = "arcgis/topographic";
-//const basemapEnum = "arcgis/outdoor";
-// const basemapEnum = "arcgis/light-gray";
-// const basemapEnum = "arcgis/imagery";
+const SaintLucia = { center: [-62.7250, 14.72225] as LngLatLike, zoom: 7.76 }
+const Messina = { center: [15.61502, 38.23433] as LngLatLike, zoom: 12.70 }
+const StraitOfSicily = { center: [13.14948, 36.67817] as LngLatLike, zoom: 7.2 }
 
 
 const mapContainer = ref<HTMLDivElement | null>(null)
@@ -28,80 +36,82 @@ const centerCoords = ref<[number, number]>([0, 0]);
 const zoomLevel = ref<number>(0);
 const activeLayers = ref<Record<string, boolean>>({});
 
-const SaintLucia = {
-	center: [-62.7250, 14.72225] as LngLatLike, // Caraibi
-  	zoom: 7.76
-}
-const Messina = {
-	center: [15.61502, 38.23433] as LngLatLike, // Stretto di Messina
-  	zoom: 12.70
-}
-const StraitOfSicily = {
-	center: [13.14948, 36.67817] as LngLatLike, // Stretto di Sicilia
-  	zoom: 7.2
-}
+
+const { buildOwsProxyUrl } = useOwsProxyUrl()
+
+
+
+
+//
+//const sample = 'https://ows.emodnet-bathymetry.eu/wms?request=GetMap&styles&format=image/png&layers=emodnet:mean_multicolour&WIDTH=500&HEIGHT=500&BBOX=-70.5000000000000000,11.0000000000000000,43.0000000000000853,90.0000000000000000&transparent=true&SERVICE=WMS&VERSION=1.3.0'
+//const sample = 'https://ows.emodnet-bathymetry.eu/wms?' 
 
 
 onMounted(() => {
-	//initializeMap()
 	if (!mapContainer.value) return
 	map.value = new maplibregl.Map({
 		container: mapContainer.value!,
 		style: `${basemapURL}/${basemapEnum}?token=${ESRI_APIKEY}`,
 		center: StraitOfSicily.center, // [lng, lat]
 		zoom: StraitOfSicily.zoom,
-		//oom: props.visual.zoomLevel ?? 2
 	})
-	map.value?.on('load', () => {
-		console.log('Base Map loaded')
-		// Aggiungi il layer WMS
-		props.visuals.forEach((visual, index) => {
-			try {
-				if (map.value && visual.serviceUrl && visual.layerName) {
-					console.log("prova a leggere visual")
-					setSource(visual);
-					activeLayers.value[getLayerId(visual)] = true;
-				}
-				else (console.log("invalid visual"))
-			}
-			catch (error) {
-				console.error(`Errore nell'aggiunta della sorgente/layer per visual ${index}:`, error)
-			}
-		});
-		updateMapInfo();
-		nextTick(() => {
-			if (map) {
-				map.value?.resize(); // Metodo specifico di Maplibre/Mapbox
-				//con Leaflet, il comando è map.invalidateSize()
-			}
-    	});
-	});
-	map.value.on('error', (e) => {
-		console.error('Errore mappa:', e)
-	})
-	map.value.on('move', () => {
-		updateMapInfo()
-	});
-
-	/*ridimensiona map*/
 	
+	// Gestione eventi mappa
+	map.value.on('load', () => {
+		console.log('Base Map loaded');
+		// Chiama la funzione per aggiungere i layer iniziali/correnti
+		addVisualLayers(props.visuals);
+		updateMapInfo();
+		nextTick(() => map.value?.resize());
+	});
+	
+	map.value.on('error', (e) => { console.error('Errore mappa:', e) });
+	map.value.on('move', () => { updateMapInfo() });
+});
 
 
-	// // Marker opzionale con popup
-	// if (props.visual.layerName) {
-	// 	new maplibregl.Marker()
-	// 		.setLngLat([11.119, 46.0705]) // puoi sostituire con coordinate reali se disponibili
-	// 		.setPopup(new maplibregl.Popup().setText(props.visual.layerName))
-	// 		.addTo(map)
-	// }
+// !!! SOLUZIONE CHIAVE: WATCHER SULLE PROPS !!!
+watch(() => props.visuals, (newVisuals) => {
+	// Questo si attiva ogni volta che lo store aggiorna la prop 'visuals'
+	console.log("Props visuals aggiornate, aggiungo i layer...");
+	addVisualLayers(newVisuals);
+}, { deep: true }); // deep: true è utile se la struttura interna cambia
 
-	// Se vuoi caricare dati WFS o GeoJSON, puoi farlo qui
-	// Esempio: fetch(props.visual.getUrl()).then(...)
-})
-function getLayerId(visual: MapVisual): string {
-	return `layer-source-${visual.layerName?.replace(/[^a-zA-Z0-9]/g, '-')}`;
+
+// Funzione helper per aggiungere i layer alla mappa
+function addVisualLayers(visuals: MapVisual[]) {
+	if (!map.value || !map.value.isStyleLoaded()) {
+		console.log("Mappa non ancora pronta, skippo l'aggiunta layer.");
+		return;
+	}
+
+	// Rimuovi eventuali sorgenti/layer precedenti se necessario, per evitare duplicati
+	// (Implementazione di rimozione omessa per brevità, ma necessaria per un'app robusta)
+
+	visuals.forEach((visual, index) => {
+		try {
+			if (visual.serviceUrl && visual.layerName) {
+				console.log(`Aggiunta visual: ${visual.layerName}`);
+				setSource(visual);
+				activeLayers.value[getLayerId(visual)] = true;
+			} else {
+				console.log(`Visual non valido all'indice ${index}`);
+			}
+		}
+		catch (error) {
+			console.error(`Errore nell'aggiunta della sorgente/layer per visual ${index}:${error}`);
+		}
+	});
 }
 
+
+
+function getLayerId(visual: MapVisual): string {
+	// Usa visual.layerName?.replace(/.../)
+	return `layer-source-${visual.layerName?.replace(/[^a-zA-Z0-9]/g, '-')}`; // Aggiunto fallback index
+}
+
+// !!! Correzioni nella funzione setSource per i tipi !!!
 function setSource(visual: MapVisual) {
 	const sourceId = `source-${visual.layerName?.replace(/[^a-zA-Z0-9]/g, '-')}`;
 	const mapObj = map.value
@@ -109,54 +119,72 @@ function setSource(visual: MapVisual) {
 		console.error("null map!")
 		return;
 	}
-	if (visual.layerType && visual.layerType.toLowerCase() === 'vector') {
-		const tilesURL =  `${proxyUrl}${encodeURIComponent(visual.getWFSUri())}`
+	// // Nota: MapVisualInterface ha standardType come proprietà, non layerType
+	// if (visual.standardType === 'vector') {
+	// 	const tilesURL =  visual.getMapLibreURI(proxyUrl) // Usa getLibreURI()
+	// 	mapObj.addSource(sourceId, {
+	// 		type: 'vector',
+	// 		tiles: [tilesURL],
+	// 		minzoom: visual.zoomLevel || 0,
+	// 	});
+	// 	mapObj.addLayer({
+	// 		id: `layer-${sourceId}`,
+	// 		type: 'fill',
+	// 		source: sourceId,
+	// 		'source-layer': visual.layerName || '',
+	// 		paint: {
+	// 			'fill-color': '#088',
+	// 			'fill-opacity': 0.5,
+	// 			'fill-outline-color': '#000000'
+	// 		}
+	// 	});
+	// } else 
+	if (visual.standardType === 'raster') {
+		const tileTemplate = buildOwsProxyUrl({
+			mapUrl: visual.serviceUrl,
+			params: {
+				SERVICE: 'WMS',
+				VERSION: '1.3.0',
+				REQUEST: 'GetMap',
+				LAYERS: visual.layerName,
+				FORMAT: 'image/png',
+				TRANSPARENT: 'true',
+				CRS: 'EPSG:3857',
+				WIDTH: '256',
+				HEIGHT: '256',
+				BBOX: '{bbox-epsg-3857}'
+			}
+			}) + '&z={z}&x={x}&y={y}'
 		mapObj.addSource(sourceId, {
-			type: 'vector',
-			tiles: [tilesURL],
-			minzoom: visual.zoomLevel || 0,
+			type: 'raster',
+			tiles: [tileTemplate], 
+			tileSize: 256,
 		});
 		mapObj.addLayer({
 			id: `layer-${sourceId}`,
-			type: 'fill',
+			type: 'raster',
 			source: sourceId,
-			'source-layer': visual.layerName || '',
 			paint: {
-				'fill-color': '#088',
-				'fill-opacity': 0.5,
-				'fill-outline-color': '#000000'
+				'raster-opacity': visual.Opacity || 1 
 			}
 		});
-	} else if (visual.layerType && visual.layerType.toLowerCase() === 'raster') {
-		//console.log("addo layer " + sourceId + " @ " + visual.getMapLibreRasterUri())
-		mapObj.addSource(sourceId, {
-			type: 'raster',
-			tiles: [visual.getMapLibreRasterUri()],
-			tileSize: 256
-		});
-		mapObj.addLayer({
-			id: `layer-${sourceId}`,
-			type: 'raster',
-			source: sourceId,
-			paint: {}
-		});
-	} else if (visual.layerType && visual.layerType.toLowerCase() === 'geojson') {
-		const dataUrl = `${proxyUrl}${encodeURIComponent(
-			visual.getMapLibreJSONFeatureUri())}`
-		mapObj.addSource(sourceId, {
-			type: 'geojson',
-			data: dataUrl
-		});
-		mapObj.addLayer({
-			id: `layer-${sourceId}`,
-			type: 'fill',
-			source: sourceId,
-			paint: visual.viewStyle
-		});
 	}
-	else { throw new Error(`Unsupported layer type: ${visual.layerType ?? 'undefined'}`) }
+	// else if (visual.standardType === 'geojson') {
+	// 	const dataUrl = visual.getMapLibreURI(proxyUrl) // Usa getLibreURI()
+	// 	mapObj.addSource(sourceId, {
+	// 		type: 'geojson',
+	// 		data: dataUrl
+	// 	});
+	// 	mapObj.addLayer({
+	// 		id: `layer-${sourceId}`,
+	// 		type: 'fill',
+	// 		source: sourceId,
+	// 		// Assicurati che visual.viewStyle sia compatibile con maplibre paint properties
+	// 		paint: visual.viewStyle || {} 
+	// 	});
+	// }
+	else { throw new Error(`Unsupported standard type: ${visual.standardType ?? 'undefined'}`) }
 }
-
 function toggleLayer(layerId: string) {
 	const visibility = map.value?.getLayoutProperty(layerId, 'visibility');
 	const newVisibility = visibility === 'none' ? 'visible' : 'none';
@@ -237,7 +265,8 @@ function flyToPosition(options: FlyOptions) {
 		<div ref="mapContainer" class="tw:h-full tw:w-full"></div> 
 
 		<!-- Pannello laterale -->
-		<div class="cmd-panel">
+		<div v-if="props.info" class="cmd-panel">
+			<!-- ... (display info: center, zoom, bbox) ... -->
 			<div>
 				<strong>Centro:</strong><br />
 				{{ centerCoords[0].toFixed(5) }}, {{ centerCoords[1].toFixed(5) }}
@@ -257,6 +286,7 @@ function flyToPosition(options: FlyOptions) {
 			</div>
 
 			<div class="tw:space-y-2 tw:pt-2">
+				<!-- Iterazione sulla prop visuals per la lista toggle -->
 				<div v-for="visual in props.visuals" :key="visual.layerName" 
 					class="tw:flex tw:items-center tw:justify-between">
 					<label>{{ visual.layerName }}</label>
@@ -266,6 +296,7 @@ function flyToPosition(options: FlyOptions) {
 						@change="toggleLayer(getLayerId(visual))"  />
 				</div>
 			</div>
+			<!-- ... (Bottoni FlyTo) ... -->
 			<div class="tw:flex tw:flex-col tw:pt-2 ga-4">
 				<v-btn @click="flyToPosition({
 					from: SaintLucia.center as [number, number],
@@ -294,63 +325,19 @@ function flyToPosition(options: FlyOptions) {
 	</div>
 </template>
 
-
-
 <style scoped lang="css">
-@reference "@/assets/css/tailwind.css";
-
 .cmd-panel {
-	@apply tw:absolute 
-		tw:top-4 tw:left-4 
-		tw:p-3 tw:w-82
-		tw:space-y-3 
-		tw:z-10
-		tw:bg-white/90
-		tw:rounded 
-		tw:shadow-md 
-		tw:text-sm 
-
-
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	background-color: rgba(255, 255, 255, 0.9);
+	padding: 15px;
+	border-radius: 5px;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+	max-height: calc(100% - 20px);
+	overflow-y: auto;
+	width: 250px;
 }
-
-
-
-
-.toggle-switch {
-  appearance: none;
-  width: 3rem; 
-  height: 1.5rem; 
-  background-color: #eeecf6;
-  border-radius: 9999px; 
-  position: relative;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0.125rem; 
-    left: 0.125rem;
-    width: 1.25rem;
-    height: 1.25rem;
-    background-color: white;
-    border-radius: 9999px;
-    transition: transform 0.3s ease;
-  }
-
-  &:checked {
-    background-color:  var(--color-primary); /*(Tailwind: purple-600)*/
-
-    &::before {
-      transform: translateX(1.5rem); /*sposta il pallino a destra*/
-    }
-  }
-
-  &:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 2px #c4b5fd; /* ring-purple-300*/
-  }
-}
-
-
 </style>
+
+

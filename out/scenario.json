@@ -15,7 +15,7 @@
     "MF_SoS"
   ],
   "extendedAspects": "valutazione_preliminare, norme",
-  "temi": {
+  "topics": {
     "BD_oil/gas": {
       "nome": "Energia - Oil&Gas",
       "theme_id": "BD_oil/gas",

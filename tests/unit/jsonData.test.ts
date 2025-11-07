@@ -177,8 +177,8 @@ describe("fixture on json rapresentations of data", () => {
 	})
 
 	it("should save scenario on file", () => {
-		expect(Object.values(scenario.temi).length).toBe(13)
-		expect(scenario.temi["BD_trasporto"]).toBeDefined()
+		expect(Object.values(scenario.topics).length).toBe(13)
+		expect(scenario.topics["BD_trasporto"]).toBeDefined()
 		const outfile = "./out/scenario.json"
 		writeFileSync(outfile, JSON.stringify(scenario, null, 2), 'utf-8')
 		const expected: Scenario = JSON.parse(readFileSync(outfile, 'utf-8'))

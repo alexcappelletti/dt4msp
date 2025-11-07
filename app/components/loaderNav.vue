@@ -65,7 +65,7 @@ const treeData = computed(() => {
 		return {}
 	} 
 	return {
-		temi: scenario.temi,
+		temi: scenario.topics,
 		maps: scenario.maps,
 		datasets: scenario.datasets,
 		extendedAspects: scenario.extendedAspects,

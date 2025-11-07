@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@heroicons/vue": "^2.2.0",
+    "@mapbox/tilebelt": "^2.0.2",
     "@mdi/font": "^7.4.47",
     "axios": "^1.11.0",
     "concat-stream": "^2.0.0",

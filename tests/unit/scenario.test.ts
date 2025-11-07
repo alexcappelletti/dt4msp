@@ -14,9 +14,9 @@ describe('Scenario JSON loader with nested Theme, Impact, and MapLayer', () => {
 		// ✅ Verifiche
 		//expect(parsed).toBeInstanceOf(Scenario)
 		expect(parsed.name).toBe('Blue Development')
-		expect(Object.values(parsed.temi).length).toBe(13)
+		expect(Object.values(parsed.topics).length).toBe(13)
 
-		const trasp = parsed.temi['BD_trasporto']
+		const trasp = parsed.topics['BD_trasporto']
 		expect(trasp).toBeDefined()
 		expect(Object.values(trasp?.impacts|| {}).length).toBe(6)
 
@@ -25,7 +25,7 @@ describe('Scenario JSON loader with nested Theme, Impact, and MapLayer', () => {
 		expect(trasp?.impacts["Incremento del traffico marittimo"]?.layers[0]?.type).toBe("map")
 		
 
-		const energia = parsed.temi['BD_energia1']
+		const energia = parsed.topics['BD_energia1']
 		expect(energia).toBeDefined()
 		expect(Object.values(energia?.impacts || {}).length).toBe(0)
 		

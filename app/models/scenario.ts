@@ -9,7 +9,7 @@ export class Scenario {
 	maps: string[]
 	datasets: string[];
 	extendedAspects: string;
-	temi: Record<string, Theme>;
+	topics: Record<string, Theme|ExtendedAspects>;
 	definedGeostories: Geostory[];
 	objectives: string;
 
@@ -34,7 +34,7 @@ export class Scenario {
 		this.maps = params.maps || [];
 		this.datasets = params.datasets || [];
 		this.extendedAspects = params.extendedAspects;
-		this.temi = Object.fromEntries(
+		this.topics = Object.fromEntries(
 				params.availableThemes.map(t => [t.theme_id, t])
 		)
 
@@ -44,12 +44,19 @@ export class Scenario {
 }
 
 
-export class Theme {
+export class BaseTheme {
 	nome: string;
 	theme_id: string;
 	type: string;
 	description: string;
 	geospatialResources: MapLayer[];
+
+	
+	
+
+}
+
+export class Theme extends BaseTheme{
 	impacts: Record<string, Impact>;
 	constructor(p: {
 		id: string;
@@ -59,6 +66,7 @@ export class Theme {
 		geospatialResources: MapLayer[];
 		impacts: Impact[];
 	}) {
+		super()
 		this.nome = p.id;
 		this.theme_id = p.theme_id;
 		this.type = p.type;
@@ -66,8 +74,28 @@ export class Theme {
 		this.geospatialResources = p.geospatialResources || [];
 		this.impacts = Object.fromEntries(
 			p.impacts.map(i => [i.impactID, i])) 
+		//aggiungere a geospatialResources eventuali layer  che trovo in ciascun impact. 
+		// I layer devono essere univoci
 	}
+}
 
+export class ExtendedAspects extends BaseTheme {
+	//campi estesi TOBEDEFINED
+	constructor(p: {
+		id: string;
+		theme_id: string;
+		type: string;
+		description: string;
+		geospatialResources: MapLayer[];
+	}) {
+		super()
+		this.nome = p.id;
+		this.theme_id = p.theme_id;
+		this.type = p.type;
+		this.description = p.description;
+		this.geospatialResources = p.geospatialResources || [];
+		
+	}
 }
 
 export class Impact {
@@ -77,6 +105,7 @@ export class Impact {
 	description: string;
 	layers: MapLayer[];
 	constructor(p: {
+		impactID: string, 
 		impactName: string;
 		impactOnTheme: string;
 		description: string;

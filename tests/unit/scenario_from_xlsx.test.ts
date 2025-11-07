@@ -12,10 +12,10 @@ describe('Theme model from Excel file', () => {
 
 		expect(scenario).toBeInstanceOf(Scenario)
 		expect(scenario.name).toBe('Blue Development')
-		const themes = Object.values(scenario.temi)
+		const themes = Object.values(scenario.topics)
 		expect(themes.length).toBe(14)
-		const temi = scenario.temi
-		const energia = temi["BD_energia1"]
+		const topics = scenario.topics
+		const energia = topics["BD_energia1"]
 		expect(energia).toBeDefined()
 		expect(energia?.type).toMatch(/primario|secondario|NA/)
 		expect(energia?.geospatialResources.length).toBeGreaterThan(0)

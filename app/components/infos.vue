@@ -13,7 +13,7 @@ const scenarioDetails = computed(() => {
 	if (!s) return null
 	return {
 		Nome: s.name,
-		Temi: s.temi?.length,
+		Temi: s.topics?.length,
 		Mappe: s.maps?.length,
 		Dataset: s.datasets?.length,
 		Obiettivi: s.objectives?.length,
