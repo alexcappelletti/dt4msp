@@ -1,5 +1,6 @@
 
 import type { GeonodeLayer, LayerParams, RawLayerDef } from '~/models/geonode.d.ts'
+import { normalizeUrl } from '~/utils/geoserverUrls.ts'
 const GEONODE_BASE_URL = 'https://geoplatform.tools4msp.eu/api/v2/maps';
 
 
@@ -20,11 +21,20 @@ const safeJsonParse = <T>(jsonString: string | null | undefined): T | null => {
 export default defineEventHandler(async (event) => {
 	
 	const query = getQuery(event);
-	const restfulApi = "layers";
+	const restfulApi = query.cmd;
 	const id = query.mapid
 	if (!id || typeof id !== 'string') {
 		throw createError({ statusCode: 400, statusMessage: 'Missing or invalid "mapid" query parameter' });
 	}
+	if (restfulApi === 'layers') {
+		return fetchGeonodeLayers(id);
+	}
+	throw createError({ statusCode: 400, statusMessage: 'Unsupported "cmd" query parameter' });
+});
+
+// Function to fetch and process layers from GeoNode API
+const fetchGeonodeLayers = async (id: string): Promise<GeonodeLayer[]> => {	
+	console.log("requesting layers for map id: " + id);
 
 	try {
 		const response = await fetch(`${GEONODE_BASE_URL}/${encodeURIComponent(id)}/layers`);
@@ -63,7 +73,8 @@ export default defineEventHandler(async (event) => {
 					fixed: l.fixed,
 					group: l.group,
 					visibility: l.visibility,
-					ows_url: l.ows_url,
+					owsUrl: normalizeUrl(l.ows_url),
+					raw_url: l.ows_url,
 					local: l.local,
 					// Usiamo gli oggetti parsati, fornendo un fallback vuoto se il parsing fallisce
 					layer_params: parsedParams || {} as LayerParams, 
@@ -77,4 +88,4 @@ export default defineEventHandler(async (event) => {
     	// Gestione degli errori di rete o parsing
     	throw createError({ statusCode: 502, statusMessage: 'Failed to process GeoNode data' });
 	}				
-});
+};

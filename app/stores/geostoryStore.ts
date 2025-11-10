@@ -27,28 +27,40 @@ export const useGeostoryStore = defineStore('geostory', ()=>{
 			layerName: 'emodnet:mean_atlas_land',
 			layerType: 'raster',
 			standardType: 'raster'} as MapVisualOptions),
-		new MapVisual({
-			url: 'https://ows.emodnet-bathymetry.eu/wms',
-			layerName: 'coastlines',
-			layerType: 'raster',
-			standardType: 'raster'} as MapVisualOptions),
-		new MapVisual({
-			url: 'https://ows.emodnet-bathymetry.eu/wms',
-			layerName: 'emodnet:contours',
-			layerType: 'raster',
-			standardType: 'raster'} as MapVisualOptions),
-		new MapVisual({
-			url:'https://geoplatform.tools4msp.eu/geoserver/ows',
-			layerName: 'geonode:CaseStudySoS',
-			layerType: 'raster',
-			zoomLevel: 8
-		}),
-		new MapVisual({
-			url:'https://geoplatform.tools4msp.eu/geoserver/ows',
-			layerName: 'geonode:SSF_GSA16_TOT',
-			layerType: 'raster',
-			zoomLevel: 8
-		}),
+		// new MapVisual({
+		// 	url: 'https://ows.emodnet-bathymetry.eu/wms',
+		// 	layerName: 'coastlines',
+		// 	layerType: 'raster',
+		// 	standardType: 'raster'} as MapVisualOptions),
+		// new MapVisual({
+		// 	url:'https://geoplatform.tools4msp.eu/geoserver/ows',
+		// 	layerName: 'geonode:Map_DI_Hake',
+		// 	layerType: 'raster',
+		// 	zoomLevel: 8
+		// }),
+		// new MapVisual({
+		// 	url: 'https://ows.emodnet-bathymetry.eu/wms',
+		// 	layerName: 'emodnet:contours',
+		// 	layerType: 'raster',
+		// 	standardType: 'raster'} as MapVisualOptions),
+		// new MapVisual({
+		// 	url:'https://geoplatform.tools4msp.eu/geoserver/ows',
+		// 	layerName: 'geonode:CaseStudySoS',
+		// 	layerType: 'raster',
+		// 	zoomLevel: 8
+		// }),
+		// // new MapVisual({									///esempio di layer non funzionante
+		// // 	url:'https://geoplatform.tools4msp.eu/geoserver/ows',
+		// // 	layerName: 'geonode:SSF_GSA16_TOT',
+		// // 	layerType: 'raster',
+		// // 	zoomLevel: 8
+		// // }),   
+		// new MapVisual({
+		// 	url:'https://geoplatform.tools4msp.eu/geoserver/ows',
+		// 	layerName: 'geonode:FRA1000m_SoS',
+		// 	layerType: 'raster',
+		// 	zoomLevel: 8
+		// }),
 		
 
 		// new MapVisual({
@@ -60,16 +72,16 @@ export const useGeostoryStore = defineStore('geostory', ()=>{
 		// 			'fill-opacity': 0.68,
 		// 			'fill-outline-color': '#b0d2a2'},
 		// 	standardType: 'raster'} as MapVisualOptions),
-		// new MapVisual({
-		// 	url: 'https://geoplatform.tools4msp.eu/geoserver/ows?',
-		// 	layerName: 'geonode:Aquaculture',
-		// 	layerType: 'geojson',
-		// 	viewStyle: {
-		// 		'fill-color': '#e2acf4',
-		// 		'fill-opacity': 0.68,
-		// 		'fill-outline-color': '#103020'
-		// 	},
-		// 	standardType: 'raster'} as MapVisualOptions)
+		new MapVisual({
+			url: 'https://geoplatform.tools4msp.eu/geoserver/ows',
+			layerName: 'geonode:Aquaculture',
+			layerType: 'geojson',
+			viewStyle: {
+				'fill-color': '#e2acf4',
+				'fill-opacity': 0.68,
+				'fill-outline-color': '#103020'
+			},
+			standardType: 'raster'} as MapVisualOptions)
 		 ])
 
 	const availableVisuals = ref<MapVisual[]>([])

@@ -38,7 +38,7 @@ export class MapVisual extends Visual {
 		if ('pk' in layerOrOptions && 'layer_params' in layerOrOptions) {
 			// Logica per estrarre i dati dal GeonodeLayer
 			const layer = layerOrOptions as GeonodeLayer;
-			this.serviceUrl = layer.ows_url || layer.layer_params.url || '';
+			this.serviceUrl = layer.owsUrl || layer.layer_params.url || '';
 			console.log(`${layer.name} -> ${this.serviceUrl}`)
 			this.layerName = layer.name;
 			this.layerType = layer.layer_params.type ?? "undefined";

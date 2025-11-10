@@ -10,7 +10,7 @@ const store = useGeostoryStore()
 
 const { visuals2 } = storeToRefs(store); 
 
-const { data, pending, error, execute } = useFetch('/api/geonode-proxy', {
+const { data, pending, error, execute } = useFetch('/api/gn-maps-service', {
 	immediate: false, // <-- QUESTO impedisce il fetch automatico all'avvio
 	params: {
 		cmd: "layers",
@@ -29,7 +29,7 @@ const layers = computed(()=>{
 const visibleLayers = computed(() =>{
 	const allData = data.value || new Array<GeonodeLayer>()
 	return allData
-		.filter(l => l.ows_url &&l.visibility === true )
+		.filter(l => l.owsUrl && l.visibility === true)
 
 })
 
@@ -38,11 +38,21 @@ const fetchLayers = async () => {
 	await execute(); 
 	const allData = data.value || new Array<GeonodeLayer>()
 	store.setAvailableVisuals(allData
-		.filter(l => l.ows_url && l.visibility === true )
+		.filter(l => canAcceptLayerAsVisual(l))
 		.map(l => new MapVisual(l as GeonodeLayer))
-		//.filter((v, idx) => v.standardType === 'raster' )) //solo raster e primi tre
+		.filter((v, idx) => v.standardType === 'raster'  ) //solo raster e primi tre
     )
 };
+
+const canAcceptLayerAsVisual = (layer: GeonodeLayer): boolean => {
+    // Aggiungi qui la logica per determinare se il layer può essere accettato come visual
+    // Ad esempio, controlla se ha un URL valido e un tipo supportato
+    const retValue = !!layer.owsUrl 
+        && !!layer.layer_params?.type
+        && layer.visibility === true
+    return retValue
+};
+
 
 const selectLayer = (layer: Layer) => {
     selectedLayer.value = layer;
@@ -175,7 +185,7 @@ const formatValue = (value: any): string => {
 		transition: background-color 0.2s;
 	}
 	li:hover {
-		background-color: #f0f0f0;
+		background-color: #18e96f;
 	}
 	.selected-layer-item {
 		background-color: #97c73d;

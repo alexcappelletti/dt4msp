@@ -37,7 +37,7 @@ const zoomLevel = ref<number>(0);
 const activeLayers = ref<Record<string, boolean>>({});
 
 
-const { buildOwsProxyUrl } = useOwsProxyUrl()
+const { buildWmsUrl, buildFeaturesUrl } = useOwsProxyUrl()
 
 
 
@@ -119,28 +119,40 @@ function setSource(visual: MapVisual) {
 		console.error("null map!")
 		return;
 	}
-	// // Nota: MapVisualInterface ha standardType come proprietà, non layerType
-	// if (visual.standardType === 'vector') {
-	// 	const tilesURL =  visual.getMapLibreURI(proxyUrl) // Usa getLibreURI()
-	// 	mapObj.addSource(sourceId, {
-	// 		type: 'vector',
-	// 		tiles: [tilesURL],
-	// 		minzoom: visual.zoomLevel || 0,
-	// 	});
-	// 	mapObj.addLayer({
-	// 		id: `layer-${sourceId}`,
-	// 		type: 'fill',
-	// 		source: sourceId,
-	// 		'source-layer': visual.layerName || '',
-	// 		paint: {
-	// 			'fill-color': '#088',
-	// 			'fill-opacity': 0.5,
-	// 			'fill-outline-color': '#000000'
-	// 		}
-	// 	});
-	// } else 
-	if (visual.standardType === 'raster') {
-		const tileTemplate = buildOwsProxyUrl({
+	// Nota: MapVisualInterface ha standardType come proprietà, non layerType
+	if (visual.standardType === 'vector') {
+		const tilesURL =  buildFeaturesUrl(visual) 
+		mapObj.addSource(sourceId, {
+			type: 'vector',
+			tiles: [tilesURL],
+			minzoom: visual.zoomLevel || 0,
+		});
+		mapObj.addLayer({
+			id: `layer-${sourceId}`,
+			type: 'fill',
+			source: sourceId,
+			'source-layer': visual.layerName || '',
+			paint: {
+				'fill-color': '#088',
+				'fill-opacity': 0.5,
+				'fill-outline-color': '#000000'
+			}
+		});
+	} else if (visual.standardType === 'geojson') {
+		const dataUrl = buildFeaturesUrl(visual) 
+		mapObj.addSource(sourceId, {
+			type: 'geojson',
+			data: dataUrl
+		});
+		mapObj.addLayer({
+			id: `layer-${sourceId}`,
+			type: 'fill',
+			source: sourceId,
+			// Assicurati che visual.viewStyle sia compatibile con maplibre paint properties
+			paint: visual.viewStyle || {} 
+		});
+	} else if (visual.standardType === 'raster') {
+		const tileTemplate = buildWmsUrl({
 			mapUrl: visual.serviceUrl,
 			params: {
 				SERVICE: 'WMS',
@@ -168,22 +180,7 @@ function setSource(visual: MapVisual) {
 				'raster-opacity': visual.Opacity || 1 
 			}
 		});
-	}
-	// else if (visual.standardType === 'geojson') {
-	// 	const dataUrl = visual.getMapLibreURI(proxyUrl) // Usa getLibreURI()
-	// 	mapObj.addSource(sourceId, {
-	// 		type: 'geojson',
-	// 		data: dataUrl
-	// 	});
-	// 	mapObj.addLayer({
-	// 		id: `layer-${sourceId}`,
-	// 		type: 'fill',
-	// 		source: sourceId,
-	// 		// Assicurati che visual.viewStyle sia compatibile con maplibre paint properties
-	// 		paint: visual.viewStyle || {} 
-	// 	});
-	// }
-	else { throw new Error(`Unsupported standard type: ${visual.standardType ?? 'undefined'}`) }
+	} else { throw new Error(`Unsupported standard type: ${visual.standardType ?? 'undefined'}`) }
 }
 function toggleLayer(layerId: string) {
 	const visibility = map.value?.getLayoutProperty(layerId, 'visibility');

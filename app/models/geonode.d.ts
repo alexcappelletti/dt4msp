@@ -42,7 +42,8 @@ interface GeonodeLayerBase {
 	fixed: boolean;
 	group: string;
 	visibility: boolean;
-	ows_url: string | null;
+	owsUrl: string | null;
+	raw_url: string | null;
 	local: boolean;
 
 }

@@ -7,5 +7,5 @@ const store = useGeostoryStore()
 
 </script>
 <template>
-	<mapViewer :visuals="store.mapVisuals" :info="false" class="tw:h-full tw:w-full" ></mapViewer>
+	<mapViewer :visuals="store.mapVisuals" :info="true" class="tw:h-full tw:w-full" ></mapViewer>
 </template> 
