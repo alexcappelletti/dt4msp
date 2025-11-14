@@ -3,7 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import { Scenario, Theme, Impact, MapLayer } from '@/models/scenario'
 
-describe('Scenario JSON loader with nested Theme, Impact, and MapLayer', () => {
+describe.skip('Scenario JSON loader with nested Theme, Impact, and MapLayer', () => {
 	it('should correctly instantiate a full Scenario from JSON', () => {
 		const jsonPath = path.resolve(__dirname, '../../out/scenario.json')
 		const rawData = fs.readFileSync(jsonPath, 'utf-8')

@@ -118,7 +118,7 @@ const formatValue = (value: any): string => {
             
             <!-- Colonna 2: Visualizzatore Mappa -->
             <v-col>
-                <map-viewer :visuals="visuals2" :info="false"></map-viewer>
+                <map-viewer :visuals="visuals2" :info="true"></map-viewer>
             </v-col>
         </v-row>
     </v-container>

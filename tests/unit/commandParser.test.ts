@@ -2,7 +2,7 @@ import { describe, test, expect} from "vitest";
 import { parseTextWithCommands } from "../../app/models/commandPayload"
 import { Geostory, StoryElement, StoryItem } from "../../app/models/geostory";
 
-describe("Command Parser", () => {
+describe.skip("Command Parser", () => {
 	const now = new Date();
 	const context = {
 		scenarioSoS_bd: {

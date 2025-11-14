@@ -63,15 +63,15 @@ export const useGeostoryStore = defineStore('geostory', ()=>{
 		// }),
 		
 
-		// new MapVisual({
-		// 	url: 'https://geoplatform.tools4msp.eu/geoserver/ows?',
-		// 	layerName: 'geonode:Dominio_SoS',
-		// 	layerType: 'geojson',
-		// 	viewStyle: {
-		// 			'fill-color': '#1d530b',
-		// 			'fill-opacity': 0.68,
-		// 			'fill-outline-color': '#b0d2a2'},
-		// 	standardType: 'raster'} as MapVisualOptions),
+		new MapVisual({
+			url: 'https://geoplatform.tools4msp.eu/geoserver/ows?',
+			layerName: 'geonode:Dominio_SoS',
+			layerType: 'geojson',
+			viewStyle: {
+					'fill-color': '#1d530b',
+					'fill-opacity': 0.68,
+					'fill-outline-color': '#b0d2a2'},
+			standardType: 'geojson'} as MapVisualOptions),
 		new MapVisual({
 			url: 'https://geoplatform.tools4msp.eu/geoserver/ows',
 			layerName: 'geonode:Aquaculture',
@@ -101,6 +101,7 @@ export const useGeostoryStore = defineStore('geostory', ()=>{
 	
 	function selectStory(story: Geostory) {
 		selectedStory.value = story
+		
 	}
 	function setAvailableVisuals(vs: MapVisual[]){
 		availableVisuals.value = vs

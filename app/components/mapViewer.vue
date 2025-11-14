@@ -26,8 +26,10 @@ const currentUrl = useRequestURL();
 const proxyEndpoint = '/api/geoserver-proxy';
 const basemapEnum = "arcgis/topographic";
 const SaintLucia = { center: [-62.7250, 14.72225] as LngLatLike, zoom: 7.76 }
+const FasciaCostiera = {center: [13.83100, 37.07896] as LngLatLike, zoom: 10.5 }
 const Messina = { center: [15.61502, 38.23433] as LngLatLike, zoom: 12.70 }
-const StraitOfSicily = { center: [13.14948, 36.67817] as LngLatLike, zoom: 7.2 }
+const MarMediterraneo = { center: [8.01419, 37.89222] as LngLatLike, zoom: 5.0 }	
+const SOS = { center: [13.14948, 36.67817] as LngLatLike, zoom: 7.2 }
 
 
 const mapContainer = ref<HTMLDivElement | null>(null)
@@ -52,8 +54,8 @@ onMounted(() => {
 	map.value = new maplibregl.Map({
 		container: mapContainer.value!,
 		style: `${basemapURL}/${basemapEnum}?token=${ESRI_APIKEY}`,
-		center: StraitOfSicily.center, // [lng, lat]
-		zoom: StraitOfSicily.zoom,
+		center: MarMediterraneo.center, // [lng, lat]
+		zoom: MarMediterraneo.zoom,
 	})
 	
 	// Gestione eventi mappa
@@ -158,7 +160,7 @@ function setSource(visual: MapVisual) {
 				SERVICE: 'WMS',
 				VERSION: '1.3.0',
 				REQUEST: 'GetMap',
-				LAYERS: visual.layerName,
+				LAYERS: visual.layerName ?? '',
 				FORMAT: 'image/png',
 				TRANSPARENT: 'true',
 				CRS: 'EPSG:3857',
@@ -177,7 +179,7 @@ function setSource(visual: MapVisual) {
 			type: 'raster',
 			source: sourceId,
 			paint: {
-				'raster-opacity': visual.Opacity || 1 
+				'raster-opacity': 1 
 			}
 		});
 	} else { throw new Error(`Unsupported standard type: ${visual.standardType ?? 'undefined'}`) }
@@ -296,25 +298,25 @@ function flyToPosition(options: FlyOptions) {
 			<!-- ... (Bottoni FlyTo) ... -->
 			<div class="tw:flex tw:flex-col tw:pt-2 ga-4">
 				<v-btn @click="flyToPosition({
-					from: SaintLucia.center as [number, number],
-					to: Messina.center as [number, number],
-					fromZoom: SaintLucia.zoom,
-					toZoom: Messina.zoom,
+					from: MarMediterraneo.center as [number, number],
+					to: SOS.center as [number, number],
+					fromZoom: MarMediterraneo.zoom,
+					toZoom: SOS.zoom,
 					speed: 0.8,
 					curve: 1.5,
 					delay: 1000
 				})" class="">
-					Stretto di Messina
+					Area di studio SOS
 				</v-btn>
 				<v-btn @click="flyToPosition({
-					from: Messina.center as [number, number],
-					to: StraitOfSicily.center as [number, number],
-					fromZoom: Messina.zoom,
-					toZoom: StraitOfSicily.zoom,
+					from: SOS.center as [number, number],
+					to: FasciaCostiera.center as [number, number],
+					fromZoom: SOS.zoom,
+					toZoom: FasciaCostiera.zoom,
 					speed: 0.3,
 					curve: 1.5,
 					delay: 2000
-				})" >Canale di Sicilia
+				})" >Dettaglo Area 
 				</v-btn> 
 			</div> 
 

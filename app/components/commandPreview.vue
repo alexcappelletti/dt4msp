@@ -15,7 +15,14 @@ const context = ref<Record<string, any>>({
 	[scenario.value?.id ?? 'defaultScenario']: scenario,
 	[geostory.value?.id ?? 'defaultGeostory']: geostory	
 })
-
+onMounted(() => {
+  // Inizializza context al montaggio del componente
+  context.value = {
+	[scenario.value?.id ?? 'defaultScenario']: scenario.value,
+	[geostory.value?.id ?? 'defaultGeostory']: geostory.value
+  }
+  //scenario.value.topics?.DB_Turismo?.description = "Il turismo blu rappresenta un settore in crescita che mira a promuovere attività turistiche sostenibili e responsabili nelle aree costiere e marine. Questo approccio si concentra sulla conservazione dell'ambiente marino, la valorizzazione delle comunità locali e la promozione di pratiche turistiche che minimizzano l'impatto ambientale. Il turismo blu include attività come l'eco-turismo, il turismo subacqueo, le escursioni in barca a basso impatto e la partecipazione a programmi di conservazione marina. L'obiettivo principale è creare un equilibrio tra lo sviluppo turistico e la protezione degli ecosistemi marini, garantendo che le future generazioni possano godere delle bellezze naturali del mare."
+})	
 // 🔁 Watch per aggiornare context quando cambia lo scenario
 watch(() => store.scenario,
   (newScenario) => {
@@ -45,31 +52,38 @@ watch(
 const examples = [
 	{
 		label: 'Descrizione generale dello scenario',
-		value: '{ "command": "text", "path": "${0}.generalDescription"}'
+		value: '{ "command": "text", "path": "${0}.generalDescription"}',
+		param: 'scenarioSoS_bd'
 	},
 	{
 		label: 'Nome scenario',
-		value: '{ "command": "text", "path": "${0}.name", "params": ["bold"] }'
+		value: '{ "command": "text", "path": "${0}.name", "params": ["bold"] }',
+		param: 'scenarioSoS_bd'
 	},
 	{
 		label: 'Narrativa dello scenario',
-		value: '{ "command": "text", "path": "${0}.narrative" }'
+		value: '{ "command": "text", "path": "${0}.narrative" }',
+		param: 'scenarioSoS_bd'
 	},
 	{
 		label: 'Obiettivi dello scenario',
-		value: '{ "command": "text", "path": "${0}.objectives" }'
+		value: '{ "command": "text", "path": "${0}.objectives" }',
+		param: 'scenarioSoS_bd'
 	},
 	{
 		label: 'Descrizione di un tema',
-		value: 'Tra i temi disponibili, il { "command": "text", "path": "${0}.temi.BD_turismo.description" }'
+		value: 'parlando del tema si parla di { "command": "text", "path": "${0}.topics.BD_turismo.description" }',
+		param: 'scenarioSoS_bd'
 	},
 	{
 		label: 'Lista dei dataset',
-		value: 'Lista dei dataset disponibili: { "command": "list", "path": "${0}.datasets" }'
+		value: 'Lista dei dataset disponibili: { "command": "list", "path": "${0}.datasets" }',
+		param: 'scenarioSoS_bd'
 	},
 	{
 	label: 'Titolo della geostoria selezionata',
-	value: 'Geostoria { "command": "text", "params": ["bold"], "path": "${0}.title" }'
+	value: 'Geostoria { "command": "text", "params": ["bold"], "path": "${0}.title" }',
+	param: 'gs01BD'
 	}
 	
 ]
@@ -103,7 +117,6 @@ const rules = [
 		<p class="mb-4">Inserisci un comando JSON nel campo sottostante per vedere il risultato basato sui dati correnti dello scenario e della geostoria.</p>
 		<div class="tw:grid tw:grid-cols-2 tw:border-1 tw:border-green-300">
 			<v-textarea
-				:rules="rules"
 				class="tw:h-80"
 				hide-details="auto"
 				clearable no-resize
@@ -121,7 +134,7 @@ const rules = [
 						<v-btn
 							class="ex-button"
 							variant="outlined"						
-							@click="setInput(example.value, scenario?.id || 'defaultScenario')">
+							@click="setInput(example.value, example.param)">
 							{{ example.label }}
 						</v-btn>
 					</li>

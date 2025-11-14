@@ -11,6 +11,7 @@ import MapViewer from '@/components/mapViewer.vue'
 
 const index = ref(0)
 const geostory = useGeostoryStore().selectedStory
+const store = useGeostoryStore()
 const containerRef = ref<HTMLElement | null>(null)
 const elementRefs = ref<Record<string, Element | null>>({})
 const elements = computed(() => geostory?.elements ?? new Array<StoryElement>())
@@ -193,8 +194,11 @@ function close() {
 					</div>
 					</div>
 					<!-- Visual Section -->
+					 <!-- :visuals="[element.storyItems[0]?.visual as MapVisual]" -->
+						
 					<MapViewer v-if="element.storyItems[0]?.visual?.format === 'MAP'"
-						:visuals="[element.storyItems[0]?.visual as MapVisual]"
+					:visuals="store.mapVisuals"
+					:info="false"
 						:class="['tw:h-96 tw:rounded-lg tw:overflow-hidden tw:shadow',
 							{'tw:md:order-1': isMapOnLeft(element)}]"/> 
 

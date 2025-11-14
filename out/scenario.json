@@ -95,106 +95,11 @@
       "description": "",
       "geospatialResources": [],
       "impacts": {
-        "Incremento del traffico marittimo": {
-          "nome": "Incremento del traffico marittimo",
-          "impactID": "Incremento del traffico marittimo",
-          "impactOnTheme": "Incremento del traffico marittimo",
-          "description": "Proiezioni di aumento della densità di traffico per diverse categorie di navi (CAR +30%, CON +53%, PAS +26%, TGC +38%, RRO +33%), basate su studi EMSA (2024) e letteratura di settore (EMSA-EEA 2021, Piano del Mare 2023, Report SRM 2022)",
-          "layers": [
-            {
-              "id": "sample",
-              "name": "routedensity_allavg",
-              "type": "map",
-              "url": "tinyurl/sample",
-              "workspace": "",
-              "layerName": "routedensity_allavg",
-              "description": "--",
-              "legendUrl": "",
-              "thumbnailUrl": ""
-            },
-            {
-              "id": "sample",
-              "name": "layer_trafficoPSSAPrevisione",
-              "type": "map",
-              "url": "tinyurl/sample",
-              "workspace": "",
-              "layerName": "layer_trafficoPSSAPrevisione",
-              "description": "--",
-              "legendUrl": "",
-              "thumbnailUrl": ""
-            }
-          ]
-        },
-        "Misure di mitigazione": {
-          "nome": "Misure di mitigazione",
-          "impactID": "Misure di mitigazione",
-          "impactOnTheme": "Misure di mitigazione",
-          "description": "Implementazione di interventi per ridurre l’impatto del traffico, tra cui limiti di velocità (10 nodi in area CCH), riduzione della rumorosità, miglioramento della gestione delle acque di zavorra (BWM), e uso di combustibili a basse emissioni.",
-          "layers": [
-            {
-              "id": "sample",
-              "name": "layer_speed10nodi",
-              "type": "map",
-              "url": "tinyurl/sample",
-              "workspace": "",
-              "layerName": "layer_speed10nodi",
-              "description": "--",
-              "legendUrl": "",
-              "thumbnailUrl": ""
-            }
-          ]
-        },
-        "Sviluppo porti sostenibili": {
-          "nome": "Sviluppo porti sostenibili",
-          "impactID": "Sviluppo porti sostenibili",
-          "impactOnTheme": "Sviluppo porti sostenibili",
-          "description": "Elettrificazione delle banchine, disponibilità di combustibili alternativi, gestione dei rifiuti e acque residue (sea water scrubber), in linea con obiettivi di sostenibilità.",
-          "layers": []
-        },
-        "Traffico correlato a eolico offshore": {
-          "nome": "Traffico correlato a eolico offshore",
-          "impactID": "Traffico correlato a eolico offshore",
-          "impactOnTheme": "Traffico correlato a eolico offshore",
-          "description": "Incremento modesto del traffico a corto raggio per costruzione/manutenzione di campi eolici (es. area OW1, OW2, OW4), con potenziali impatti su rotte esistenti.",
-          "layers": [
-            {
-              "id": "sample",
-              "name": "layer_OWFs",
-              "type": "map",
-              "url": "tinyurl/sample",
-              "workspace": "",
-              "layerName": "layer_OWFs",
-              "description": "--",
-              "legendUrl": "",
-              "thumbnailUrl": ""
-            }
-          ]
-        },
-        "Isola energetica": {
-          "nome": "Isola energetica",
-          "impactID": "Isola energetica",
-          "impactOnTheme": "Isola energetica",
-          "description": "Hub per combustibili alternativi (idrogeno, metanolo, elettrico) che riduce pressioni costiere e impone limiti di velocità (10 nodi), con benefici ambientali (rumore, collisioni con megafauna).",
-          "layers": [
-            {
-              "id": "sample",
-              "name": "layer_speed10nodi",
-              "type": "map",
-              "url": "tinyurl/sample",
-              "workspace": "",
-              "layerName": "layer_speed10nodi",
-              "description": "--",
-              "legendUrl": "",
-              "thumbnailUrl": ""
-            }
-          ]
-        },
-        "Regolamentazione e sicurezza": {
-          "nome": "Regolamentazione e sicurezza",
-          "impactID": "Regolamentazione e sicurezza",
+        "undefined": {
+          "name": "Regolamentazione e sicurezza",
           "impactOnTheme": "Regolamentazione e sicurezza",
           "description": "Necessità di approfondire sostenibilità economica e sicurezza nel corridoio NW-SE, con possibili misure aggiuntive come Traffic Separation Schemes (TSS)",
-          "layers": [
+          "geospatialResources": [
             {
               "id": "sample",
               "name": "layer_corridoioNW-SE",

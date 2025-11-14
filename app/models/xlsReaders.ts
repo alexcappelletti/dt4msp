@@ -1,9 +1,9 @@
 import * as XLSX from 'xlsx';
 import { Geostory, defaultGeostory, StoryElement, StoryItem } from './geostory';
 
-import { Scenario, Theme, MapLayer, Impact } from '@/models/scenario';
+import { type Scenario, type Theme, type MapLayer, type Initiative, populateScenario, populateTheme } from '@/models/scenario';
 import { ImageVisual, MapVisual, Visual } from './visual';
-import type {MapVisualOptions} from './visual';
+import type { MapVisualOptions } from './visual';
 
 export class GeostoryXlsxReader {
 	workbook: XLSX.WorkBook | null = null;
@@ -97,7 +97,7 @@ export class GeostoryXlsxReader {
 				comments: row.comment || '',
 				visual: this.getVisual(row) || null,
 			})
-			
+
 
 
 
@@ -202,6 +202,12 @@ export class ScenarioXlsxReader {
 			}
 		}
 		const themes = this.readThemesFromSheet()
+		const initiatives: Initiative[] = []
+		try {
+			themes.forEach(theme => initiatives.push(...this.readInitiativeFromSheet(theme)))		
+		} catch (error) {
+			console.warn("Nessun foglio iniziative trovato per uno o più temi.")
+		}	
 
 		const splitList = (str?: string): string[] =>
 			str ? str.split(';').map(s => s.trim()).filter(Boolean) : []
@@ -214,64 +220,24 @@ export class ScenarioXlsxReader {
 			})
 		)
 
-		return new Scenario({
+		const retValue = populateScenario({
 			id: metadata['id'] || 'scenarioSoS_bd',
 			name: metadata['scenario_name'] || 'Unnamed Scenario',
-			generalDescription: metadata['general_description'] || '',
+			generalDescription: metadata['general_description'],
 			narrative: metadata['narrativa'] || '',
-			temporalScope: metadata['orizzonte_temporale'] || '',
+			temporalScope: metadata['orizzonte_temporale'],
 			maps: splitList(metadata['map(s)']),
 			datasets: splitList(metadata['datasets']),
-			extendedAspects: metadata['extended aspects'] || '',
+			extendedAspects: metadata['extended aspects'],
 			availableThemes: themes,
+			initiatives: initiatives,
 			definedGeostories: geostories,
-			objectives: metadata['narrativa'] || ''
-		})
+			objectives: metadata['narrativa']
+		} as Partial<Scenario>)
+		return retValue
 	}
 
-	readImpactFromSheet(themeSheetName:string): Impact[] {
-		if (!this.workbook) {
-			throw new Error('Nessun workbook caricato. Fornire un file Excel valido.')
-		}
-		const sheet = this.workbook.Sheets[themeSheetName]
-		if (!sheet) {
-			throw new Error(`Foglio impatti ${themeSheetName} relativo al tema non trovato nel file Excel.`)
-		}
-		const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' }) as any[]
-		const impacts: Impact[] =
-			rows.filter(row => {
-				const values = [row.pr, row.description, row.layers, row["impact_on_theme"]]
-				return values.some(v => v && v.toString().trim() !== '')
-			})
-				.map((row, i) => {
-					const rawLayers = row.layers || ''
-					const layerNames = rawLayers
-						.split(/[\n;]+/)
-						.map((l:string) => l.trim())
-						.filter((l:string) => l && l !== 'NA')
-
-					const layers: MapLayer[] = layerNames.map((name: string, idx: number) => new MapLayer({
-						id: `${row.pr || 'impact'}_layer_${idx + 1}`,
-						name,
-						type: 'undefined',
-						url: '',
-						workspace: '',
-						layerName: name,
-						description: '',
-						legendUrl: '',
-						thumbnailUrl: ''
-					}))
-
-					return new Impact({
-						impactID: row.pr || `impact_${i + 1}`,
-						impactName: row.description || `Impatto ${i + 1}`,
-						impactOnTheme: row["impact_on_theme"] || 'NA',
-						description: `Impatto: ${row.description || `Impatto ${i + 1}`}`,
-						layersInvolved: layers
-					})
-				})
-		return impacts
-	}
+	
 
 	readThemesFromSheet(): Theme[] {
 		if (!this.workbook) {
@@ -292,9 +258,9 @@ export class ScenarioXlsxReader {
 				const rawLayers = row['layers/risorsa geospaziale'] || ''
 				const layerNames = rawLayers
 					.split(/[\n;]+/)
-					.map((l:string) => l.trim())
-					.filter((l:string) => l && l !== 'NA')
-				const geospatialResources: MapLayer[] = layerNames.map((name:string, idx:any) => new MapLayer({
+					.map((l: string) => l.trim())
+					.filter((l: string) => l && l !== 'NA')
+				const geospatialResources: MapLayer[] = layerNames.map((name: string, idx: any) => ({
 					id: `${row.theme_id || 'theme'}_layer_${idx + 1}`,
 					name,
 					type: 'undefined',
@@ -304,29 +270,68 @@ export class ScenarioXlsxReader {
 					description: '',
 					legendUrl: '',
 					thumbnailUrl: ''
-				}))
-				const t = new Theme({
-					id: row.nome || `theme_${i + 1}`,
-					theme_id: row.theme_id || `Tema ${i + 1}`,
+				} as MapLayer))
+				//controllare se ci sono tutti i campi necessari altrimenti salta
+				const t = {
+					name: row.nome || `theme_${i + 1}`,
+					indexName: row.theme_id || `Tema ${i + 1}`,
 					type: row.type || 'NA',
 					description: `Tema: ${row.nome || `Tema ${i + 1}`}`,
 					geospatialResources: geospatialResources,
-					impacts: [] // verrà popolato dopo (per evitare dipendenze circolari
-				})
-				try {
-					const impacts: Impact[] = this.readImpactFromSheet(t.theme_id)
-					t.impacts = Object.fromEntries(
-						impacts.map(i => [i.impactID, i]))
-				} catch (error) {
-					console.warn(`⚠️ Impossibile leggere gli impatti per il tema ${row.theme_id}`)
-					//console.error(error)
-				}
-				console.log(`✅ Tema caricato: ${t.theme_id} con ${t.geospatialResources.length} risorse e ${t.impacts.length} impatti.`)
-				return t
+				} as Theme
+				return populateTheme(t)
 			})
 
 		return themes
 	}
 
+	readInitiativeFromSheet(theme: Theme): Initiative[] {
+		if (!theme.indexName) {
+			throw new Error('Il tema fornito non ha un indexName valido.')
+		}	
+		if (!this.workbook) {
+			throw new Error('Nessun workbook caricato. Fornire un file Excel valido.')
+		}
+		const sheet = this.workbook.Sheets[theme.indexName]
+		if (!sheet) {
+			throw new Error(`Foglio intiative  relativo al tema ${theme.indexName} non trovato nel file Excel.`)
+		}
+		const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' }) as any[]
+		const initiatives: Initiative[] =
+			rows.filter(row => {
+				const values = [row.pr, row.description, row.layers, row["impact_on_theme"]]
+				return values.some(v => v && v.toString().trim() !== '')
+			})
+				.map((row, i) => {
+					const rawLayers = row.layers || ''
+					const layerNames = rawLayers
+						.split(/[\n;]+/)
+						.map((l: string) => l.trim())
+						.filter((l: string) => l && l !== 'NA')
+
+					const layers: MapLayer[] = layerNames.map((name: string, idx: number) => ({
+						id: `${row.pr || 'impact'}_layer_${idx + 1}`,
+						name,
+						type: 'undefined',
+						url: '',
+						workspace: '',
+						layerName: name,
+						description: '',
+						legendUrl: '',
+						thumbnailUrl: ''
+					} as MapLayer))
+
+					return ({
+						ID: row.pr || `impact_${i + 1}`,
+						name: row.description || `Impatto ${i + 1}`,
+						impactOnTheme: row["impact_on_theme"] || 'NA',
+						description: `Impatto: ${row.description || `Impatto ${i + 1}`}`,
+						geospatialResources: layers,
+						primaryThemes: [theme],
+						secondaryThemes: new Array<Theme>(),
+					} as Initiative)
+				})
+		return initiatives
+	}
 
 }

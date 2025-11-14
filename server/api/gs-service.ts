@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
 
 	// Calcolo BBOX da tile se z/x/y presenti
 	if (z !== undefined && x !== undefined && y !== undefined) {
-		const tile = [parseInt(x as string), parseInt(y as string), parseInt(z as string)]
+		const tile:tilebelt.Tile = [parseInt(x as string), parseInt(y as string), parseInt(z as string)]
 		const [minLon, minLat, maxLon, maxLat] = tilebelt.tileToBBOX(tile)
 		const bbox = `${minLon},${minLat},${maxLon},${maxLat}`
 
@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
 	
 	// Configura parametri specifici per GeoJSON REST
 	if (ows_type === 'geojson') {
-		url.searchParams.set('typename', layers)
+		url.searchParams.set('typename', layers?.toString() || '')
 	}
 
 	try {

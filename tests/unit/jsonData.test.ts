@@ -1,189 +1,221 @@
 import { describe, expect, it } from "vitest";
-import { Impact, MapLayer, Scenario, Theme } from "../../app/models/scenario";
+import { Initiative, MapLayer, populateScenario, Scenario, Theme } from "../../app/models/scenario";
 import { readFileSync, writeFileSync } from 'fs'
 
 describe("fixture on json rapresentations of data", () => {
 	
 	const getMapLayer = (name:string) =>{
-		return new MapLayer({
-				name:name,
-				id: "sample",
+		return {
+				id: "layer_"+name,
+				name:"sample",
 				type: "map",
 				url: "tinyurl/sample",
 				description: "--",
 				layerName: name,
 				legendUrl: "",
-		})
+		}as MapLayer
 
 	}
 
 
-	const impacts: Array<Impact> = [
-				new Impact({
-					"impactName": "Incremento del traffico marittimo",
-					"impactOnTheme": "Incremento del traffico marittimo",
-					"description": "Proiezioni di aumento della densità di traffico per diverse categorie di navi (CAR +30%, CON +53%, PAS +26%, TGC +38%, RRO +33%), basate su studi EMSA (2024) e letteratura di settore (EMSA-EEA 2021, Piano del Mare 2023, Report SRM 2022)",
-					"layersInvolved": [
+	const initiatives: Array<Initiative> = [
+				{
+					name: "Incremento del traffico marittimo",
+					impactOnTheme: "Incremento del traffico marittimo",
+					description: "Proiezioni di aumento della densità di traffico per diverse categorie di navi (CAR +30%, CON +53%, PAS +26%, TGC +38%, RRO +33%), basate su studi EMSA (2024) e letteratura di settore (EMSA-EEA 2021, Piano del Mare 2023, Report SRM 2022)",
+					geospatialResources: [
 						getMapLayer("routedensity_allavg"), 
 						getMapLayer("layer_trafficoPSSAPrevisione")]
-				}),
-				new Impact({
-					"impactName": "Misure di mitigazione",
-					"impactOnTheme": "Misure di mitigazione",
-					"description": "Implementazione di interventi per ridurre l’impatto del traffico, tra cui limiti di velocità (10 nodi in area CCH), riduzione della rumorosità, miglioramento della gestione delle acque di zavorra (BWM), e uso di combustibili a basse emissioni.",
-					"layersInvolved": [
+				} as Initiative,
+				{
+					name: "Misure di mitigazione",
+					impactOnTheme: "Misure di mitigazione",
+					description: "Implementazione di interventi per ridurre l'impatto del traffico, tra cui limiti di velocità (10 nodi in area CCH), riduzione della rumorosità, miglioramento della gestione delle acque di zavorra (BWM), e uso di combustibili a basse emissioni.",
+					geospatialResources: [
 						getMapLayer("layer_speed10nodi")]
-				}),
-				new Impact({
-					"impactOnTheme":"Sviluppo porti sostenibili",
-					"impactName": "Sviluppo porti sostenibili",
-					"description": "Elettrificazione delle banchine, disponibilità di combustibili alternativi, gestione dei rifiuti e acque residue (sea water scrubber), in linea con obiettivi di sostenibilità.",
-					
-				}),
-				new Impact({
-					"impactName": "Traffico correlato a eolico offshore",
-					"impactOnTheme": "Traffico correlato a eolico offshore",
-					"description": "Incremento modesto del traffico a corto raggio per costruzione/manutenzione di campi eolici (es. area OW1, OW2, OW4), con potenziali impatti su rotte esistenti.",
-					"layersInvolved": [
+				} as Initiative,
+				{
+					name: "Sviluppo porti sostenibili",
+					impactOnTheme:"Sviluppo porti sostenibili",
+					description: "Elettrificazione delle banchine, disponibilità di combustibili alternativi, gestione dei rifiuti e acque residue (sea water scrubber), in linea con obiettivi di sostenibilità.",
+					geospatialResources: [
+						getMapLayer("layer_portiSostenibili")]	
+				} as Initiative,
+				{
+					name: "Traffico correlato a eolico offshore",
+					impactOnTheme: "Traffico correlato a eolico offshore",
+					description: "Incremento modesto del traffico a corto raggio per costruzione/manutenzione di campi eolici (es. area OW1, OW2, OW4), con potenziali impatti su rotte esistenti.",
+					geospatialResources: [
 						getMapLayer("layer_OWFs")]
-				}),
-				new Impact({
-					"impactName": "Isola energetica",
-					"impactOnTheme": "Isola energetica",
-					
-					"description": "Hub per combustibili alternativi (idrogeno, metanolo, elettrico) che riduce pressioni costiere e impone limiti di velocità (10 nodi), con benefici ambientali (rumore, collisioni con megafauna).",
-					"layersInvolved": [
+				} as Initiative,
+				{
+					name: "Isola energetica",
+					impactOnTheme: "Isola energetica",
+					description: "Hub per combustibili alternativi (idrogeno, metanolo, elettrico) che riduce pressioni costiere e impone limiti di velocità (10 nodi), con benefici ambientali (rumore, collisioni con megafauna).",
+					geospatialResources: [
 						getMapLayer("layer_speed10nodi")]
-				}),
-				new Impact({
-					"impactName": "Regolamentazione e sicurezza",
-					"impactOnTheme": "Regolamentazione e sicurezza",
-					"description": "Necessità di approfondire sostenibilità economica e sicurezza nel corridoio NW-SE, con possibili misure aggiuntive come Traffic Separation Schemes (TSS)",
-					"layersInvolved": [
+				} as Initiative,
+				{
+					name: "Regolamentazione e sicurezza",
+					impactOnTheme: "Regolamentazione e sicurezza",
+					description: "Necessità di approfondire sostenibilità economica e sicurezza nel corridoio NW-SE, con possibili misure aggiuntive come Traffic Separation Schemes (TSS)",
+					geospatialResources: [
 						getMapLayer("layer_corridoioNW-SE")]
-				})
+				} as Initiative
 			]
 
 	const themes = [
-		new Theme({
-			"id": "Energia - Oil&Gas",
-			"theme_id": "BD_oil/gas",
-			"type": "secondario",
+		{
+			name:"Energia - Oil&Gas",
+			indexName: "BD_oil/gas",
+			type: "secondario",
+			description: "",
+			geospatialResources:[],
+		}as Theme,
+		{	
+			name:"Sicurezza e sorveglianza",
+			indexName: "BD_sicurezza",
+			type: "secondario",
 			description: "",
 			geospatialResources:[],
 			impacts:[]
-		}),
-		new Theme({
-			"id": "Sicurezza e sorveglianza",
-			"theme_id": "BD_sicurezza",
-			"type": "secondario",
+		}as Theme,
+		{
+			name:"Acquacoltura",
+			indexName: "BD_H2o",
+			type: "primario",
 			description: "",
 			geospatialResources:[],
 			impacts:[]
-		}),
-		new Theme({
-			"id": "Acquacoltura",
-			"theme_id": "BD_H2o",
-			"type": "primario",
+		}as Theme,
+		{
+			name:"Difesa costiera",
+			indexName: "BD_difesa",
+			type: "primario",
 			description: "",
 			geospatialResources:[],
-			impacts:[]
-		}),
-		new Theme({"id": "Difesa costiera",
-			"theme_id": "BD_difesa",
-			"type": "primario",
+		
+		}as Theme,
+		{	
+			name:"Energia",
+			indexName: "BD_energia1",
+			type: "primario",
 			description: "",
 			geospatialResources:[],
-			impacts:[]
-		}),
-		new Theme({"id": "Energia",
-			"theme_id": "BD_energia1",
-			"type": "primario",
+		}as Theme,
+		{
+			name:"Paesaggio e patrimonio culturale",
+			indexName: "BD_paesaggio",
+			type: "primario",
 			description: "",
 			geospatialResources:[],
-			impacts:[]
-		}),
-		new Theme({"id": "Paesaggio e patrimonio culturale",
-			"theme_id": "BD_paesaggio",
-			"type": "primario",
+		}as Theme,
+		{
+			name:"Pesca",
+			indexName: "BD_pesca",
+			type: "primario",
 			description: "",
 			geospatialResources:[],
-			impacts:[]
-		}),
-		new Theme({"id": "Pesca",
-			"theme_id": "BD_pesca",
-			"type": "primario",
+		}as Theme,
+		{	name:"Protezione ambientale",
+			indexName: "BD_ambiente",
+			type: "primario",
 			description: "",
 			geospatialResources:[],
-			impacts:[]
-		}),
-		new Theme({"id": "Protezione ambientale",
-			"theme_id": "BD_ambiente",
-			"type": "primario",
+			
+		}as Theme,
+		{
+			name:"Ricerca & Innovazione",
+			indexName: "BD_innovazione",
+			type: "primario",
 			description: "",
 			geospatialResources:[],
-			impacts:[]
-		}),
-		new Theme({"id": "Ricerca & Innovazione",
-			"theme_id": "BD_innovazione",
-			"type": "primario",
+			
+		}as Theme,
+		{
+			name:"Trasporto Marittimo",
+			indexName: "BD_trasporto",
+			type: "primario",
 			description: "",
 			geospatialResources:[],
-			impacts:[]
-		}),
-		new Theme({"id": "Trasporto Marittimo",
-			"theme_id": "BD_trasporto",
-			"type": "primario",
+		}as Theme,
+		{
+			name:"Turismo Costiero e Marittimo",
+			indexName: "BD_turismo",
+			type: "primario",
 			description: "",
 			geospatialResources:[],
-			impacts:impacts
-		}),
-		new Theme({"id": "Turismo Costiero e Marittimo",
-			"theme_id": "BD_turismo",
-			"type": "primario",
+			
+		}as Theme,
+		{
+			name:"Energia rinnovabile",
+			indexName: "Energia1",
+			type: "NA",
 			description: "",
 			geospatialResources:[],
-			impacts:[]
-		}),
-		new Theme({"id": "Energia rinnovabile",
-			"theme_id": "Energia1",
-			"type": "NA",
+		}as Theme,
+		{
+			name:"Turismo",
+			indexName: "Turismo",
+			type: "NA",
 			description: "",
 			geospatialResources:[],
-			impacts:[]
-		}),
-		new Theme({"id": "Turismo",
-			"theme_id": "Turismo",
-			"type": "NA",
-			description: "",
-			geospatialResources:[],
-			impacts:[]
-		})
+			
+		}as Theme
 	]
 
-	const scenario = new Scenario({
-		"id": "scenarioSoS_bd",
-		"name": "Blue Development",
-		"generalDescription": "Economia blu sostenibile basata su soluzioni innovative/tecnologie verdi",
-		"narrative": "obiettivi di conservazione e azioni per fvorire sviluppo sostenibile di economa blu (focus settori innovativi, utilizzo di NBS, teconologie per diminuire impatti antropici)",
-		"temporalScope": "2040 - probabile orizzonte di più lungo periodo (causa settori trasporto marittimo, pesca, soluzioni/tecnologie adottate)",
-		"maps": ["geonodeMap_1", "geonodeMap_2", "geoSOS"],
-		"datasets": ["dataset_bd1", "dataset_bd2", "MF_SoS"],
-		"extendedAspects": "valutazione_preliminare, norme",
-		"availableThemes": themes,
-		"definedGeostories": [],
+	const scenario = {
+		id:"scenarioSoS_bd",
+		name: "Blue Development",
+		generalDescription: "Economia blu sostenibile basata su soluzioni innovative/tecnologie verdi",
+		narrative: "obiettivi di conservazione e azioni per fvorire sviluppo sostenibile di economa blu (focus settori innovativi, utilizzo di NBS, teconologie per diminuire impatti antropici)",
+		temporalScope: "2040 - probabile orizzonte di più lungo periodo (causa settori trasporto marittimo, pesca, soluzioni/tecnologie adottate)",
+		maps: ["geonodeMap_1", "geonodeMap_2", "geoSOS"],
+		datasets: ["dataset_bd1", "dataset_bd2", "MF_SoS"],
+		extendedAspects: "valutazione_preliminare, norme",
+		topics: {},
+		availableThemes: themes,
+		initiatives: initiatives,
+		definedGeostories: [],
 		objectives: ""
-		
+	} as Scenario
+
+	it ("should check default scenario", () => {
+		const emptyScenario: Scenario = populateScenario({} as Partial<Scenario>)
+		expect(emptyScenario.id).toBeDefined()
+		expect(emptyScenario.name).toBe("")
+		expect(emptyScenario.generalDescription).toBe("metti una descrizione generale qui")
+		expect(emptyScenario.narrative).toBe("metti descr narrativa qui")
+		expect(emptyScenario.temporalScope).toBe("")
+		expect(emptyScenario.maps.length).toBe(0)
+		expect(emptyScenario.datasets.length).toBe(0)
+		expect(emptyScenario.extendedAspects).toBe("")
+		expect(Object.keys(emptyScenario.topics).length).toBe(0)
+		expect(emptyScenario.definedGeostories.length).toBe(0)
+		expect(emptyScenario.objectives).toBe("")
 	})
 
+	it("should load scenario from json file", () => {
+		const infile = "./tests/fixtures/scenario_bd.json"
+		const data: Scenario = JSON.parse(readFileSync(infile, 'utf-8'))
+		expect(data).toBeDefined()
+		expect(data.id).toBe("scenarioSoS_bd")
+		expect(data.name).toBe("Blue Development")
+		expect(Object.values(data.topics).length).toBe(13)
+		expect(data.topics["BD_trasporto"]).toBeDefined()
+	})
+
+
 	it("should save scenario on file", () => {
-		expect(Object.values(scenario.topics).length).toBe(13)
-		expect(scenario.topics["BD_trasporto"]).toBeDefined()
-		const outfile = "./out/scenario.json"
-		writeFileSync(outfile, JSON.stringify(scenario, null, 2), 'utf-8')
+		expect(themes.length).toBe(13)
+		const testing = populateScenario({...scenario, availableThemes: themes} as Partial<Scenario>)
+		expect(testing.availableThemes?.length).toBe(13)
+		expect(testing.topics["BD_trasporto"]).toBeDefined()
+		const outfile = "./tests/fixtures/out_scenario_bd.json"
+		writeFileSync(outfile, JSON.stringify(testing, null, 2), 'utf-8')
 		const expected: Scenario = JSON.parse(readFileSync(outfile, 'utf-8'))
-		expect(expected.id).toBe(scenario.id)
-		expect(Object.values(expected.temi).length).toBe(13)
+		expect(expected.id).toBe(testing.id)
+		expect(expected.availableThemes?.length).toBe(13)
 
 	})
 

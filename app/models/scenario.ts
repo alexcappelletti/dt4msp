@@ -1,6 +1,7 @@
+import { dataset } from "happy-dom/lib/PropertySymbol.js";
 import type { Geostory } from "./geostory";
-
-export class Scenario {
+import { generateUUID } from "@/utils/generateUUID";
+export interface Scenario {
 	id: string;
 	name: string;
 	generalDescription: string;
@@ -9,115 +10,145 @@ export class Scenario {
 	maps: string[]
 	datasets: string[];
 	extendedAspects: string;
-	topics: Record<string, Theme|ExtendedAspects>;
+	initiatives: Array<Initiative>;
+	availableThemes?: Array<Theme>;
+	topics: Record<string, Theme>;
 	definedGeostories: Geostory[];
 	objectives: string;
-
-	constructor(params: {
-		id: string,
-		name: string,
-		generalDescription: string,
-		narrative: string,
-		temporalScope: string,
-		maps: string[],
-		datasets: string[],
-		extendedAspects: string,
-		availableThemes: Theme[],
-		definedGeostories: Geostory[],
-		objectives: string,
-	}) {
-		this.id = params.id;
-		this.name = params.name;
-		this.generalDescription = params.generalDescription;
-		this.narrative = params.narrative;
-		this.temporalScope = params.temporalScope;
-		this.maps = params.maps || [];
-		this.datasets = params.datasets || [];
-		this.extendedAspects = params.extendedAspects;
-		this.topics = Object.fromEntries(
-				params.availableThemes.map(t => [t.theme_id, t])
-		)
-
-		this.definedGeostories = params.definedGeostories || [];
-		this.objectives = params.objectives;
-	}
 }
 
 
-export class BaseTheme {
-	nome: string;
-	theme_id: string;
-	type: string;
+
+export function populateScenario(scenario: Partial<Scenario>): Scenario {
+	const emptyScenario: Scenario = {
+		id: generateUUID(),
+		name: '',
+		generalDescription: 'metti una descrizione generale qui',
+		narrative: 'metti descr narrativa qui',
+		temporalScope: '',
+		maps: [],
+		datasets: [],
+		extendedAspects: '',
+		initiatives: [],
+		topics: {},
+		availableThemes: [],
+		definedGeostories: [],
+		objectives: ''
+	} as Scenario;
+	const retValue: Scenario = {
+		...emptyScenario,
+		...scenario,
+	};
+	if (!scenario.availableThemes || scenario.availableThemes.length === 0) {
+		console.warn("availableThemes non è disponibile per popolare i topics.");
+		return retValue;
+	}
+	retValue.topics = scenario.availableThemes.reduce((accumulator, theme) => {
+		accumulator[theme.indexName] = theme;
+		return accumulator;
+	}, {} as Record<string, Theme>);
+
+	return retValue;
+}
+
+export interface Theme {
+	ID?: string;
+	name: string;
+	indexName: string
+	type: "secondario" | "primario" | "NA";
 	description: string;
 	geospatialResources: MapLayer[];
-
-	
-	
-
+	tags?: string[];
 }
-
-export class Theme extends BaseTheme{
-	impacts: Record<string, Impact>;
-	constructor(p: {
-		id: string;
-		theme_id: string;
-		type: string;
-		description: string;
-		geospatialResources: MapLayer[];
-		impacts: Impact[];
-	}) {
-		super()
-		this.nome = p.id;
-		this.theme_id = p.theme_id;
-		this.type = p.type;
-		this.description = p.description;
-		this.geospatialResources = p.geospatialResources || [];
-		this.impacts = Object.fromEntries(
-			p.impacts.map(i => [i.impactID, i])) 
-		//aggiungere a geospatialResources eventuali layer  che trovo in ciascun impact. 
-		// I layer devono essere univoci
-	}
+export function populateTheme(theme: Partial<Theme>): Theme {
+	const defaultTheme: Theme = {
+		ID: generateUUID(),
+		indexName: '',
+		name: '',
+		type: 'NA',
+		description: '',
+		geospatialResources: new Array<MapLayer>(),
+		tags: new Array<string>()
+	} as Theme;
+	return {
+		...defaultTheme,
+		...theme,
+	};
 }
-
-export class ExtendedAspects extends BaseTheme {
-	//campi estesi TOBEDEFINED
-	constructor(p: {
-		id: string;
-		theme_id: string;
-		type: string;
-		description: string;
-		geospatialResources: MapLayer[];
-	}) {
-		super()
-		this.nome = p.id;
-		this.theme_id = p.theme_id;
-		this.type = p.type;
-		this.description = p.description;
-		this.geospatialResources = p.geospatialResources || [];
-		
-	}
-}
-
-export class Impact {
-	nome: string;
-	impactID: string;
+export interface Initiative {
+	name: string;
+	ID: string;
 	impactOnTheme: string;
 	description: string;
-	layers: MapLayer[];
-	constructor(p: {
-		impactID: string, 
-		impactName: string;
-		impactOnTheme: string;
-		description: string;
-		layersInvolved?: MapLayer[];
-	}) {
-		this.nome = p.impactName;
-		this.impactID = p.impactOnTheme;
-		this.impactOnTheme = p.impactOnTheme;
-		this.description = p.description;
-		this.layers = p.layersInvolved || [];
-	}
+	geospatialResources: MapLayer[];
+	primaryThemes: Theme[];
+	secondaryThemes: Theme[];
 }
+
+
+
+// export class BaseTheme  {
+// 	nome: string;
+// 	theme_id: string;
+// 	type: string;
+// 	description: string;
+// 	geospatialResources: MapLayer[];
+// 	constructor() {
+// 		this.nome = '';
+// 		this.theme_id = '';
+// 		this.type = '';
+// 		this.description = '';
+// 		this.geospatialResources = [];
+// 	}
+// }
+
+// export class Theme extends BaseTheme {
+// 	impacts: Record<string, Initiative>;
+// 	constructor(p: {
+// 		id: string;
+// 		theme_id: string;
+// 		type: string;
+// 		description: string;
+// 		geospatialResources: MapLayer[];
+// 		impacts: Initiative[];
+// 	}) {
+// 		super()
+// 		this.nome = p.id;
+// 		this.theme_id = p.theme_id;
+// 		this.type = p.type;
+// 		this.description = p.description;
+// 		this.geospatialResources = p.geospatialResources || [];
+// 		this.impacts = Object.fromEntries(
+// 			p.impacts.map(i => [i.ID, i]))
+// 		//aggiungere a geospatialResources eventuali layer  che trovo in ciascun impact. 
+// 		// I layer devono essere univoci
+// 	}
+// }
+
+// export class ExtendedAspects extends BaseTheme {
+// 	//campi estesi TOBEDEFINED
+// 	constructor(p: {
+// 		id: string;
+// 		theme_id: string;
+// 		type: string;
+// 		description: string;
+// 		geospatialResources: MapLayer[];
+// 	}) {
+// 		super()
+// 		this.nome = p.id;
+// 		this.theme_id = p.theme_id;
+// 		this.type = p.type;
+// 		this.description = p.description;
+// 		this.geospatialResources = p.geospatialResources || [];
+
+// 	}
+// }
+//--------------------
+//rappresenta una misura di pianificazione o gestione o lo stato attuale
+
+
+
+
 
 export class MapLayer {
 	id: string;

@@ -1,4 +1,4 @@
-l// src/types.ts
+// src/types.ts
 interface BboxBounds {
     maxx: number;
     maxy: number;
