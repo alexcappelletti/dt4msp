@@ -17,7 +17,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          
+      - name: "clean up repository if needed"
+        run: rm -rf node_modules package-lock.json
+        working-directory: ./msp-analyzer    
       # Pick your own package manager and build script
       - name: "use corepack" 
         run: corepack enable
