@@ -2,6 +2,8 @@
 ./geoview-app
 
 
+#package  -lock.json
+package-lock.json
 
 # Nuxt dev/build outputs
 .output
