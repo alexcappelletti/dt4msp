@@ -1,37 +1,41 @@
 # https://github.com/actions/deploy-pages#usage
-name: Deploy  nuxt app to GitHub Pages
+name: Deploy nuxt app to GitHub Pages
+
 on:
   workflow_dispatch:
   push:
     branches:
-      - depl
+      - deploy # Corretto da 'depl' a 'deploy' per chiarezza e consistenza
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-	  - name: Setup Node.js environment
-	  	uses: actions/setup-node@v4
+      
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
         with:
-          	node-version: "20"
+          node-version: "20"
+          
       # Pick your own package manager and build script
       - name: "use corepack" 
-		run: corepack enable	
-		working-directory: ./msp-analyzer
+        run: corepack enable
+        working-directory: ./msp-analyzer
 
-	- name: "install dependencies" 
-		run: npm install
-		working-directory: ./msp-analyzer
+      - name: "install dependencies" 
+        run: npm install
+        working-directory: ./msp-analyzer
 
       - name: "compile nuxt in local folder" 
-		run: npx nuxt build --preset github_pages
-		working-directory: ./msp-analyzer
-		
+        run: npx nuxt build --preset github_pages
+        working-directory: ./msp-analyzer
+        
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./msp-analyzer/.output/public
+          
   # Deployment job
   deploy:
     # Add a dependency to the build job
