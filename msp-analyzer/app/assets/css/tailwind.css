@@ -1,0 +1,52 @@
+
+/* @import url('https://fonts.cdnfonts.com/css/nbp-sydnie2-scoreboard'); */
+@import "tailwindcss"  prefix(tw) important;
+/* 
+per verfica compila in file di esempio:  
+npx @tailwindcss/cli -i app/assets/css/tailwind.css -o .output-workaround.css --config tailwind.config.ts
+*/
+@font-face {
+  font-family: 'Killos';
+  src: url('../fonts/killos.ttf') format('truetype');
+}
+@theme {
+	--color-ux1: #16733E; 
+	--color-ux2: #498C66; 
+	--color-ux3: #038C25; 
+	--color-ux4: #8C3D35; 
+	--color-ux5: #F2F2F2; 
+	--color-alex: #ff006e;
+	--color-primary: var(--color-ux3);
+	--color-text: #0077B7;
+	--color-secondary: #ffb703;
+	--color-debug: #e59b46;
+    --debug: #aa23cd; 
+	--font-roboto: 'Roboto',sans-serif;
+	--font-mio: "Sansation";
+	--font-dynapuff: "DynaPuff", system-ui;
+	--font-killos: 'Killos', sans-serif;
+	--font-scoreboard: 'NBP Sydnie2 Scoreboard', sans-serif;
+} 
+
+
+
+@layer utilities {
+	.font-roboto {
+    	font-family: 'Roboto', sans-serif;
+	}
+	.font-mio {
+		font-family: var(--font-mio);
+	}
+	.font-dynapuff {
+		font-family: var(--font-dynapuff);
+  	}
+	.font-killos {
+		font-family: var(--font-killos);
+		color:var(--color-debug);
+		background-color: var(--debug);
+	}
+	.font-sb{
+		font-family: var(--font-scoreboard);
+	}
+	
+}

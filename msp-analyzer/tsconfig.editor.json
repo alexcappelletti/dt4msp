@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@": ["./app"],  // Adatta se la tua cartella sorgente non è "src"
+	  "@/*": ["./app/*"]
+
+    },
+    "types": ["nuxt"],
+    "moduleResolution": "node",
+    "target": "ESNext",
+    "module": "ESNext",
+    "lib": ["DOM", "ESNext"],
+    "allowJs": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+
+  },
+  "include": ["app", "tests"]
+}

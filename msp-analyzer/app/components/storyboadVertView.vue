@@ -1,0 +1,299 @@
+<script setup lang="ts">
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
+
+import { Geostory, Section, StoryElement, StoryItem, StoryItemStyle } from '@/models/geostory'
+import { useGeostoryStore } from '@/stores/geostoryStore'
+import { useVisibleStoryElement } from '@/composables/trackingStoryElement'
+import type { MapVisual } from '~/models/visual'
+
+import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/24/solid'
+import MapViewer from '@/components/mapViewer.vue'
+
+const index = ref(0)
+const geostory = useGeostoryStore().selectedStory
+const store = useGeostoryStore()
+const containerRef = ref<HTMLElement | null>(null)
+const elementRefs = ref<Record<string, Element | null>>({})
+const elements = computed(() => geostory?.elements ?? new Array<StoryElement>())
+const {
+	activeElementId,
+	activeElement,
+	activeIndex,
+	scrollTo,
+	isVisible
+} = useVisibleStoryElement(elements, containerRef, elementRefs, index)
+
+
+const currentElement = computed(() => geostory?.elements[index.value])
+const storyItem = computed(() => {
+	const el = currentElement.value
+	if (el === undefined || el.storyItems?.length <= 0) { return undefined }
+	return el.storyItems[0]
+})
+
+const toc = computed(() => {
+	const sections = geostory?.getSections() || new Map<string, Section>();
+	const tocStructure: { title: string; element: StoryElement }[] = [];
+	const insertedTitles = new Set<string>();
+	for (const sectionKey of sections.keys()) {
+		const section = sections.get(sectionKey);
+		if (!section) continue;
+		const title = section.getTitle();
+		if (!title || insertedTitles.has(title)) continue;
+		const firstElement = section.elements[0];
+		if (!firstElement) continue;
+
+		tocStructure.push({ title, element: firstElement });
+		insertedTitles.add(title);
+	}
+	//tocStructure.sort((a, b) => a.title.localeCompare(b.title));
+	return tocStructure;
+});
+
+// 
+const currentSectionModel = computed({
+	get: () => activeElement.value?.sectionID ?? null,
+	set: (sectionId) => {
+		// Quando l'utente clicca sul bottone, il v-model chiama il setter.
+		const element = elements.value.find(el => el.sectionID === sectionId);
+		if (element) {scrollTo(element.id);}
+	}
+});
+function getVerticalAlignmentClass(element: StoryElement): string {
+    // Dovrai adattare questo percorso se lo stile non si trova qui esattamente
+    const pos = element.storyItems?.[0]?.style?.textAlignment || 'center'; 
+
+    switch (pos) {
+        case 'top':
+            return 'tw:justify-start'; // Allinea in alto
+        case 'bottom':
+            return 'tw:justify-end';   // Allinea in basso
+        case 'center':
+        default:
+            return 'tw:justify-center'; // Allinea al centro
+    }
+}
+
+function isMapOnLeft(element: StoryElement): boolean {
+    const visualPos = element.storyItems?.[0]?.style?.visualPos || 'right';
+    return visualPos === 'left';
+}
+
+
+
+function setAlignment(propName: keyof StoryItemStyle, value: string){
+	if (activeElement.value?.storyItems?.[0]?.style) {
+		(activeElement.value.storyItems[0].style as any)[propName] = value;
+	}
+	else {
+		console.warn('Impossibile impostare lo stile: activeElement o i suoi item non sono definiti.');
+	}
+}
+
+function scrollToPreviousElement() {
+	const prev = elements.value[Math.max(0, activeIndex.value - 1)]
+	if (prev) {scrollTo(prev.id)}
+}
+
+function scrollToNextElement() {
+	const next = elements.value[Math.min(elements.value.length - 1, activeIndex.value + 1)]
+	if (next){ scrollTo(next.id)}
+}
+
+
+
+function getBackgroundStyle(el:StoryElement): any {
+	const url = el?.storyItems[0]?.visual?.getUrl()
+	return url ? {
+		backgroundImage: `url('${url}')`,
+		backgroundSize: 'cover',
+		backgroundPosition: 'center',
+		backgroundRepeat: 'no-repeat'
+	} : {}
+}
+
+function setRef(el: Element | ComponentPublicInstance | null, id: string) {
+	if (el instanceof HTMLElement) {
+		elementRefs.value[id] = el
+	}
+}
+
+function close() {
+	navigateTo('/')
+	
+}
+</script>
+
+<template>
+	<div class="border-md  tw:min-h-100">
+		<div class="tw:flex tw:flex-row ">
+			<!-- pseudo navigation on sections-->
+			<v-item-group 
+				v-model="currentSectionModel"
+				class="d-flex ga-4 ml-10 align-center"
+				mandatory>
+				
+				<v-item 
+					v-for="(item, idx) in toc"
+					:key="item.element.id"
+					:value="item.element.sectionID"
+					v-slot="{ isSelected }">
+					<!-- Usa :color per cambiare il colore del pulsante e renderlo flat (elevation-0) -->
+					<v-btn
+						:variant="isSelected ? 'flat' : 'outlined'" 
+						:color="isSelected ? 'primary' : ''"
+						@click="scrollTo(item.element.id)">
+						
+						{{ item.title || 'Sezione' }}
+					</v-btn>
+				</v-item>	
+			</v-item-group>
+			<v-btn
+				class="ml-auto mr-10"
+				variant="outlined"
+				icon="mdi-close"
+				@click="close">
+
+			</v-btn>
+			
+
+		</div>
+		<!-- Story Elements here-->
+		<div class="st-element" ref="containerRef" >
+			<div v-for="(element, idx) in elements"
+				:key="element.id"
+				:ref="el => setRef(el, element.id)"
+				:data-id="element.id"
+				:class="['selected-element',
+					isVisible(element.id) ? 'tw:ring-4 tw:ring-ux2' : 'tw:bg-ux5'			
+				]
+
+				">
+				<div :class="['tw:grid tw:h-full', 
+					element.storyItems[0]?.visual?.format === 'MAP' ? 
+					'tw:grid-cols-1 tw:md:grid-cols-2' : 'tw:grid-cols-1'
+
+				]">
+					<!-- Text with Background content -->
+					<div 
+						:class="[
+							'tw:relative tw:flex tw:flex-col',
+							getVerticalAlignmentClass(element),
+							{ 'tw:md:order-2': isMapOnLeft(element) } 
+						]"
+						:style="getBackgroundStyle(element)">
+						<div class="tw:p-6  tw:z-10 
+							tw:bg-black/40 tw:backdrop-blur-sm">
+						
+						<h2 class="tw:mb-2 tw:text-xl tw:text-ux1 ">
+							{{element.storyItems[0]?.title}}
+						</h2>
+						<p class="tw:text-white tw:text-2xl tw:mb-4 tw:mt-5">
+							{{element.storyItems[0]?.text}}
+						</p>
+					</div>
+					</div>
+					<!-- Visual Section -->
+					 <!-- :visuals="[element.storyItems[0]?.visual as MapVisual]" -->
+						
+					<MapViewer v-if="element.storyItems[0]?.visual?.format === 'MAP'"
+					:visuals="store.mapVisuals"
+					:info="false"
+						:class="['tw:h-96 tw:rounded-lg tw:overflow-hidden tw:shadow',
+							{'tw:md:order-1': isMapOnLeft(element)}]"/> 
+
+
+				</div>
+			</div>
+		</div> 
+	<!-- Navigation Buttons -->
+  	<!-- <div class="
+		relative bottom-0 left-0 
+		w-full flex justify-end gap-4 px-6 -top-7 z-10">
+		<button :disabled="index <= 0"
+			class="nav-button"
+			@click="scrollToPreviousElement">
+			<ChevronUpIcon class="w-4 h-4 sm:w-5 sm:h-5" />
+		</button>
+
+		<button :disabled="index >= elements.length - 1"
+			class="nav-button"
+			@click="scrollToNextElement">
+				<ChevronDownIcon class="w-4 h-4 sm:w-5 sm:h-5" />
+		</button>
+	</div>	 -->
+
+	<!--<div class="z-20 bg-white/80 mt-1 backdrop-blur-sm px-4 flex flex-wrap gap-2  m-5"> 
+		<button
+			v-for="(item, idx) in toc"
+			:key="item.element.id"
+			@click="scrollTo(item.element.id)"
+			:class="[
+			'text-sm px-3 py-2 rounded-full whitespace-nowrap transition-colors',
+			activeElement?.sectionID === item.element.sectionID
+				? 'bg-primary text-white font-semibold'
+				: 'bg-ux5 text-ux1 hover:bg-neutral-400 hover:text-white'
+			]"
+		>
+			
+		</button> 
+	</div> -->
+	</div>	
+		<div class="tw:mt-10 tw:pl-10 tw:flex tw:flex-row tw:gap-4 tw:bg-alex">
+			<v-btn @click="setAlignment('textAlignment', 'top')">text@top</v-btn>
+			<v-btn @click="setAlignment('textAlignment', 'center')">centerd</v-btn>
+			<v-btn @click="setAlignment('textAlignment', 'bottom')">text@bottom</v-btn>
+			<v-btn class="tw:ml-20" @click="setAlignment('visualPos', 'left')">map@left</v-btn>
+			<v-btn @click="setAlignment('visualPos', 'right')">map@right</v-btn>
+		</div>
+
+		
+		<!-- <v-btn @click="activeElement?.style?.textAlignment = 'center'"></v-btn>
+		<v-btn @click="activeElement?.style?.textAlignment = 'bottom'"></v-btn> -->
+
+
+
+</template>
+<style lang="css" scoped>
+@reference "@/assets/css/tailwind.css";
+
+.sam {
+	@apply tw:mt-8
+
+}
+
+.st-element {
+	@apply 
+		tw:relative tw:h-[82vh] 
+		tw:snap-y tw:snap-mandatory 
+		tw:scroll-p-5
+		tw:overflow-y-auto 
+		tw:px-4 
+		tw:py-6 
+		tw:bg-gray-200;
+}
+.selected-element{
+	@apply tw:shadow tw:snap-start 
+	tw:overflow-hidden 
+	tw:m-5 
+	tw:border tw:rounded-2xl tw:border-ux3;
+	height: calc(100% - 0.2rem); /* poco meno del contenitore */
+
+}
+
+
+.element-full-h {
+	height: 100%;
+}
+.img {
+    background-image: url("https://design-earth.org/files/gimgs/193_056B8804.jpg");
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+/* .nav-button {
+	@apply tw:mt-2 px-4 py-2 bg-primary text-ux5 rounded-lg text-sm hover:bg-ux1 transition-colors;
+
+
+} */
+</style>
