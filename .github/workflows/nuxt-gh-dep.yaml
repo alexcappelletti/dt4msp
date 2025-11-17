@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - deploy # Corretto da 'depl' a 'deploy' per chiarezza e consistenza
+      - depl # Corretto da 'depl' a 'deploy' per chiarezza e consistenza
 
 jobs:
   build:
