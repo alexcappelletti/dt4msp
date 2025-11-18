@@ -27,7 +27,7 @@ export default defineNuxtConfig({
 	// },
 
 	nitro: {
-		preset: 'node'
+		
 	},
 	vite: {
 		server: {
