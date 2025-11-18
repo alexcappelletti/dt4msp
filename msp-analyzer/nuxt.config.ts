@@ -15,6 +15,7 @@ export default defineNuxtConfig({
 	app: {
 		rootId: 'nuxt-root', // opzionale, se vuoi personalizzare l'ID del root element
 		// Usa app/app.vue come root: Nuxt 4 lo rileva automaticamente se presente
+		baseURL: '/dt4msp/', // Imposta la base URL dell'applicazione
 	},
 	css: [
 		'vuetify/styles',
