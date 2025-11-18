@@ -1,22 +1,79 @@
 import { dataset } from "happy-dom/lib/PropertySymbol.js";
 import type { Geostory } from "./geostory";
 import { generateUUID } from "@/utils/generateUUID";
+
+
+export interface Project{
+	id: string;
+	name: string;
+	description: string;
+	scenarios: Array<Scenario>;
+	createdAt: Date;
+	updatedAt: Date;
+
+}
+
+export interface AreaOfInterest {
+	id: string;
+	name: string;
+	longName: string;
+	coordinates?: Array<number[]>; //array di array di coordinate che definiscono il poligono
+	description: string;
+
+}
+
 export interface Scenario {
 	id: string;
 	name: string;
+	areaOfInterest?: AreaOfInterest;
 	generalDescription: string;
 	narrative: string;
 	temporalScope: string;
 	maps: string[]
 	datasets: string[];
-	extendedAspects: string;
-	initiatives: Array<Initiative>;
-	availableThemes?: Array<Theme>;
-	topics: Record<string, Theme>;
+	measures: Array<Measure>;
+	effects?: Array<Effect>;
+	availableThemes?: Array<Theme>;  //tutti i temi disponibili per lo scenario
+	primaryThemes?: Array<Theme>; //temi primari selezionati per lo scenario
+	secondaryThemes?: Array<Theme>; //temi secondari selezionati per lo scenario
+	topics: Record<string, Theme>;  //themi specifificati per index name ->serve per indizzare i temi quando si usa il query-language
+	statements?: Array<Statement>;
 	definedGeostories: Geostory[];
 	objectives: string;
 }
+export interface Theme {
+	ID?: string;
+	name: string;
+	indexName: string   ; //nome univoco per lo scenario usato per creare il riferimento al tema 
+	type: "secondario" | "primario" | "NA"; //non é qui ma nel momento in cui si associa allo scenario
+	description: string;
+	geospatialResources: MapLayer[];
+	tags?: string[];
+}
 
+export interface Measure {
+	name: string;
+	ID: string;
+	impact: string;
+	description: string;
+	geospatialResources: MapLayer[];
+	referenceThemes: Array<Theme>;  //specifica i temi che sono associati alla misura  scelti tra i primari ed i secondari dello scenario
+}
+
+export interface Statement {
+	shortName: string;
+	longName: string;
+	ID:	string;
+	description: string;
+	imageUrl?: string|URL;
+	sectorThemes: Array<Theme>; //specifica i statement  che sono associati ad uno o piú temi
+}
+
+export interface Effect extends Measure {
+	name: string;
+	ID: string;
+	description: string;
+}
 
 
 export function populateScenario(scenario: Partial<Scenario>): Scenario {
@@ -26,14 +83,22 @@ export function populateScenario(scenario: Partial<Scenario>): Scenario {
 		generalDescription: 'metti una descrizione generale qui',
 		narrative: 'metti descr narrativa qui',
 		temporalScope: '',
+		objectives: '',
 		maps: [],
-		datasets: [],
-		extendedAspects: '',
-		initiatives: [],
-		topics: {},
+		areaOfInterest: undefined,
 		availableThemes: [],
+
+		statements: [],
+		datasets: [],
+		measures: [],
+		effects: [],
+		primaryThemes: [],
+		secondaryThemes: [],
+		
+		topics: {},
+		
 		definedGeostories: [],
-		objectives: ''
+		
 	} as Scenario;
 	const retValue: Scenario = {
 		...emptyScenario,
@@ -47,19 +112,9 @@ export function populateScenario(scenario: Partial<Scenario>): Scenario {
 		accumulator[theme.indexName] = theme;
 		return accumulator;
 	}, {} as Record<string, Theme>);
-
 	return retValue;
 }
 
-export interface Theme {
-	ID?: string;
-	name: string;
-	indexName: string
-	type: "secondario" | "primario" | "NA";
-	description: string;
-	geospatialResources: MapLayer[];
-	tags?: string[];
-}
 export function populateTheme(theme: Partial<Theme>): Theme {
 	const defaultTheme: Theme = {
 		ID: generateUUID(),
@@ -75,17 +130,6 @@ export function populateTheme(theme: Partial<Theme>): Theme {
 		...theme,
 	};
 }
-export interface Initiative {
-	name: string;
-	ID: string;
-	impactOnTheme: string;
-	description: string;
-	geospatialResources: MapLayer[];
-	primaryThemes: Theme[];
-	secondaryThemes: Theme[];
-}
-
-
 
 // export class BaseTheme  {
 // 	nome: string;
@@ -103,14 +147,14 @@ export interface Initiative {
 // }
 
 // export class Theme extends BaseTheme {
-// 	impacts: Record<string, Initiative>;
+// 	impacts: Record<string, Measure>;
 // 	constructor(p: {
 // 		id: string;
 // 		theme_id: string;
 // 		type: string;
 // 		description: string;
 // 		geospatialResources: MapLayer[];
-// 		impacts: Initiative[];
+// 		impacts: Measure[];
 // 	}) {
 // 		super()
 // 		this.nome = p.id;

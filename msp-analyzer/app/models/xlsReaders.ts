@@ -1,7 +1,7 @@
 import * as XLSX from 'xlsx';
 import { Geostory, defaultGeostory, StoryElement, StoryItem } from './geostory';
 
-import { type Scenario, type Theme, type MapLayer, type Initiative, populateScenario, populateTheme } from '@/models/scenario';
+import { type Scenario, type Theme, type MapLayer, type Measure, populateScenario, populateTheme } from '@/models/scenario';
 import { ImageVisual, MapVisual, Visual } from './visual';
 import type { MapVisualOptions } from './visual';
 
@@ -202,9 +202,9 @@ export class ScenarioXlsxReader {
 			}
 		}
 		const themes = this.readThemesFromSheet()
-		const initiatives: Initiative[] = []
+		const measures: Measure[] = []
 		try {
-			themes.forEach(theme => initiatives.push(...this.readInitiativeFromSheet(theme)))		
+			themes.forEach(theme => measures.push(...this.readMeasureFromSheet(theme)))		
 		} catch (error) {
 			console.warn("Nessun foglio iniziative trovato per uno o più temi.")
 		}	
@@ -230,7 +230,7 @@ export class ScenarioXlsxReader {
 			datasets: splitList(metadata['datasets']),
 			extendedAspects: metadata['extended aspects'],
 			availableThemes: themes,
-			initiatives: initiatives,
+			measures: measures,
 			definedGeostories: geostories,
 			objectives: metadata['narrativa']
 		} as Partial<Scenario>)
@@ -285,7 +285,7 @@ export class ScenarioXlsxReader {
 		return themes
 	}
 
-	readInitiativeFromSheet(theme: Theme): Initiative[] {
+	readMeasureFromSheet(theme: Theme): Measure[] {
 		if (!theme.indexName) {
 			throw new Error('Il tema fornito non ha un indexName valido.')
 		}	
@@ -297,7 +297,7 @@ export class ScenarioXlsxReader {
 			throw new Error(`Foglio intiative  relativo al tema ${theme.indexName} non trovato nel file Excel.`)
 		}
 		const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' }) as any[]
-		const initiatives: Initiative[] =
+		const measures: Measure[] =
 			rows.filter(row => {
 				const values = [row.pr, row.description, row.layers, row["impact_on_theme"]]
 				return values.some(v => v && v.toString().trim() !== '')
@@ -329,9 +329,9 @@ export class ScenarioXlsxReader {
 						geospatialResources: layers,
 						primaryThemes: [theme],
 						secondaryThemes: new Array<Theme>(),
-					} as Initiative)
+					} as Measure)
 				})
-		return initiatives
+		return measures
 	}
 
 }

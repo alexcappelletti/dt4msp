@@ -31,7 +31,7 @@
 		"activityBarBadge.background": "#c50ca08e",
 		"activityBarBadge.foreground": "#dd6464",
 		"sideBar.background": "#444242",
-		"statusBar.background": "#eeeeee",
+		"statusBar.background": "#3b333b",
 		"editor.foreground": "#9c8888",
 		"editorCursor.foreground": "#f3ebeb",
 		"editorLineNumber.activeForeground": "#e5eebb",

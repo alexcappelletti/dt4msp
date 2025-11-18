@@ -1,7 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import { defineNuxtConfig } from 'nuxt/config'
 import tailwindcssPlugin from '@tailwindcss/vite'
-import { normalize, resolve } from 'path'
 
 
 export default defineNuxtConfig({

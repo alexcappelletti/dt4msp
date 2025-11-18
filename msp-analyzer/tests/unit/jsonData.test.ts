@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Initiative, MapLayer, populateScenario, Scenario, Theme } from "../../app/models/scenario";
+import { Measure, MapLayer, populateScenario, Scenario, Theme } from "../../app/models/scenario";
 import { readFileSync, writeFileSync } from 'fs'
 
 describe("fixture on json rapresentations of data", () => {
@@ -18,7 +18,7 @@ describe("fixture on json rapresentations of data", () => {
 	}
 
 
-	const initiatives: Array<Initiative> = [
+	const measures: Array<Measure> = [
 				{
 					name: "Incremento del traffico marittimo",
 					impactOnTheme: "Incremento del traffico marittimo",
@@ -26,42 +26,42 @@ describe("fixture on json rapresentations of data", () => {
 					geospatialResources: [
 						getMapLayer("routedensity_allavg"), 
 						getMapLayer("layer_trafficoPSSAPrevisione")]
-				} as Initiative,
+				} as Measure,
 				{
 					name: "Misure di mitigazione",
 					impactOnTheme: "Misure di mitigazione",
 					description: "Implementazione di interventi per ridurre l'impatto del traffico, tra cui limiti di velocità (10 nodi in area CCH), riduzione della rumorosità, miglioramento della gestione delle acque di zavorra (BWM), e uso di combustibili a basse emissioni.",
 					geospatialResources: [
 						getMapLayer("layer_speed10nodi")]
-				} as Initiative,
+				} as Measure,
 				{
 					name: "Sviluppo porti sostenibili",
 					impactOnTheme:"Sviluppo porti sostenibili",
 					description: "Elettrificazione delle banchine, disponibilità di combustibili alternativi, gestione dei rifiuti e acque residue (sea water scrubber), in linea con obiettivi di sostenibilità.",
 					geospatialResources: [
 						getMapLayer("layer_portiSostenibili")]	
-				} as Initiative,
+				} as Measure,
 				{
 					name: "Traffico correlato a eolico offshore",
 					impactOnTheme: "Traffico correlato a eolico offshore",
 					description: "Incremento modesto del traffico a corto raggio per costruzione/manutenzione di campi eolici (es. area OW1, OW2, OW4), con potenziali impatti su rotte esistenti.",
 					geospatialResources: [
 						getMapLayer("layer_OWFs")]
-				} as Initiative,
+				} as Measure,
 				{
 					name: "Isola energetica",
 					impactOnTheme: "Isola energetica",
 					description: "Hub per combustibili alternativi (idrogeno, metanolo, elettrico) che riduce pressioni costiere e impone limiti di velocità (10 nodi), con benefici ambientali (rumore, collisioni con megafauna).",
 					geospatialResources: [
 						getMapLayer("layer_speed10nodi")]
-				} as Initiative,
+				} as Measure,
 				{
 					name: "Regolamentazione e sicurezza",
 					impactOnTheme: "Regolamentazione e sicurezza",
 					description: "Necessità di approfondire sostenibilità economica e sicurezza nel corridoio NW-SE, con possibili misure aggiuntive come Traffic Separation Schemes (TSS)",
 					geospatialResources: [
 						getMapLayer("layer_corridoioNW-SE")]
-				} as Initiative
+				} as Measure
 			]
 
 	const themes = [
@@ -175,8 +175,8 @@ describe("fixture on json rapresentations of data", () => {
 		extendedAspects: "valutazione_preliminare, norme",
 		topics: {},
 		availableThemes: themes,
-		initiatives: initiatives,
-		definedGeostories: [],
+		measures: [] as Array<Measure>,
+		definedGeostories: [] as Geostory[]	,
 		objectives: ""
 	} as Scenario
 
