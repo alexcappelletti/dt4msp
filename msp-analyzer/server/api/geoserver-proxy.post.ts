@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
 	realURL.searchParams.set('REQUEST', 'GetMap');
 	realURL.searchParams.set('LAYERS', layers);
 	realURL.searchParams.set('STYLES', '');
-	realURLsearchParams.set('FORMAT', format);
+	realURL.searchParams.set('FORMAT', format);
 	realURL.searchParams.set('TRANSPARENT', 'true');
 	realURL.searchParams.set('CRS', crs); // MapLibre usa di default 3857 per i tilesets
 	realURL.searchParams.set('WIDTH', tileSize.toString());

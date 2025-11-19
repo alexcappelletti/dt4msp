@@ -29,11 +29,11 @@ export interface Scenario {
 	generalDescription: string;
 	narrative: string;
 	temporalScope: string;
-	maps: string[]
+	spatialResources: string[]
 	datasets: string[];
 	measures: Array<Measure>;
 	effects?: Array<Effect>;
-	availableThemes?: Array<Theme>;  //tutti i temi disponibili per lo scenario
+	availableThemes: Array<Theme>;  //tutti i temi disponibili per lo scenario
 	primaryThemes?: Array<Theme>; //temi primari selezionati per lo scenario
 	secondaryThemes?: Array<Theme>; //temi secondari selezionati per lo scenario
 	topics: Record<string, Theme>;  //themi specifificati per index name ->serve per indizzare i temi quando si usa il query-language
@@ -51,15 +51,6 @@ export interface Theme {
 	tags?: string[];
 }
 
-export interface Measure {
-	name: string;
-	ID: string;
-	impact: string;
-	description: string;
-	geospatialResources: MapLayer[];
-	referenceThemes: Array<Theme>;  //specifica i temi che sono associati alla misura  scelti tra i primari ed i secondari dello scenario
-}
-
 export interface Statement {
 	shortName: string;
 	longName: string;
@@ -67,6 +58,16 @@ export interface Statement {
 	description: string;
 	imageUrl?: string|URL;
 	sectorThemes: Array<Theme>; //specifica i statement  che sono associati ad uno o piú temi
+}
+
+export interface Measure {
+	name: string;
+	ID: string;
+	impact: string;
+	description: string;
+	geospatialResources: MapLayer[];
+	affectedMeasures?: Array<Measure>; //misure che sono influenzate da questa misura
+	referenceThemes: Array<Theme>;  //specifica i temi che sono associati alla misura  scelti tra i primari ed i secondari dello scenario
 }
 
 export interface Effect extends Measure {
@@ -84,7 +85,7 @@ export function populateScenario(scenario: Partial<Scenario>): Scenario {
 		narrative: 'metti descr narrativa qui',
 		temporalScope: '',
 		objectives: '',
-		maps: [],
+		spatialResources: [],
 		areaOfInterest: undefined,
 		availableThemes: [],
 
@@ -128,6 +129,20 @@ export function populateTheme(theme: Partial<Theme>): Theme {
 	return {
 		...defaultTheme,
 		...theme,
+	};
+}
+export function populateMeasure(measure: Partial<Measure>): Measure {
+	const defaultMeasure: Measure = {
+		ID: generateUUID(),	
+		name: '',
+		impact: '',
+		description: '',	
+		geospatialResources: new Array<MapLayer>(),
+		referenceThemes: new Array<Theme>()
+	} as Measure;
+	return {
+		...defaultMeasure,
+		...measure,
 	};
 }
 

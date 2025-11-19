@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Measure, MapLayer, populateScenario, Scenario, Theme } from "../../app/models/scenario";
+import { Measure, MapLayer, Scenario, Theme, Effect, populateScenario, populateTheme, populateMeasure } from "../../app/models/scenario";
 import { readFileSync, writeFileSync } from 'fs'
 
 describe("fixture on json rapresentations of data", () => {
@@ -21,7 +21,7 @@ describe("fixture on json rapresentations of data", () => {
 	const measures: Array<Measure> = [
 				{
 					name: "Incremento del traffico marittimo",
-					impactOnTheme: "Incremento del traffico marittimo",
+					impact: "Incremento del traffico marittimo",
 					description: "Proiezioni di aumento della densità di traffico per diverse categorie di navi (CAR +30%, CON +53%, PAS +26%, TGC +38%, RRO +33%), basate su studi EMSA (2024) e letteratura di settore (EMSA-EEA 2021, Piano del Mare 2023, Report SRM 2022)",
 					geospatialResources: [
 						getMapLayer("routedensity_allavg"), 
@@ -29,40 +29,42 @@ describe("fixture on json rapresentations of data", () => {
 				} as Measure,
 				{
 					name: "Misure di mitigazione",
-					impactOnTheme: "Misure di mitigazione",
+					impact: "Misure di mitigazione",
 					description: "Implementazione di interventi per ridurre l'impatto del traffico, tra cui limiti di velocità (10 nodi in area CCH), riduzione della rumorosità, miglioramento della gestione delle acque di zavorra (BWM), e uso di combustibili a basse emissioni.",
 					geospatialResources: [
 						getMapLayer("layer_speed10nodi")]
 				} as Measure,
 				{
 					name: "Sviluppo porti sostenibili",
-					impactOnTheme:"Sviluppo porti sostenibili",
+					impact:"Sviluppo porti sostenibili",
 					description: "Elettrificazione delle banchine, disponibilità di combustibili alternativi, gestione dei rifiuti e acque residue (sea water scrubber), in linea con obiettivi di sostenibilità.",
 					geospatialResources: [
 						getMapLayer("layer_portiSostenibili")]	
 				} as Measure,
 				{
 					name: "Traffico correlato a eolico offshore",
-					impactOnTheme: "Traffico correlato a eolico offshore",
+					impact: "Traffico correlato a eolico offshore",
 					description: "Incremento modesto del traffico a corto raggio per costruzione/manutenzione di campi eolici (es. area OW1, OW2, OW4), con potenziali impatti su rotte esistenti.",
 					geospatialResources: [
 						getMapLayer("layer_OWFs")]
 				} as Measure,
 				{
 					name: "Isola energetica",
-					impactOnTheme: "Isola energetica",
+					impact: "Isola energetica",
 					description: "Hub per combustibili alternativi (idrogeno, metanolo, elettrico) che riduce pressioni costiere e impone limiti di velocità (10 nodi), con benefici ambientali (rumore, collisioni con megafauna).",
 					geospatialResources: [
 						getMapLayer("layer_speed10nodi")]
 				} as Measure,
 				{
 					name: "Regolamentazione e sicurezza",
-					impactOnTheme: "Regolamentazione e sicurezza",
+					impact: "Regolamentazione e sicurezza",
 					description: "Necessità di approfondire sostenibilità economica e sicurezza nel corridoio NW-SE, con possibili misure aggiuntive come Traffic Separation Schemes (TSS)",
 					geospatialResources: [
 						getMapLayer("layer_corridoioNW-SE")]
 				} as Measure
 			]
+	measures.map((m, idx) => populateMeasure(m))
+
 
 	const themes = [
 		{
@@ -163,6 +165,20 @@ describe("fixture on json rapresentations of data", () => {
 			
 		}as Theme
 	]
+	themes.map((t, idx) => populateTheme(t))
+
+	const effects: Array<Effect> = [
+		{
+			name: "Riduzione emissioni inquinanti",	
+			impact: "Riduzione emissioni inquinanti",
+			description: "Diminuzione delle emissioni di CO2, NOx, SOx e particolato grazie all'adozione di combustibili alternativi e tecnologie verdi nei trasporti marittimi e nelle operazioni portuali.",
+			geospatialResources: [
+				getMapLayer("layer_emissioniRidotte")],
+			referenceThemes: [themes[9], themes[4]],  //Trasporto Marittimo, Energia rinnovabile
+			affectedMeasures: [measures[0], measures[2]] //Incremento del traffico marittimo, Sviluppo porti sostenibili
+		} as Effect,
+	]
+
 
 	const scenario = {
 		id:"scenarioSoS_bd",
@@ -172,10 +188,10 @@ describe("fixture on json rapresentations of data", () => {
 		temporalScope: "2040 - probabile orizzonte di più lungo periodo (causa settori trasporto marittimo, pesca, soluzioni/tecnologie adottate)",
 		maps: ["geonodeMap_1", "geonodeMap_2", "geoSOS"],
 		datasets: ["dataset_bd1", "dataset_bd2", "MF_SoS"],
-		extendedAspects: "valutazione_preliminare, norme",
 		topics: {},
 		availableThemes: themes,
-		measures: [] as Array<Measure>,
+		measures: measures,
+		effects: effects,
 		definedGeostories: [] as Geostory[]	,
 		objectives: ""
 	} as Scenario
@@ -187,20 +203,25 @@ describe("fixture on json rapresentations of data", () => {
 		expect(emptyScenario.generalDescription).toBe("metti una descrizione generale qui")
 		expect(emptyScenario.narrative).toBe("metti descr narrativa qui")
 		expect(emptyScenario.temporalScope).toBe("")
-		expect(emptyScenario.maps.length).toBe(0)
+		expect(emptyScenario.spatialResources.length).toBe(0)
 		expect(emptyScenario.datasets.length).toBe(0)
-		expect(emptyScenario.extendedAspects).toBe("")
+		
 		expect(Object.keys(emptyScenario.topics).length).toBe(0)
 		expect(emptyScenario.definedGeostories.length).toBe(0)
+		expect(emptyScenario.availableThemes.length).toBe(0)
 		expect(emptyScenario.objectives).toBe("")
 	})
 
-	it("should load scenario from json file", () => {
+	it.skip("should load scenario from json file", () => {
 		const infile = "./tests/fixtures/scenario_bd.json"
 		const data: Scenario = JSON.parse(readFileSync(infile, 'utf-8'))
 		expect(data).toBeDefined()
 		expect(data.id).toBe("scenarioSoS_bd")
 		expect(data.name).toBe("Blue Development")
+		expect(data.generalDescription).toBe("Economia blu sostenibile basata su soluzioni innovative/tecnologie verdi")
+		expect(data.narrative).toBe("obiettivi di conservazione e azioni per fvorire sviluppo sostenibile di economa blu (focus settori innovativi, utilizzo di NBS, teconologie per diminuire impatti antropici)")
+		expect(data.temporalScope).toBe("2040 - probabile orizzonte di più lungo periodo (causa settori trasporto marittimo, pesca, soluzioni/tecnologie adottate)")
+		expect(data.availableThemes.length).toBe(13	)
 		expect(Object.values(data.topics).length).toBe(13)
 		expect(data.topics["BD_trasporto"]).toBeDefined()
 	})

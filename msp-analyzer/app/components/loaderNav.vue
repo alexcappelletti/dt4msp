@@ -6,6 +6,7 @@ import { useGeostoryStore } from '@/stores/geostoryStore'
 import { GeostoryXlsxReader, ScenarioXlsxReader } from '~/models/xlsReaders'
 import { useGeostoryPdf } from '@/composables/geostoryToPdf'
 import type { Geostory } from '@/models/geostory'
+import { Scenario } from '~/models/scenario'
 
 const store = useGeostoryStore()
 const loadingS = ref(false)
@@ -43,6 +44,26 @@ async function handleFileUpload(event: Event, type: 'scenario' | 'geostory') {
 	}
 }
 
+async function handleFromServer(event: Event, type: 'scenario' | 'geostory') {
+	loading.value = true
+	try {
+		if (type === 'scenario') {
+			const response = await $fetch<{scenario: Scenario}>('/api/scenario-provider', {
+				method: 'POST',
+				body: { scenarioID: 'default' },
+			})
+			store.setScenario(response.scenario)
+			loading.value = false
+			
+		} else {
+			
+				loading.value = false
+		}
+	} catch (err) {
+		console.error('Errore durante il caricamento dal server:', err)
+		loading.value = false
+	}
+}	
 function applyHCMaps(){
 	store.selectedStory?.elements.forEach(e =>{
 		
@@ -98,6 +119,11 @@ const viewGeostory = () => {
 			label="carica file scenario"
 			@change="(e:any) => handleFileUpload(e, 'scenario')">
 		</v-file-input>
+		<v-btn
+			variant="outlined"
+			@click="e => handleFromServer(e, 'scenario')">get from Repo
+		</v-btn>
+		
 		<span>Geostoria</span>
 			<v-file-input 
 				accept=".xlsx"
