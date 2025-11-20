@@ -9,7 +9,9 @@
 	},
 	"editor.formatOnSave": true,
 	"editor.lineNumbers": "on",
-	"editor.lineHeight": 18,
+	
+	"editor.fontSize": 13,
+	"editor.fontFamily": "Fira code",
 	"editor.tokenColorCustomizations": {
 		"[greenery]": {
 			"textMateRules": [
@@ -72,7 +74,6 @@
 		"list.activeSelectionForeground": "#e66108",
 		"list.focusBackground": "#db9595"
 	},
-	"editor.fontSize": 14,
 	"files.associations": {
 		"*.css": "tailwindcss"
 	},

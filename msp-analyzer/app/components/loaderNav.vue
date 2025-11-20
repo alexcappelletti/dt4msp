@@ -6,7 +6,7 @@ import { useGeostoryStore } from '@/stores/geostoryStore'
 import { GeostoryXlsxReader, ScenarioXlsxReader } from '~/models/xlsReaders'
 import { useGeostoryPdf } from '@/composables/geostoryToPdf'
 import type { Geostory } from '@/models/geostory'
-import { Scenario } from '~/models/scenario'
+import type { Scenario } from '~/models/scenario'
 
 const store = useGeostoryStore()
 const loadingS = ref(false)
@@ -76,21 +76,6 @@ function applyHCMaps(){
 }
 
 
-const treeData = computed(() => {
-	const scenario = store.scenario
-	if (!scenario){
-		return {}
-	} 
-	return {
-		temi: scenario.topics,
-		maps: scenario.maps,
-		datasets: scenario.datasets,
-		extendedAspects: scenario.extendedAspects,
-		objectives: scenario.objectives,
-	}
-})
-
-
 
 async function exportToPDF() {
 	await generatePdf(store.selectedStory as Geostory)
@@ -117,7 +102,7 @@ const viewGeostory = () => {
 		</v-file-input>
 		<v-btn
 			variant="outlined"
-			@click="e => handleFromServer(e, 'scenario')">get from Repo
+			@click="(e:any) => handleFromServer(e, 'scenario')">get from Repo
 		</v-btn>
 		
 		<span>Geostoria</span>
