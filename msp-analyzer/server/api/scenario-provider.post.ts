@@ -3,16 +3,17 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
+import content from '@/assets/server/fixtures/scenario_bd-v0_02.json';
 
 import { Scenario } from '@/models/scenario';
-import { read } from 'fs';
+import { read, unlink } from 'fs';
 import { fileURLToPath } from 'url';
 
 export default defineEventHandler(async (event) => {
 	const body = await readBody(event);
 	const scenarioID: string | undefined =
 		typeof body.scenarioID === 'string' ? body.scenarioID : undefined;
-	const from: string = body.from || 'file';
+	const from: string = body.from || 'undefined';
 	console.log('Received request for scenario ID:', scenarioID || 'N/A');
 	try {
 		let data: Scenario | null | undefined = null;
@@ -27,7 +28,10 @@ export default defineEventHandler(async (event) => {
 		else if (from === 'storage') {
 			console.log('Loading scenario from storage...');
 			data = await readScenarioFromStorageKey();
-		}	
+		}
+		else {
+			data = content as unknown as Scenario;
+		}
 		if (!data) { throw new Error('Impossibile caricare i dati dello scenario.'); }
 		return { scenario: data, };
 	} catch (error) {

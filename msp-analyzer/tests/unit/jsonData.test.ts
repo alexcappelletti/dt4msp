@@ -3,7 +3,8 @@ import { Measure, MapLayer, Scenario, Theme, Effect, populateScenario, populateT
 import { readFileSync, writeFileSync } from 'fs'
 
 describe("fixture on json rapresentations of scenario", () => {
-	
+	const outfile = "./public/data/scenario_bd-v0_02.json"
+	const infile = "./public/data/scenario_bd-v0_02.json"
 	const getMapLayer = (name:string) =>{
 		return {
 				id: "layer_"+name,
@@ -225,8 +226,7 @@ describe("fixture on json rapresentations of scenario", () => {
 
 	})
 
-	it.skip("should load scenario from json file", () => {
-		const infile = "./tests/fixtures/scenario_bd.json"
+	it("should load scenario from json file", () => {
 		const data: Scenario = JSON.parse(readFileSync(infile, 'utf-8'))
 		expect(data).toBeDefined()
 		expect(data.id).toBe("scenarioSoS_bd")
@@ -238,6 +238,7 @@ describe("fixture on json rapresentations of scenario", () => {
 		expect(data.topics["BD_trasporto"]).toBeDefined()
 		expect(data.availableThemes?.length).toBe(13)
 		expect(data.primaryThemes?.length).toBe(9)
+		expect(data.measures.length).toBe(6)
 	})
 
 
@@ -246,7 +247,7 @@ describe("fixture on json rapresentations of scenario", () => {
 		const testing = populateScenario({...scenario, availableThemes: themes} as Partial<Scenario>)
 		expect(testing.availableThemes?.length).toBe(13)
 		expect(testing.topics["BD_trasporto"]).toBeDefined()
-		const outfile = "./tests/fixtures/out_scenario_bd.json"
+		
 		writeFileSync(outfile, JSON.stringify(testing, null, 2), 'utf-8')
 		const expected: Scenario = JSON.parse(readFileSync(outfile, 'utf-8'))
 		expect(expected.id).toBe(testing.id)

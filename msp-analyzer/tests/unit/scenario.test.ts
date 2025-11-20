@@ -4,7 +4,7 @@ import path from 'path'
 import { Scenario, Theme, Impact, MapLayer } from '@/models/scenario'
 
 describe('Scenario JSON loader', () => {
-	const jsonPath = path.resolve(__dirname, '../../public/fixtures/scenario_bd-v0_02.json')
+	const jsonPath = path.resolve(__dirname, '../../public/data/scenario_bd-v0_02.json')
 	const rawData = fs.readFileSync(jsonPath, 'utf-8')
 	const parsed: Scenario = JSON.parse(rawData)
 

@@ -48,7 +48,7 @@ async function handleFromServer(event: Event, type: 'scenario' | 'geostory') {
 	loading.value = true
 	try {
 		if (type === 'scenario') {
-			await store.getScenario({scenarioID:"default", from: "public"})
+			await store.getScenario({scenarioID:"default", from: ""})
 			loading.value = false
 			
 		} else {
