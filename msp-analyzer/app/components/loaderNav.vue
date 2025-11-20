@@ -102,7 +102,7 @@ const viewGeostory = () => {
 		</v-file-input>
 		<v-btn
 			variant="outlined"
-			@click="(e:any) => handleFromServer(e, 'scenario')">get from Repo
+			@click="(e:any) => handleFromServer(e, 'scenario')">Carica esempio
 		</v-btn>
 		
 		<span>Geostoria</span>

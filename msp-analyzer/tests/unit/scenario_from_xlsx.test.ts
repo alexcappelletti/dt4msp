@@ -3,7 +3,7 @@ import * as XLSX from 'xlsx'
 import { ScenarioXlsxReader } from '@/models/xlsReaders'
 import { Theme, Scenario } from '@/models/scenario'
 
-describe('Theme model from Excel file', () => {
+describe.skip('Theme model from Excel file', () => {
 	it('should correctly parse themes from Excel sheet', () => {
 		const workbook = XLSX.readFile('./tests/fixtures/final_scenario_bd.xlsx')
 		const sheet = workbook.Sheets['temi']

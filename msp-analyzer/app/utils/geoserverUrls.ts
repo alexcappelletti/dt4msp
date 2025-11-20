@@ -32,7 +32,7 @@ export async function verifyOwsService(url: string): Promise<boolean> {
 		// 2. Verifica la contattabilità e ottiene la risposta
 		// È preferibile utilizzare { mode: 'cors' } nel browser, se supportato dal server.
 		// Per un'applicazione frontend, se il server non supporta CORS, questa richiesta fallirà.
-		const response:any = await $fetch(capabilitiesUrl.toString());
+		const response = await fetch(capabilitiesUrl.toString());
 
 		// Verifica lo stato HTTP
 		if (!response.ok) {
@@ -42,7 +42,6 @@ export async function verifyOwsService(url: string): Promise<boolean> {
 
 		// 3. Analizza il contenuto della risposta (presumibilmente XML)
 		const responseText = await response.text();
-
 		// I documenti capabilities OGC sono XML e contengono tag specifici
 		// come <WMS_Capabilities>, <WFS_Capabilities> o <ows:ServiceType>.
 		// Cerchiamo stringhe che indichino un servizio OGC valido.

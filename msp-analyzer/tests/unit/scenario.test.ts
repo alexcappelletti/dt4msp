@@ -3,31 +3,25 @@ import fs from 'fs'
 import path from 'path'
 import { Scenario, Theme, Impact, MapLayer } from '@/models/scenario'
 
-describe.skip('Scenario JSON loader with nested Theme, Impact, and MapLayer', () => {
-	it('should correctly instantiate a full Scenario from JSON', () => {
-		const jsonPath = path.resolve(__dirname, '../../out/scenario.json')
-		const rawData = fs.readFileSync(jsonPath, 'utf-8')
-		const parsed: Scenario = JSON.parse(rawData)
+describe('Scenario JSON loader', () => {
+	const jsonPath = path.resolve(__dirname, '../../public/fixtures/scenario_bd-v0_02.json')
+	const rawData = fs.readFileSync(jsonPath, 'utf-8')
+	const parsed: Scenario = JSON.parse(rawData)
 
 
-
-		// ✅ Verifiche
+	it('parsed should correctly set basic data', () => {
 		//expect(parsed).toBeInstanceOf(Scenario)
 		expect(parsed.name).toBe('Blue Development')
+		expect(parsed.generalDescription).toBe('Economia blu sostenibile basata su soluzioni innovative/tecnologie verdi')
+		expect(parsed.narrative).toContain('obiettivi di conservazione e azioni per fvorire sviluppo sostenibile di economa blu')
+		
+		
+	})
+	it('parsed should correctly set themes and topics', () => {
+		expect(parsed.availableThemes.length).toBe(13)
+		expect(parsed.primaryThemes.length).toBeGreaterThan(0)
+		expect(parsed.secondaryThemes.length).toBeGreaterThan(0)
+		
 		expect(Object.values(parsed.topics).length).toBe(13)
-
-		const trasp = parsed.topics['BD_trasporto']
-		expect(trasp).toBeDefined()
-		expect(Object.values(trasp?.impacts|| {}).length).toBe(6)
-
-		expect(trasp?.impacts["Incremento del traffico marittimo"]?.nome).toBe('Incremento del traffico marittimo')
-		expect(trasp?.impacts["Incremento del traffico marittimo"]?.layers.length).toBe(2)
-		expect(trasp?.impacts["Incremento del traffico marittimo"]?.layers[0]?.type).toBe("map")
-		
-
-		const energia = parsed.topics['BD_energia1']
-		expect(energia).toBeDefined()
-		expect(Object.values(energia?.impacts || {}).length).toBe(0)
-		
 	})
 })

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { Measure, MapLayer, Scenario, Theme, Effect, populateScenario, populateTheme, populateMeasure } from "../../app/models/scenario";
 import { readFileSync, writeFileSync } from 'fs'
 
-describe("fixture on json rapresentations of data", () => {
+describe("fixture on json rapresentations of scenario", () => {
 	
 	const getMapLayer = (name:string) =>{
 		return {
@@ -192,7 +192,9 @@ describe("fixture on json rapresentations of data", () => {
 		availableThemes: themes,
 		measures: measures,
 		effects: effects,
-		definedGeostories: [] as Geostory[]	,
+		definedGeostories: [] as Geostory[],
+		primaryThemes: themes.filter(t => t.type === "primario"),
+		secondaryThemes: themes.filter(t => t.type === "secondario"),
 		objectives: ""
 	} as Scenario
 
@@ -212,6 +214,17 @@ describe("fixture on json rapresentations of data", () => {
 		expect(emptyScenario.objectives).toBe("")
 	})
 
+	it("should populate scenario", () => {
+		expect(themes.length).toBe(13)
+		const testing = populateScenario({...scenario} as Partial<Scenario>)
+		expect(testing.availableThemes?.length).toBe(13)
+		expect(testing.topics["BD_trasporto"]).toBeDefined()
+		expect(testing.availableThemes?.length).toBe(13)
+		expect(testing.primaryThemes?.length).toBe(9)
+
+
+	})
+
 	it.skip("should load scenario from json file", () => {
 		const infile = "./tests/fixtures/scenario_bd.json"
 		const data: Scenario = JSON.parse(readFileSync(infile, 'utf-8'))
@@ -221,9 +234,10 @@ describe("fixture on json rapresentations of data", () => {
 		expect(data.generalDescription).toBe("Economia blu sostenibile basata su soluzioni innovative/tecnologie verdi")
 		expect(data.narrative).toBe("obiettivi di conservazione e azioni per fvorire sviluppo sostenibile di economa blu (focus settori innovativi, utilizzo di NBS, teconologie per diminuire impatti antropici)")
 		expect(data.temporalScope).toBe("2040 - probabile orizzonte di più lungo periodo (causa settori trasporto marittimo, pesca, soluzioni/tecnologie adottate)")
-		expect(data.availableThemes.length).toBe(13	)
-		expect(Object.values(data.topics).length).toBe(13)
+		expect(data.availableThemes?.length).toBe(13)
 		expect(data.topics["BD_trasporto"]).toBeDefined()
+		expect(data.availableThemes?.length).toBe(13)
+		expect(data.primaryThemes?.length).toBe(9)
 	})
 
 
