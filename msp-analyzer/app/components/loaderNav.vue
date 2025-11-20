@@ -48,11 +48,7 @@ async function handleFromServer(event: Event, type: 'scenario' | 'geostory') {
 	loading.value = true
 	try {
 		if (type === 'scenario') {
-			const response = await $fetch<{scenario: Scenario}>('/api/scenario-provider', {
-				method: 'POST',
-				body: { scenarioID: 'default' },
-			})
-			store.setScenario(response.scenario)
+			await store.getScenario({scenarioID:"default"})
 			loading.value = false
 			
 		} else {

@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
 
 	try {
 		console.log("requesting... " + url.toString())
-		const response = await fetch(url.toString())
+		const response = (await $fetch(url.toString())) as Response
 		if (!response.ok) {
 			console.error(`Errore HTTP: ${response.status} ${response.statusText}`)
 			return createError({ statusCode: response.status, statusMessage: response.statusText })

@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
 		y !== undefined
 
 	if (shouldInjectBbox) {
-		const tile = [parseInt(x as string), parseInt(y as string), parseInt(z as string)]
+		const tile = [parseInt(x as string), parseInt(y as string), parseInt(z as string)] as tilebelt.Tile
 		const bbox4326 = tilebelt.tileToBBOX(tile)
 
 		const project = (lon: number, lat: number): [number, number] => {
@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
 	}
 
 	try {
-		const response = await fetch(url.toString())
+		const response:any = await $fetch(url.toString())
 		const contentType = response.headers.get('content-type') || 'image/png'
 		const buffer = await response.arrayBuffer()
 

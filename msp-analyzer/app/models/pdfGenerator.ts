@@ -55,7 +55,7 @@ const localStyles: StyleDictionary = {
 }
 async function fetchImageAsBase64(url: string): Promise<string> {
 	console.log("fetiching " + url)
-	const response = await fetch(url)
+	const response:any = await $fetch(url)
 	if (!response.ok) {
 		throw new Error(`Impossibile scaricare l'immagine da ${url} - Status: ${response.status}`)
 	}

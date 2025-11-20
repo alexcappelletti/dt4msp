@@ -10,6 +10,7 @@ import { MapVisual, type MapVisualOptions } from '@/models/visual'
 
 
 export const useGeostoryStore = defineStore('geostory', ()=>{
+	const error = ref<string | null>(null)
 	const stories = ref<Array<Geostory>>([])
 	const selectedStory = ref<Geostory | null>(null)	
 	const scenario = ref<Scenario| (null)>(null)
@@ -92,6 +93,19 @@ export const useGeostoryStore = defineStore('geostory', ()=>{
 		stories.value = sts
 	}
 
+	async function getScenario(params:{scenarioID: string}) {
+		try {
+			const response:any = await $fetch<{scenario: Scenario}>('/api/scenario-provider', {
+					method: 'POST',
+					body: { scenarioID: 'default' },
+				})
+			scenario.value = response.scenario
+		} catch (err) {
+			console.error('Errore durante il caricamento dello scenario dal server:', err)
+			error.value = `Errore durante il caricamento dello scenario dal server: ${err}`;
+		}
+	}
+
 	function setScenario(s: Scenario) {
 		scenario.value = s		
 	}
@@ -109,6 +123,7 @@ export const useGeostoryStore = defineStore('geostory', ()=>{
 	
 
 	return { 
+		error,
 		stories, 
 		selectedStory, 
 		scenario,
@@ -118,6 +133,7 @@ export const useGeostoryStore = defineStore('geostory', ()=>{
 		setStories, 
 		selectStory,
 		setScenario, 
+		getScenario, 
 		setThemes, 
 		setAvailableVisuals}
 })

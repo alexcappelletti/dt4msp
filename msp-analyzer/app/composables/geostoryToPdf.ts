@@ -2,7 +2,7 @@ import type { Geostory } from "@/models/geostory"
 
 export const useGeostoryPdf = () => {
 	const generatePdf = async (geostory: Geostory) => {
-		const res = await fetch('/api/generate-pdf', {
+		const res:any = await $fetch('/api/generate-pdf', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: geostory.toJson()
@@ -18,7 +18,7 @@ export const useGeostoryPdf = () => {
 	const printGeostory = async (g:Geostory) => {
 		console.log(g.toJson())
 		const body = g.toJson()
-		const res = await fetch('/api/geostories', {
+		const res: any = await $fetch('/api/geostories', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: body

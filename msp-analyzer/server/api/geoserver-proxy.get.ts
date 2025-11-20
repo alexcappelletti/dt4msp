@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
 	console.log("Effettuando fetch verso:", targetUrl);
 
 	try {
-		const response = await $fetch(targetUrl); 
+		const response: any = await $fetch(targetUrl); 
 		const contentType = response.headers.get('content-type');
 		if (contentType) {
 			// Imposta l'header Content-Type della *tua* risposta Nuxt

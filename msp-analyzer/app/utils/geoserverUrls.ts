@@ -32,7 +32,7 @@ export async function verifyOwsService(url: string): Promise<boolean> {
 		// 2. Verifica la contattabilità e ottiene la risposta
 		// È preferibile utilizzare { mode: 'cors' } nel browser, se supportato dal server.
 		// Per un'applicazione frontend, se il server non supporta CORS, questa richiesta fallirà.
-		const response = await fetch(capabilitiesUrl.toString());
+		const response:any = await $fetch(capabilitiesUrl.toString());
 
 		// Verifica lo stato HTTP
 		if (!response.ok) {

@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
     try {
         // Effettua la richiesta fetch al server remoto
         console.log("proxy fetching URL" +realURL.toString())
-        const response = await fetch(realURL.toString());
+        const response = (await $fetch(realURL.toString())) as Response;
 
         if (!response.ok) {
             throw new Error(`Proxy request failed: ${response.statusText}`);
