@@ -1,6 +1,6 @@
 
 
-import * as fs from 'fs/promises'; 
+import * as fs from 'fs/promises';
 import * as path from 'path';
 
 import { Scenario } from '@/models/scenario';
@@ -12,7 +12,8 @@ export default defineEventHandler(async (event) => {
 		typeof body.scenarioID === 'string' ? body.scenarioID : undefined;
 	console.log('Received request for scenario ID:', scenarioID || 'N/A');
 	try {
-		const data: Scenario = await readScenarioFile();
+		//const data: Scenario = await readScenarioFile();
+		const data: Scenario = await readScenarioFromStorageKey();
 		if (!data) { throw new Error('Impossibile caricare i dati dello scenario.'); }
 		return { scenario: data, };
 	} catch (error) {
@@ -45,5 +46,24 @@ export async function readScenarioFile(): Promise<Scenario> {
 	} catch (error: any) {
 		console.error(`Errore nella funzione readScenarioFile: ${error.message}`);
 		throw new Error('Impossibile leggere o parsare il file scenario.');
+	}
+}
+async function readScenarioFromStorageKey(): Promise<Scenario> {
+	// Usa useStorage() con il prefisso 'assets:server'
+	const storageKey = 'assets:server/fixtures/scenario_bd-v0_02.json';
+	console.info(`Lettura file da storage key: ${storageKey}`);
+
+	try {
+		// getItem restituirà i dati del file, già parsati da Nitro se è JSON
+		const data: Scenario | null | undefined = await useStorage().getItem(storageKey);
+
+		if (!data) {
+			throw new Error('Dati scenario non trovati nello storage.');
+		}
+		return data;
+
+	} catch (error:any) {
+		console.error(`Errore nella funzione readScenarioFile: ${error.message}`);
+		throw new Error('Impossibile leggere il file scenario dallo storage.');
 	}
 }
