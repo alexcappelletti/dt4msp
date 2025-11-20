@@ -6,6 +6,7 @@ import * as path from 'path';
 
 import { Scenario } from '@/models/scenario';
 import { read } from 'fs';
+import { fileURLToPath } from 'url';
 
 export default defineEventHandler(async (event) => {
 	const body = await readBody(event);
@@ -21,7 +22,7 @@ export default defineEventHandler(async (event) => {
 		}
 		else if (from === 'public') {
 			console.log('Loading scenario from public folder...');
-			data = await readScenarioFromPublic();
+			data = await readScenarioFromPublic(event);
 		}
 		else if (from === 'storage') {
 			console.log('Loading scenario from storage...');
@@ -39,17 +40,15 @@ export default defineEventHandler(async (event) => {
 		});
 	}
 });
-async function readScenarioFromPublic() {
-	const filePath = path.join(
-		'data',
-		'scenario_bd-v0_02.json'
-	)
+async function readScenarioFromPublic(event:any): Promise<Scenario>	 {
+	const requestUrl = getRequestURL(event);
+	const filePath = `${requestUrl.origin}/data/scenario_bd-v0_02.json`;
 	try{
 		const content = await fetch(filePath)
 		return await content.json() as Scenario;
 	}catch(error:any){
 		console.error(`Errore nella funzione readScenarioFromPublic: ${error.message}`);
-		throw new Error('Impossibile leggere o parsare il file scenario.');
+		throw new Error('Impossibile leggere o parsare il file scenario.' + filePath);
 	}	
 	
 }

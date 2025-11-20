@@ -93,11 +93,11 @@ export const useGeostoryStore = defineStore('geostory', ()=>{
 		stories.value = sts
 	}
 
-	async function getScenario(params:{scenarioID: string}) {
+	async function getScenario(params:{scenarioID: string, from: string}) {
 		try {
 			const response:any = await $fetch<{scenario: Scenario}>('/api/scenario-provider', {
 					method: 'POST',
-					body: { scenarioID: 'default' },
+					body: params,
 				})
 			scenario.value = response.scenario
 		} catch (err) {
