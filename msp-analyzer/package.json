@@ -8,7 +8,9 @@
 		"generate": "nuxt generate",
 		"preview": "nuxt preview",
 		"postinstall": "nuxt prepare",
-		"test": "vitest"
+		"test:unit": "vitest --config vitest.unit.config.ts",
+		"test:e2e": "nuxt test --watch --config vitest.config.ts",
+    	"test:e2e:dev": "nuxt test --watch --config vitest.config.ts"
 	},
 	"dependencies": {
 		"@heroicons/vue": "^2.2.0",
@@ -16,13 +18,13 @@
 		"@mdi/font": "^7.4.47",
 		"axios": "^1.11.0",
 		"concat-stream": "^2.0.0",
+		"ioredis": "^5.8.2",
 		"lodash": "^4.17.21",
 		"maplibre-gl": "^5.7.1",
 		"nuxt": "^4.2.0",
 		"nuxt-pdfmake": "^0.0.47",
 		"pinia": "^3.0.3",
 		"vite": "^7.1.5",
-		
 		"vue": "^3.5.22",
 		"vue-router": "^4.6.3",
 		"xlsx": "file:vendor/xlsx-0.20.3.tgz"
@@ -30,7 +32,7 @@
 	"devDependencies": {
 		"@iconify-json/gis": "^1.2.5",
 		"@iconify-json/mdi": "^1.2.3",
-		"@nuxt/test-utils": "^3.19.2",
+		"@nuxt/test-utils": "^3.20.1",
 		"@tailwindcss/postcss": "^4.1.16",
 		"@tailwindcss/vite": "^4.1.16",
 		"@types/concat-stream": "^2.0.3",

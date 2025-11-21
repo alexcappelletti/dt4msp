@@ -8,6 +8,7 @@ import content from '@/assets/server/fixtures/scenario_bd-v0_02.json';
 import { Scenario } from '@/models/scenario';
 import { read, unlink } from 'fs';
 import { fileURLToPath } from 'url';
+import { sample } from 'lodash';
 
 export default defineEventHandler(async (event) => {
 	const body = await readBody(event);
@@ -80,12 +81,13 @@ async function readScenarioFile(): Promise<Scenario> {
 }
 async function readScenarioFromStorageKey(): Promise<Scenario> {
 	// Usa useStorage() con il prefisso 'assets:server'
-	const storageKey = 'server:fixtures:scenario_bd-v0_02.json';
-	console.info(`Lettura file da storage key: ${storageKey}`);
+	const storageName = 'dbR'
+	const storageKey = 'sampleScenario';
+	console.info(`reading scenario ${storageKey} on ${storageName}`);
 
 	try {
 		// getItem restituirà i dati del file, già parsati da Nitro se è JSON
-		const data: Scenario | null | undefined = await useStorage("assets").getItem(storageKey);
+		const data = await useStorage(storageName).getItem<Scenario>(storageKey);
 
 		if (!data) {
 			throw new Error('Dati scenario non trovati nello storage.');
