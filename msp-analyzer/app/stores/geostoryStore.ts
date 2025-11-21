@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { Geostory } from '@/models/geostory'
+import { Geostory } from '@/models/geostory'
 import type { Scenario, Theme } from '@/models/scenario'
 import { MapVisual, type MapVisualOptions } from '@/models/visual'
+import { method } from 'lodash'
 
 
  
@@ -93,9 +94,9 @@ export const useGeostoryStore = defineStore('geostory', ()=>{
 		stories.value = sts
 	}
 
-	async function getScenario(params:{scenarioID: string, from: string}) {
+	async function loadScenario(params:{scenarioID: string, from: string}) {
 		try {
-			const response:any = await $fetch<{scenario: Scenario}>('/api/scenario-provider', {
+			const response:any = await $fetch<{scenario: Scenario}>('/api/storage/scenario-provider', {
 					method: 'POST',
 					body: params,
 				})
@@ -103,6 +104,19 @@ export const useGeostoryStore = defineStore('geostory', ()=>{
 		} catch (err) {
 			console.error('Errore durante il caricamento dello scenario dal server:', err)
 			error.value = `Errore durante il caricamento dello scenario dal server: ${err}`;
+		}
+	}
+
+	async function loadGeostory(params:{geostoryID: string, from: string}){
+		try {
+			const response = await $fetch<{data: Geostory}>('/api/storage/geostory-provider', {
+				method: 'POST',
+				body: params
+			})
+			selectedStory.value = response.data
+		}catch (err){
+			console.error('Errore durante il caricamento dello scenario dal server:', err)
+			error.value = `Errore durante il caricamento della geostory dal server: ${err}`;
 		}
 	}
 
@@ -125,6 +139,7 @@ export const useGeostoryStore = defineStore('geostory', ()=>{
 	return { 
 		error,
 		stories, 
+		loadGeostory, 
 		selectedStory, 
 		scenario,
 		themes,
@@ -133,7 +148,7 @@ export const useGeostoryStore = defineStore('geostory', ()=>{
 		setStories, 
 		selectStory,
 		setScenario, 
-		getScenario, 
+		loadScenario, 
 		setThemes, 
 		setAvailableVisuals}
 })

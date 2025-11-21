@@ -47,14 +47,9 @@ async function handleFileUpload(event: Event, type: 'scenario' | 'geostory') {
 async function handleFromServer(event: Event, type: 'scenario' | 'geostory') {
 	loading.value = true
 	try {
-		if (type === 'scenario') {
-			await store.getScenario({scenarioID:"default", from: ""})
-			loading.value = false
-			
-		} else {
-			
-				loading.value = false
-		}
+		if (type === 'scenario') {await store.loadScenario({scenarioID:"default", from: "storage"})} 
+		else if (type === 'geostory') {await store.loadGeostory({geostoryID:"default", from: ""})}
+		loading.value = false
 	} catch (err) {
 		console.error('Errore durante il caricamento dal server:', err)
 		loading.value = false
@@ -102,16 +97,20 @@ const viewGeostory = () => {
 		</v-file-input>
 		<v-btn
 			variant="outlined"
-			@click="(e:any) => handleFromServer(e, 'scenario')">Carica esempio
+			@click="(e:any) => handleFromServer(e, 'scenario')">Esempio scenario
 		</v-btn>
 		
-		<span>Geostoria</span>
+		<span class="tw:mt-15">Geostoria</span>
 			<v-file-input 
 				accept=".xlsx"
 				label="carica file geostoria"
 				@change="(e:any) => handleFileUpload(e, 'geostory')">
 			</v-file-input>	
-			
+			<v-btn
+			variant="outlined"
+			@click="(e:any) => handleFromServer(e, 'geostory')">Esempio geostoria
+		</v-btn>
+		
 			<v-btn
 				variant="outlined"
 				@click="exportToPDF"
