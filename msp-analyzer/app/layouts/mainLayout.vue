@@ -1,12 +1,18 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { computed, onMounted, onBeforeUnmount } from 'vue';
+import { storeToRefs } from 'pinia';
 import { useWindowSize } from '@vueuse/core';
 import { useDisplay } from 'vuetify';
 import loaderNav from '~/components/loaderNav.vue';
+import { useAppStore } from '~/stores/appStore';
+
 const { width } = useWindowSize(); 
 const { mdAndUp } = useDisplay();
 
+
 const MIN_DRAWER_WIDTH = 290;
+const { drawerOpen, appTitle } = storeToRefs(
+	useAppStore());
 
 const drawerWidth = computed(() => {
 	// Se lo schermo è 'mdAndUp' (medio o più grande), usiamo la logica dei 290 minimi
@@ -21,7 +27,7 @@ const drawerWidth = computed(() => {
 	return 300; 
 });
 
-const drawerOpen = ref(false);
+
 
 
 </script>
@@ -32,7 +38,7 @@ const drawerOpen = ref(false);
 			<v-app-bar 
 				elevation="0" 
 				color="primary"
-				title="Geostory analyzer --" >
+				:title="appTitle" >
 				
 				<!-- pulsante per aprire il drawer su schermi piccoli -->
 				<template v-if="!mdAndUp">
