@@ -96,11 +96,11 @@ export const useGeostoryStore = defineStore('geostory', ()=>{
 
 	async function loadScenario(params:{scenarioID: string, from: string}) {
 		try {
-			const response:any = await $fetch<{foundScenario: Scenario}>('/api/storage/scenario-provider', {
+			const response = await $fetch<{foundScenario: Scenario}>('/api/storage/scenario-provider', {
 					method: 'POST',
 					body: params,
 				})
-			scenario.value = response.scenario
+			scenario.value = response.foundScenario
 		} catch (err) {
 			console.error('Errore durante il caricamento dello scenario dal server:', err)
 			error.value = `Errore durante il caricamento dello scenario dal server: ${err}`;
