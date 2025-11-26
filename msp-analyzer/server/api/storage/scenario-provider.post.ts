@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
 			data = content as unknown as Scenario;
 		}
 		if (!data) { throw new Error('Impossibile caricare i dati dello scenario.'); }
-		return { scenario: data, };
+		return { foundScenario: data, };
 	} catch (error) {
 		// Gestione degli errori: restituisce una risposta di errore standard di Nuxt
 		console.error('Errore nel $fetch del file:', error);
@@ -79,22 +79,25 @@ async function readScenarioFile(): Promise<Scenario> {
 	}
 }
 async function readScenarioFromStorageKey(): Promise<Scenario> {
+	type StorageData = {
+		scenario?: Scenario
+	}
 	// Usa useStorage() con il prefisso 'assets:server'
 	const storageName = 'db'
-	const storageKey = 'sampleScenario';
+	const storageKey = 'samples';
 	console.info(`reading scenario ${storageKey} on ${storageName}`);
 
 	try {
 		// getItem restituirà i dati del file, già parsati da Nitro se è JSON
-		const data = await useStorage(storageName).getItem<Scenario>(storageKey);
-		console.log("ha nome: ", data?.name)
-		if (!data) {
+		const rawData = await useStorage(storageName).getItem<StorageData>(storageKey);
+
+		if (!rawData || !rawData.scenario) {
 			throw new Error('Dati scenario non trovati nello storage.');
 		}
-		return data;
+		return rawData.scenario;
 
 	} catch (error:any) {
-		console.error(`Errore nella funzione readScenarioFile: ${error.message}`);
+		console.error(`Errore nella funzione readScenarioFromStorageKey: ${error.message}`);
 		throw new Error('Impossibile leggere il file scenario dallo storage.');
 	}
 }

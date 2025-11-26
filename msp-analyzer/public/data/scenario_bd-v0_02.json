@@ -2,21 +2,21 @@
   "id": "scenarioSoS_bd",
   "name": "Blue Development",
   "generalDescription": "Economia blu sostenibile basata su soluzioni innovative/tecnologie verdi",
-  "narrative": "obiettivi di conservazione e azioni per fvorire sviluppo sostenibile di economa blu (focus settori innovativi, utilizzo di NBS, teconologie per diminuire impatti antropici)",
+  "narrative": "obiettivi di conservazione e azioni per favorire sviluppo sostenibile di economa blu (focus settori innovativi, utilizzo di NBS, teconologie per diminuire impatti antropici)",
   "temporalScope": "2040 - probabile orizzonte di più lungo periodo (causa settori trasporto marittimo, pesca, soluzioni/tecnologie adottate)",
   "objectives": "",
   "spatialResources": [],
   "availableThemes": [
     {
       "name": "Energia - Oil&Gas",
-      "indexName": "BD_oil/gas",
+      "indexName": "oil/gas",
       "type": "secondario",
       "description": "",
       "geospatialResources": []
     },
     {
       "name": "Sicurezza e sorveglianza",
-      "indexName": "BD_sicurezza",
+      "indexName": "sicurezza",
       "type": "secondario",
       "description": "",
       "geospatialResources": [],
@@ -24,7 +24,7 @@
     },
     {
       "name": "Acquacoltura",
-      "indexName": "BD_H2o",
+      "indexName": "H2o",
       "type": "primario",
       "description": "",
       "geospatialResources": [],
@@ -32,56 +32,56 @@
     },
     {
       "name": "Difesa costiera",
-      "indexName": "BD_difesa",
+      "indexName": "difesa",
       "type": "primario",
       "description": "",
       "geospatialResources": []
     },
     {
       "name": "Energia",
-      "indexName": "BD_energia1",
+      "indexName": "energia1",
       "type": "primario",
       "description": "",
       "geospatialResources": []
     },
     {
       "name": "Paesaggio e patrimonio culturale",
-      "indexName": "BD_paesaggio",
+      "indexName": "paesaggio",
       "type": "primario",
       "description": "",
       "geospatialResources": []
     },
     {
       "name": "Pesca",
-      "indexName": "BD_pesca",
+      "indexName": "pesca",
       "type": "primario",
       "description": "",
       "geospatialResources": []
     },
     {
       "name": "Protezione ambientale",
-      "indexName": "BD_ambiente",
+      "indexName": "ambiente",
       "type": "primario",
       "description": "",
       "geospatialResources": []
     },
     {
       "name": "Ricerca & Innovazione",
-      "indexName": "BD_innovazione",
+      "indexName": "innovazione",
       "type": "primario",
       "description": "",
       "geospatialResources": []
     },
     {
       "name": "Trasporto Marittimo",
-      "indexName": "BD_trasporto",
+      "indexName": "trasporto",
       "type": "primario",
       "description": "",
       "geospatialResources": []
     },
     {
       "name": "Turismo Costiero e Marittimo",
-      "indexName": "BD_turismo",
+      "indexName": "turismo",
       "type": "primario",
       "description": "",
       "geospatialResources": []
@@ -101,6 +101,61 @@
       "geospatialResources": []
     }
   ],
+  "primaryThemes": [
+    {
+      "name": "Acquacoltura",
+      "indexName": "H2o",
+      "type": "primario",
+      "description": "",
+      "geospatialResources": [],
+      "impacts": []
+    },
+    {
+      "name": "Energia",
+      "indexName": "energia1",
+      "type": "primario",
+      "description": "",
+      "geospatialResources": []
+    },
+    {
+      "name": "Pesca",
+      "indexName": "pesca",
+      "type": "primario",
+      "description": "",
+      "geospatialResources": []
+    },
+    {
+      "name": "Sicurezza e sorveglianza",
+      "indexName": "sicurezza",
+      "type": "secondario",
+      "description": "",
+      "geospatialResources": [],
+      "impacts": []
+    }
+  ],
+  "secondaryThemes": [
+    {
+      "name": "Difesa costiera",
+      "indexName": "difesa",
+      "type": "primario",
+      "description": "",
+      "geospatialResources": []
+    },
+    {
+      "name": "Paesaggio e patrimonio culturale",
+      "indexName": "paesaggio",
+      "type": "primario",
+      "description": "",
+      "geospatialResources": []
+    },
+    {
+      "name": "Trasporto Marittimo",
+      "indexName": "trasporto",
+      "type": "primario",
+      "description": "",
+      "geospatialResources": []
+    }
+  ],
   "statements": [],
   "datasets": [
     "dataset_bd1",
@@ -112,6 +167,29 @@
       "name": "Incremento del traffico marittimo",
       "impact": "Incremento del traffico marittimo",
       "description": "Proiezioni di aumento della densità di traffico per diverse categorie di navi (CAR +30%, CON +53%, PAS +26%, TGC +38%, RRO +33%), basate su studi EMSA (2024) e letteratura di settore (EMSA-EEA 2021, Piano del Mare 2023, Report SRM 2022)",
+      "referencedTheme": [
+        {
+          "name": "Trasporto Marittimo",
+          "indexName": "trasporto",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": []
+        },
+        {
+          "name": "Energia - Oil&Gas",
+          "indexName": "oil/gas",
+          "type": "secondario",
+          "description": "",
+          "geospatialResources": []
+        },
+        {
+          "name": "Difesa costiera",
+          "indexName": "difesa",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": []
+        }
+      ],
       "geospatialResources": [
         {
           "id": "layer_routedensity_allavg",
@@ -136,6 +214,29 @@
     {
       "name": "Misure di mitigazione",
       "impact": "Misure di mitigazione",
+      "referencedThemes": [
+        {
+          "name": "Ricerca & Innovazione",
+          "indexName": "innovazione",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": []
+        },
+        {
+          "name": "Protezione ambientale",
+          "indexName": "ambiente",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": []
+        },
+        {
+          "name": "Energia",
+          "indexName": "energia1",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": []
+        }
+      ],
       "description": "Implementazione di interventi per ridurre l'impatto del traffico, tra cui limiti di velocità (10 nodi in area CCH), riduzione della rumorosità, miglioramento della gestione delle acque di zavorra (BWM), e uso di combustibili a basse emissioni.",
       "geospatialResources": [
         {
@@ -152,6 +253,52 @@
     {
       "name": "Sviluppo porti sostenibili",
       "impact": "Sviluppo porti sostenibili",
+      "referenceThemes": [
+        {
+          "name": "Sicurezza e sorveglianza",
+          "indexName": "sicurezza",
+          "type": "secondario",
+          "description": "",
+          "geospatialResources": [],
+          "impacts": []
+        },
+        {
+          "name": "Difesa costiera",
+          "indexName": "difesa",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": []
+        },
+        {
+          "name": "Acquacoltura",
+          "indexName": "H2o",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": [],
+          "impacts": []
+        },
+        {
+          "name": "Energia",
+          "indexName": "energia1",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": []
+        },
+        {
+          "name": "Pesca",
+          "indexName": "pesca",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": []
+        },
+        {
+          "name": "Protezione ambientale",
+          "indexName": "ambiente",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": []
+        }
+      ],
       "description": "Elettrificazione delle banchine, disponibilità di combustibili alternativi, gestione dei rifiuti e acque residue (sea water scrubber), in linea con obiettivi di sostenibilità.",
       "geospatialResources": [
         {
@@ -168,6 +315,37 @@
     {
       "name": "Traffico correlato a eolico offshore",
       "impact": "Traffico correlato a eolico offshore",
+      "referenceThemes": [
+        {
+          "name": "Difesa costiera",
+          "indexName": "difesa",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": []
+        },
+        {
+          "name": "Ricerca & Innovazione",
+          "indexName": "innovazione",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": []
+        },
+        {
+          "name": "Acquacoltura",
+          "indexName": "H2o",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": [],
+          "impacts": []
+        },
+        {
+          "name": "Energia - Oil&Gas",
+          "indexName": "oil/gas",
+          "type": "secondario",
+          "description": "",
+          "geospatialResources": []
+        }
+      ],
       "description": "Incremento modesto del traffico a corto raggio per costruzione/manutenzione di campi eolici (es. area OW1, OW2, OW4), con potenziali impatti su rotte esistenti.",
       "geospatialResources": [
         {
@@ -184,6 +362,23 @@
     {
       "name": "Isola energetica",
       "impact": "Isola energetica",
+      "referencedTheme": [
+        {
+          "name": "Sicurezza e sorveglianza",
+          "indexName": "sicurezza",
+          "type": "secondario",
+          "description": "",
+          "geospatialResources": [],
+          "impacts": []
+        },
+        {
+          "name": "Paesaggio e patrimonio culturale",
+          "indexName": "paesaggio",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": []
+        }
+      ],
       "description": "Hub per combustibili alternativi (idrogeno, metanolo, elettrico) che riduce pressioni costiere e impone limiti di velocità (10 nodi), con benefici ambientali (rumore, collisioni con megafauna).",
       "geospatialResources": [
         {
@@ -200,6 +395,45 @@
     {
       "name": "Regolamentazione e sicurezza",
       "impact": "Regolamentazione e sicurezza",
+      "referenceThemes": [
+        {
+          "name": "Acquacoltura",
+          "indexName": "H2o",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": [],
+          "impacts": []
+        },
+        {
+          "name": "Sicurezza e sorveglianza",
+          "indexName": "sicurezza",
+          "type": "secondario",
+          "description": "",
+          "geospatialResources": [],
+          "impacts": []
+        },
+        {
+          "name": "Energia",
+          "indexName": "energia1",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": []
+        },
+        {
+          "name": "Pesca",
+          "indexName": "pesca",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": []
+        },
+        {
+          "name": "Protezione ambientale",
+          "indexName": "ambiente",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": []
+        }
+      ],
       "description": "Necessità di approfondire sostenibilità economica e sicurezza nel corridoio NW-SE, con possibili misure aggiuntive come Traffic Separation Schemes (TSS)",
       "geospatialResources": [
         {
@@ -233,14 +467,14 @@
       "referenceThemes": [
         {
           "name": "Trasporto Marittimo",
-          "indexName": "BD_trasporto",
+          "indexName": "trasporto",
           "type": "primario",
           "description": "",
           "geospatialResources": []
         },
         {
           "name": "Energia",
-          "indexName": "BD_energia1",
+          "indexName": "energia1",
           "type": "primario",
           "description": "",
           "geospatialResources": []
@@ -251,6 +485,29 @@
           "name": "Incremento del traffico marittimo",
           "impact": "Incremento del traffico marittimo",
           "description": "Proiezioni di aumento della densità di traffico per diverse categorie di navi (CAR +30%, CON +53%, PAS +26%, TGC +38%, RRO +33%), basate su studi EMSA (2024) e letteratura di settore (EMSA-EEA 2021, Piano del Mare 2023, Report SRM 2022)",
+          "referencedTheme": [
+            {
+              "name": "Trasporto Marittimo",
+              "indexName": "trasporto",
+              "type": "primario",
+              "description": "",
+              "geospatialResources": []
+            },
+            {
+              "name": "Energia - Oil&Gas",
+              "indexName": "oil/gas",
+              "type": "secondario",
+              "description": "",
+              "geospatialResources": []
+            },
+            {
+              "name": "Difesa costiera",
+              "indexName": "difesa",
+              "type": "primario",
+              "description": "",
+              "geospatialResources": []
+            }
+          ],
           "geospatialResources": [
             {
               "id": "layer_routedensity_allavg",
@@ -275,6 +532,52 @@
         {
           "name": "Sviluppo porti sostenibili",
           "impact": "Sviluppo porti sostenibili",
+          "referenceThemes": [
+            {
+              "name": "Sicurezza e sorveglianza",
+              "indexName": "sicurezza",
+              "type": "secondario",
+              "description": "",
+              "geospatialResources": [],
+              "impacts": []
+            },
+            {
+              "name": "Difesa costiera",
+              "indexName": "difesa",
+              "type": "primario",
+              "description": "",
+              "geospatialResources": []
+            },
+            {
+              "name": "Acquacoltura",
+              "indexName": "H2o",
+              "type": "primario",
+              "description": "",
+              "geospatialResources": [],
+              "impacts": []
+            },
+            {
+              "name": "Energia",
+              "indexName": "energia1",
+              "type": "primario",
+              "description": "",
+              "geospatialResources": []
+            },
+            {
+              "name": "Pesca",
+              "indexName": "pesca",
+              "type": "primario",
+              "description": "",
+              "geospatialResources": []
+            },
+            {
+              "name": "Protezione ambientale",
+              "indexName": "ambiente",
+              "type": "primario",
+              "description": "",
+              "geospatialResources": []
+            }
+          ],
           "description": "Elettrificazione delle banchine, disponibilità di combustibili alternativi, gestione dei rifiuti e acque residue (sea water scrubber), in linea con obiettivi di sostenibilità.",
           "geospatialResources": [
             {
@@ -291,165 +594,82 @@
       ]
     }
   ],
-  "primaryThemes": [
-    {
-      "name": "Acquacoltura",
-      "indexName": "BD_H2o",
-      "type": "primario",
-      "description": "",
-      "geospatialResources": [],
-      "impacts": []
-    },
-    {
-      "name": "Difesa costiera",
-      "indexName": "BD_difesa",
-      "type": "primario",
-      "description": "",
-      "geospatialResources": []
-    },
-    {
-      "name": "Energia",
-      "indexName": "BD_energia1",
-      "type": "primario",
-      "description": "",
-      "geospatialResources": []
-    },
-    {
-      "name": "Paesaggio e patrimonio culturale",
-      "indexName": "BD_paesaggio",
-      "type": "primario",
-      "description": "",
-      "geospatialResources": []
-    },
-    {
-      "name": "Pesca",
-      "indexName": "BD_pesca",
-      "type": "primario",
-      "description": "",
-      "geospatialResources": []
-    },
-    {
-      "name": "Protezione ambientale",
-      "indexName": "BD_ambiente",
-      "type": "primario",
-      "description": "",
-      "geospatialResources": []
-    },
-    {
-      "name": "Ricerca & Innovazione",
-      "indexName": "BD_innovazione",
-      "type": "primario",
-      "description": "",
-      "geospatialResources": []
-    },
-    {
-      "name": "Trasporto Marittimo",
-      "indexName": "BD_trasporto",
-      "type": "primario",
-      "description": "",
-      "geospatialResources": []
-    },
-    {
-      "name": "Turismo Costiero e Marittimo",
-      "indexName": "BD_turismo",
-      "type": "primario",
-      "description": "",
-      "geospatialResources": []
-    }
-  ],
-  "secondaryThemes": [
-    {
-      "name": "Energia - Oil&Gas",
-      "indexName": "BD_oil/gas",
-      "type": "secondario",
-      "description": "",
-      "geospatialResources": []
-    },
-    {
-      "name": "Sicurezza e sorveglianza",
-      "indexName": "BD_sicurezza",
-      "type": "secondario",
-      "description": "",
-      "geospatialResources": [],
-      "impacts": []
-    }
-  ],
   "topics": {
-    "BD_oil/gas": {
+    "oil/gas": {
       "name": "Energia - Oil&Gas",
-      "indexName": "BD_oil/gas",
+      "indexName": "oil/gas",
       "type": "secondario",
       "description": "",
       "geospatialResources": []
     },
-    "BD_sicurezza": {
+    "sicurezza": {
       "name": "Sicurezza e sorveglianza",
-      "indexName": "BD_sicurezza",
+      "indexName": "sicurezza",
       "type": "secondario",
       "description": "",
       "geospatialResources": [],
       "impacts": []
     },
-    "BD_H2o": {
+    "H2o": {
       "name": "Acquacoltura",
-      "indexName": "BD_H2o",
+      "indexName": "H2o",
       "type": "primario",
       "description": "",
       "geospatialResources": [],
       "impacts": []
     },
-    "BD_difesa": {
+    "difesa": {
       "name": "Difesa costiera",
-      "indexName": "BD_difesa",
+      "indexName": "difesa",
       "type": "primario",
       "description": "",
       "geospatialResources": []
     },
-    "BD_energia1": {
+    "energia1": {
       "name": "Energia",
-      "indexName": "BD_energia1",
+      "indexName": "energia1",
       "type": "primario",
       "description": "",
       "geospatialResources": []
     },
-    "BD_paesaggio": {
+    "paesaggio": {
       "name": "Paesaggio e patrimonio culturale",
-      "indexName": "BD_paesaggio",
+      "indexName": "paesaggio",
       "type": "primario",
       "description": "",
       "geospatialResources": []
     },
-    "BD_pesca": {
+    "pesca": {
       "name": "Pesca",
-      "indexName": "BD_pesca",
+      "indexName": "pesca",
       "type": "primario",
       "description": "",
       "geospatialResources": []
     },
-    "BD_ambiente": {
+    "ambiente": {
       "name": "Protezione ambientale",
-      "indexName": "BD_ambiente",
+      "indexName": "ambiente",
       "type": "primario",
       "description": "",
       "geospatialResources": []
     },
-    "BD_innovazione": {
+    "innovazione": {
       "name": "Ricerca & Innovazione",
-      "indexName": "BD_innovazione",
+      "indexName": "innovazione",
       "type": "primario",
       "description": "",
       "geospatialResources": []
     },
-    "BD_trasporto": {
+    "trasporto": {
       "name": "Trasporto Marittimo",
-      "indexName": "BD_trasporto",
+      "indexName": "trasporto",
       "type": "primario",
       "description": "",
       "geospatialResources": []
     },
-    "BD_turismo": {
+    "turismo": {
       "name": "Turismo Costiero e Marittimo",
-      "indexName": "BD_turismo",
+      "indexName": "turismo",
       "type": "primario",
       "description": "",
       "geospatialResources": []

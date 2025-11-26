@@ -4,7 +4,7 @@ import _ from 'lodash'
 import { parseTextWithCommands } from '@/models/commandPayload' // Assicurati che il path sia corretto
 import { useGeostoryStore } from '~/stores/geostoryStore'
 import type { Scenario } from '~/models/scenario'
-import { Geostory } from '~/models/geostory'
+import type { Geostory } from '~/models/geostory'
 
 const input = ref('')
 const store = useGeostoryStore()

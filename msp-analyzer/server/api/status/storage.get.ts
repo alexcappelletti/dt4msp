@@ -1,5 +1,7 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { isFunctionExpression } from 'typescript';
+import { Geostory, parseGeostoryFromJson } from '~/models/geostory';
 import type { Scenario } from '~/models/scenario';
 export default defineEventHandler(async (event) => {
 	const query = getQuery(event);
@@ -12,13 +14,13 @@ export default defineEventHandler(async (event) => {
 	const storage = useStorage(storageName);
 	const retValue: Record<string, any> = {};
 
-	if (keyName) {
+	if (keyName === "samples") {
 		if (useDefault) {
 			// Assicurati che addScenario sia definito o importato
-			await addScenario(storageName);
+			await addSamples(storageName, keyName);
 		}
 
-		if (injectValue) {
+		else if (injectValue) {
 			await storage.setItem(keyName, injectValue);
 		}
 
@@ -36,19 +38,18 @@ export default defineEventHandler(async (event) => {
 });
 
 
-
-async function addScenario(nameSt: string) {
+async function addSamples(storageName: string, key: string){
 	try {
-		const storage = useStorage(nameSt);
+		const storage = useStorage(storageName);
+		const geostory = await readGeostoryFromFile()
 		const scenario = await readScenarioFile()
-		await storage.setItem('sampleScenario', scenario)
+		await storage.setItem(key, {"scenario": scenario, "geostory": geostory})
 	}
 	catch (error: any) {
-		console.error('Impossibile set a scenario in storage ' + error)
+		console.error('Can\'t store samples ' + error)
 
 	}
 }
-
 
 
 async function readScenarioFile(): Promise<Scenario> {
@@ -65,6 +66,27 @@ async function readScenarioFile(): Promise<Scenario> {
 	try {
 		const fileContent = await fs.readFile(filePath, 'utf-8');
 		const data: Scenario = JSON.parse(fileContent);
+		return data;
+
+	} catch (error: any) {
+		console.error(`Errore nella funzione readScenarioFile: ${error.message}`);
+		throw new Error('Impossibile leggere o parsare il file scenario.');
+	}
+}
+
+async function readGeostoryFromFile(): Promise<Geostory> {
+	const filePath = path.join(
+		process.cwd(),
+		'public',
+		'data',
+		'geostoryBD.json'
+	);
+
+	console.log(`Lettura file da: ${filePath}`);
+
+	try {
+		const fileContent = await fs.readFile(filePath, 'utf-8');
+		const data: Geostory = parseGeostoryFromJson(fileContent);
 		return data;
 
 	} catch (error: any) {

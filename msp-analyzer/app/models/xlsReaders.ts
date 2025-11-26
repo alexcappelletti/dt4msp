@@ -1,7 +1,7 @@
 import * as XLSX from 'xlsx';
-import { Geostory, defaultGeostory, StoryElement, StoryItem } from './geostory';
+import { type Geostory, type StoryElement, type StoryItem, populateGeostory, populateStoryElement, populateStoryItem } from './geostory';
 
-import { type Scenario, type Theme, type MapLayer, type Measure, populateScenario, populateTheme } from '@/models/scenario';
+import { type Scenario, type Theme, type MapLayer, type Measure, populateScenario, populateTheme, populateMeasure } from '@/models/scenario';
 import { ImageVisual, MapVisual, Visual } from './visual';
 import type { MapVisualOptions } from './visual';
 
@@ -86,7 +86,7 @@ export class GeostoryXlsxReader {
 		const rows = XLSX.utils.sheet_to_json<Record<string, any>>(storySheet);
 		const features = this.sheetToKeyValueJson(featuresSheet);
 		const storyElements = rows.map((row, index) => {
-			const storyItem = new StoryItem({
+			const storyItem = populateStoryItem({
 				id: row.item_id || `item-${index + 1}`,
 				title: row.item_title || 'Unknown title',
 				author: row.author || 'Unknown',
@@ -101,16 +101,15 @@ export class GeostoryXlsxReader {
 
 
 
-			const storyElement = new StoryElement(
-				Number(row.order) || index,
-				row.title || '',
-				row.section_id || "-",
-				row.id || `element-${index + 1}`,
-				row.structure || 'undefined_structure',
-				this.extractTags(row.item_tags),
-				row.map_actions ? row.map_actions.split(/\s+/) : [],
-				[storyItem]
-			);
+			const storyElement = populateStoryElement({
+				order: Number(row.order) || index,
+				sectionTitle: row.title || '',
+				sectionID: row.section_id || "-",
+				id: row.id || `element-${index + 1}`,
+				tags: this.extractTags(row.item_tags),
+				actions: row.map_actions ? row.map_actions.split(/\s+/) : [],
+				storyItems: [storyItem]
+			});
 
 			//const visual = 
 
@@ -142,7 +141,7 @@ export class GeostoryXlsxReader {
 		});
 
 
-		const readingGeostory = new Geostory({
+		const readingGeostory = populateGeostory({
 			id: features["geostory_id"] || 'geostory-1',
 			title: features["geostory_title"] || 'My Geostory',
 			scenario: features["scenario"] || 'Unknown scenario',
@@ -152,7 +151,7 @@ export class GeostoryXlsxReader {
 			exportType: (features["export_type"] || 'Unknown export type').toLowerCase(),
 			elements: storyElements as StoryElement[],
 			author: features["editors"] || 'Unknown author',
-		});
+		} as Partial<Geostory>);
 
 
 		return readingGeostory;
@@ -201,40 +200,38 @@ export class ScenarioXlsxReader {
 				metadata[key.trim()] = value.toString().trim()
 			}
 		}
-		const themes = this.readThemesFromSheet()
-		const measures: Measure[] = []
-		try {
-			themes.forEach(theme => measures.push(...this.readMeasureFromSheet(theme)))		
-		} catch (error) {
-			console.warn("Nessun foglio iniziative trovato per uno o più temi.")
-		}	
+		// const themes = this.readThemesFromSheet()
+		// const measures: Measure[] = []
+		// try {
+		// 	themes.forEach(theme => measures.push(...this.readMeasureFromSheet(theme)))		
+		// } catch (error) {
+		// 	console.warn("Nessun foglio iniziative trovato per uno o più temi.")
+		// }	
 
-		const splitList = (str?: string): string[] =>
-			str ? str.split(';').map(s => s.trim()).filter(Boolean) : []
+		// const splitList = (str?: string): string[] =>
+		// 	str ? str.split(';').map(s => s.trim()).filter(Boolean) : []
 
+		// const geostories: Geostory[] = splitList(metadata['geostories']).map((title, i) =>
+		// 	populateGeostory({ id: `gs-${i + 1}`, title },
+		// 	})
+		// )
 
-		const geostories: Geostory[] = splitList(metadata['geostories']).map((title, i) =>
-			new Geostory({
-				...{ id: `gs-${i + 1}`, title },
-				...defaultGeostory
-			})
-		)
-
-		const retValue = populateScenario({
-			id: metadata['id'] || 'scenarioSoS_bd',
-			name: metadata['scenario_name'] || 'Unnamed Scenario',
-			generalDescription: metadata['general_description'],
-			narrative: metadata['narrativa'] || '',
-			temporalScope: metadata['orizzonte_temporale'],
-			maps: splitList(metadata['map(s)']),
-			datasets: splitList(metadata['datasets']),
-			extendedAspects: metadata['extended aspects'],
-			availableThemes: themes,
-			measures: measures,
-			definedGeostories: geostories,
-			objectives: metadata['narrativa']
-		} as Partial<Scenario>)
-		return retValue
+		// const retValue = populateScenario({
+		// 	id: metadata['id'] || 'scenarioSoS_bd',
+		// 	name: metadata['scenario_name'] || 'Unnamed Scenario',
+		// 	generalDescription: metadata['general_description'],
+		// 	narrative: metadata['narrativa'] || '',
+		// 	temporalScope: metadata['orizzonte_temporale'],
+		// 	maps: splitList(metadata['map(s)']),
+		// 	datasets: splitList(metadata['datasets']),
+		// 	extendedAspects: metadata['extended aspects'],
+		// 	availableThemes: themes,
+		// 	measures: measures,
+		// 	definedGeostories: geostories,
+		// 	objectives: metadata['narrativa']
+		// } as Partial<Scenario>)
+		// return retValue
+		return populateScenario({})
 	}
 
 	
@@ -321,15 +318,16 @@ export class ScenarioXlsxReader {
 						thumbnailUrl: ''
 					} as MapLayer))
 
-					return ({
-						ID: row.pr || `impact_${i + 1}`,
-						name: row.description || `Impatto ${i + 1}`,
-						impactOnTheme: row["impact_on_theme"] || 'NA',
-						description: `Impatto: ${row.description || `Impatto ${i + 1}`}`,
-						geospatialResources: layers,
-						primaryThemes: [theme],
-						secondaryThemes: new Array<Theme>(),
-					} as Measure)
+					// return ({
+					// 	ID: row.pr || `impact_${i + 1}`,
+					// 	name: row.description || `Impatto ${i + 1}`,
+					// 	impactOnTheme: row["impact_on_theme"] || 'NA',
+					// 	description: `Impatto: ${row.description || `Impatto ${i + 1}`}`,
+					// 	geospatialResources: layers,
+					// 	primaryThemes: [theme],
+					// 	secondaryThemes: new Array<Theme>(),
+					// } as Measure)
+					return populateMeasure({})
 				})
 		return measures
 	}

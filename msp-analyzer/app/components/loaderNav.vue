@@ -48,7 +48,7 @@ async function handleFromServer(event: Event, type: 'scenario' | 'geostory') {
 	loading.value = true
 	try {
 		if (type === 'scenario') {await store.loadScenario({scenarioID:"default", from: "storage"})} 
-		else if (type === 'geostory') {await store.loadGeostory({geostoryID:"default", from: ""})}
+		else if (type === 'geostory') {await store.loadGeostory({geostoryID:"default", from: "storage"})}
 		loading.value = false
 	} catch (err) {
 		console.error('Errore durante il caricamento dal server:', err)

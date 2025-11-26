@@ -3,7 +3,7 @@ import PdfPrinter from 'pdfmake'
 import path from 'path'
 import concat from 'concat-stream'
 import type { TDocumentDefinitions } from 'pdfmake/interfaces'
-import { defaultGeostory, StoryElement } from '~/models/geostory'
+import { populateGeostory, type StoryElement } from '~/models/geostory'
 
 const fonts = {
 	Roboto: {
@@ -16,7 +16,7 @@ const fonts = {
 
 export default defineEventHandler(async (event) => {
 	try {
-		const story = defaultGeostory
+		const story = populateGeostory({})
 		story.title = 'sample'
 
 		const printer = new PdfPrinter(fonts)

@@ -4,26 +4,39 @@ import { generateUUID } from "@/utils/generateUUID";
 
 
 export interface Project{
-	id: string;
+	readonly id: string;
 	name: string;
 	description: string;
 	scenarios: Array<Scenario>;
+	areaOfInterest: AreaOfInterest;
 	createdAt: Date;
 	updatedAt: Date;
 
 }
-
-export interface AreaOfInterest {
-	id: string;
-	name: string;
-	longName: string;
-	coordinates?: Array<number[]>; //array di array di coordinate che definiscono il poligono
-	description: string;
+export interface OptionalData{
+	readonly id: string;
+	title: string;
+	content: string;
+	descr: string;	
 
 }
 
+export interface AreaOfInterest {
+	readonly id: string;
+	name: string;
+	longName: string;
+	//coordinates?: Array<number[]>; //array di array di coordinate che definiscono il poligono
+	filterCQL?: string,
+	description: string;
+	scenarios: Array<Scenario>;
+	statements?: Array<Statement>;
+	temporalScope: string;
+	others: Map<string, OptionalData>
+	
+}
+
 export interface Scenario {
-	id: string;
+	readonly id: string;
 	name: string;
 	areaOfInterest?: AreaOfInterest;
 	generalDescription: string;
@@ -32,17 +45,17 @@ export interface Scenario {
 	spatialResources: string[]
 	datasets: string[];
 	measures: Array<Measure>;
+	statements?: Array<Statement>;
 	effects?: Array<Effect>;
 	availableThemes: Array<Theme>;  //tutti i temi disponibili per lo scenario
 	primaryThemes?: Array<Theme>; //temi primari selezionati per lo scenario
 	secondaryThemes?: Array<Theme>; //temi secondari selezionati per lo scenario
 	topics: Record<string, Theme>;  //themi specifificati per index name ->serve per indizzare i temi quando si usa il query-language
-	statements?: Array<Statement>;
 	definedGeostories: Geostory[];
 	objectives: string;
 }
 export interface Theme {
-	ID?: string;
+	readonly id: string;
 	name: string;
 	indexName: string   ; //nome univoco per lo scenario usato per creare il riferimento al tema 
 	type: "secondario" | "primario" | "NA"; //non é qui ma nel momento in cui si associa allo scenario
@@ -54,26 +67,24 @@ export interface Theme {
 export interface Statement {
 	shortName: string;
 	longName: string;
-	ID:	string;
+	readonly id:	string;
 	description: string;
 	imageUrl?: string|URL;
-	sectorThemes: Array<Theme>; //specifica i statement  che sono associati ad uno o piú temi
+	sectorThemes?: Array<Theme>; //specifica i statement  che sono associati ad uno o piú temi
 }
-
-export interface Measure {
+export interface Aspect {
 	name: string;
-	ID: string;
-	impact: string;
+	readonly id: string;
 	description: string;
+	referenceThemes?: Array<Theme>
+}
+export interface Measure extends Aspect {
+	impact: string;
 	geospatialResources: MapLayer[];
-	affectedMeasures?: Array<Measure>; //misure che sono influenzate da questa misura
-	referenceThemes: Array<Theme>;  //specifica i temi che sono associati alla misura  scelti tra i primari ed i secondari dello scenario
 }
 
 export interface Effect extends Measure {
-	name: string;
-	ID: string;
-	description: string;
+	affectedMeasures?: Array<Measure>; //misure che sono influenzate da questa misura
 }
 
 
@@ -88,16 +99,13 @@ export function populateScenario(scenario: Partial<Scenario>): Scenario {
 		spatialResources: [],
 		areaOfInterest: undefined,
 		availableThemes: [],
-
+		primaryThemes: [],
+		secondaryThemes: [], //temi secondari selezionati per lo scenario
 		statements: [],
 		datasets: [],
 		measures: [],
 		effects: [],
-		primaryThemes: [],
-		secondaryThemes: [],
-		
 		topics: {},
-		
 		definedGeostories: [],
 		
 	} as Scenario;
@@ -118,7 +126,7 @@ export function populateScenario(scenario: Partial<Scenario>): Scenario {
 
 export function populateTheme(theme: Partial<Theme>): Theme {
 	const defaultTheme: Theme = {
-		ID: generateUUID(),
+		id: generateUUID(),
 		indexName: '',
 		name: '',
 		type: 'NA',
@@ -133,22 +141,38 @@ export function populateTheme(theme: Partial<Theme>): Theme {
 }
 export function populateMeasure(measure: Partial<Measure>): Measure {
 	const defaultMeasure: Measure = {
-		ID: generateUUID(),	
+		id: generateUUID(),	
 		name: '',
 		impact: '',
 		description: '',	
 		geospatialResources: new Array<MapLayer>(),
-		referenceThemes: new Array<Theme>()
+		referencedTheme: new Array<Theme>()
 	} as Measure;
 	return {
 		...defaultMeasure,
 		...measure,
 	};
 }
+export function populateEffect(effect: Partial<Effect>): Effect {
+	const defaultEffect = {
+		id: generateUUID(),	
+		name: '',
+		impact: '',
+		description: '',	
+		geospatialResources: new Array<MapLayer>(),
+		primaryThemes: new Array<Theme>(),
+		secondaryTheme: new Array<Theme>(),
+		affectedMeasures:new Array<Measure>,
+	} as Effect
+	return {
+		...defaultEffect,
+		...effect
+	}
+}
 
 // export class BaseTheme  {
 // 	nome: string;
-// 	theme_id: string;
+// 	theme_readonly id: string;
 // 	type: string;
 // 	description: string;
 // 	geospatialResources: MapLayer[];
@@ -164,8 +188,8 @@ export function populateMeasure(measure: Partial<Measure>): Measure {
 // export class Theme extends BaseTheme {
 // 	impacts: Record<string, Measure>;
 // 	constructor(p: {
-// 		id: string;
-// 		theme_id: string;
+// 		readonly id: string;
+// 		theme_readonly id: string;
 // 		type: string;
 // 		description: string;
 // 		geospatialResources: MapLayer[];
@@ -187,8 +211,8 @@ export function populateMeasure(measure: Partial<Measure>): Measure {
 // export class ExtendedAspects extends BaseTheme {
 // 	//campi estesi TOBEDEFINED
 // 	constructor(p: {
-// 		id: string;
-// 		theme_id: string;
+// 		readonly id: string;
+// 		theme_readonly id: string;
 // 		type: string;
 // 		description: string;
 // 		geospatialResources: MapLayer[];
@@ -210,7 +234,7 @@ export function populateMeasure(measure: Partial<Measure>): Measure {
 
 
 export class MapLayer {
-	id: string;
+	readonly id: string;
 	name: string;
 	type: string;
 	url: string;
@@ -220,7 +244,7 @@ export class MapLayer {
 	legendUrl?: string;
 	thumbnailUrl?: string;
 	constructor(p: {
-		id: string;
+		readonly id: string;
 		name: string;
 		type: string;
 		url: string;

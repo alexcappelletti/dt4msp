@@ -1,6 +1,7 @@
-import type { isExpressionWithTypeArguments, StringLiteral } from "typescript";
+import { generateUUID } from "@/utils/generateUUID";
 import { ChangeEvent } from "./changeEvent";
 import { Visual } from "./visual";
+import { mapActions } from "pinia";
 
 export class Section {
 	sectionId: string;
@@ -26,58 +27,49 @@ export class Section {
 }
 
 
-export class Geostory {
+export interface Geostory {
 	id: string;
 	title: string;
 	author?: string;
 	timestamp: Date;
 	elements: StoryElement[];
-	sections: Map<string, Section> = new Map<string, Section>();
+	sections: Map<string, Section>;
 	topic: string;
 	scenario: string;
 	language: string;
 	target: string;
 	exportType: string;
 
-	constructor(params: {
-		id: string,
-		title: string,
-		topic: string,
-		scenario: string,
-		language: string,
-		target: string,
-		exportType: string,
-		elements: StoryElement[],
-		author?: string,
-		timestamp?: Date
-	}
-	) {
-		this.id = params.id;
-		this.title = params.title;
-		this.author = params.author;
-		this.timestamp = params.timestamp || new Date();
-		this.topic = params.topic;
-		this.scenario = params.scenario;
-		this.language = params.language;
-		this.target = params.target;
-		this.exportType = params.exportType;
-		this.elements = params?.elements || [];
-		this.sections = groupBySectionID(this.elements)
-		console.log("numero elementi " + this.elements.length)
-		console.log("numero sezioni " + this.sections.size)
-
-
-	}
-
-	getSections(): Map<string, Section> { return this.sections }
-	toJson(): string {
-		const plain = {
-			...this,
-			sections: Object.fromEntries(this.sections), // converte la Map in oggetto semplice
-		};
-		return JSON.stringify(plain, null, 2); // con indentazione leggibile
-	}
 }
+
+
+export function populateGeostory(g: Partial<Geostory>): Geostory{
+	const emptyGs: Geostory = {
+		id: generateUUID(),
+		title: "",
+		author: "",
+		timestamp: new Date(),
+		topic:"",
+		scenario:"",
+		language:"ita",
+		target:"",
+		exportType:"pdf",
+		elements:[],
+		sections: new Map<string, Section>(), 
+
+	} as Geostory
+	const retVal: Geostory = {
+		...emptyGs, 
+		...g
+	}
+	if (g.elements) {retVal.sections = groupBySectionID(g.elements)}
+	
+	console.log("numero elementi " + retVal.elements?.length)
+	console.log("numero sezioni " + retVal.sections?.size)
+	return retVal
+}
+
+
 ///ritorna una mappa dove gli storyElemens sono ordinati per "order" 
 export function groupBySectionID(elements: StoryElement[]): Map<string, Section> {
 	const grouped = elements.reduce((map, el) => {
@@ -102,56 +94,19 @@ export function groupBySectionID(elements: StoryElement[]): Map<string, Section>
 }
 
 
-export const defaultGeostory = new Geostory({
-	id: 'default',
-	title: '',
-	topic: '',
-	scenario: '',
-	language: 'it',
-	target: '',
-	exportType: 'html',
-	elements: [],
-	author: '',
-	timestamp: new Date()
-})
-
-export class StoryElement {
+export interface StoryElement {
 	order: number;
 	sectionTitle: string;
 	sectionID: string;
-	id: string;
+	readonly id: string;
 	style: string;
 	tags: string[];
 	actions: string[];
 	storyItems: StoryItem[];
-
-	constructor(
-		order = -1,
-		sectionTitle = "",
-		section_id: string,
-		id: string,
-		style: string,
-		tags: string[] = [],
-		actions: string[] = [],
-		storyItems: StoryItem[] = []
-	) {
-		this.order = order;
-		this.sectionTitle = sectionTitle;
-		this.sectionID = section_id;
-		this.id = id;
-		this.style = style;
-		this.tags = tags;
-		this.actions = actions;
-		this.storyItems = storyItems;
-	}
-
-	addStoryItem(item: StoryItem): void {
-		this.storyItems.push(item);
-	}
 }
 
 
-export class StoryItem {
+export interface StoryItem {
 	id: string;
 	title: string;
 	text: string; // 
@@ -164,111 +119,95 @@ export class StoryItem {
 	comments: string;
 	////////: string; // Optional structure field
 	structure: string; // Optional structure field
-	style: StoryItemStyle
-	constructor(p: {
-		id: string,
-		visual: Visual | null,
-		mapActions?: string[],
-		title: string,
-		text: string,
-		author: string,
-		tags?: string[],
-		comments?: string,
-		structure: string,
-		style?: StoryItemStyle 
-	}) {
-		this.id = p.id;
-		this.text = p.text;
-		this.title = p.title;
-		this.tags = p.tags || [];
-		this.author = p.author;
-		this.structure = p.structure || 'undefined_structure';
-		this.timestamp = new Date();
-		this.mapActions = p.mapActions || [];
-		this.visual = p.visual || null;
-		this.comments = p.comments || '';
-		this.changes = [
-			new ChangeEvent(p.author, this.timestamp, "construct", null, p.text)
-		];
-		this.comments = p.comments || '';
-		this.structure = p.structure || 'undefined_structure';
-		this.tags = p.tags || [];
-		this.style = p.style || new StoryItemStyle()
-
-	}
-
+	style: StoryItemStyle;
 }
+
+export function populateStoryElement(stEl: Partial<StoryElement>): StoryElement {
+	return {
+		id: generateUUID(),
+		order: -1,
+		sectionTitle:"",
+		sectionID:'',
+		style: '',
+		tags: new Array<string>(),
+		actions: new Array<string>(),
+		storyItems: new Array<StoryItem>(),
+		...stEl
+	}
+}
+
+export function populateStoryItem(stIt: Partial<StoryItem>): StoryItem{
+	return {
+		id: generateUUID(),
+		text: "undefined text",
+		title: "undefined title",
+		tags:[],
+		author: "no author",
+		structure:'undefined_structure',
+		timestamp: new Date(),
+		mapActions: [],
+		visual: {} as Visual,
+		comments:'',
+		changes: [],
+		style:{} as StoryItemStyle,
+		...stIt
+	} as StoryItem
+}
+
 
 export type TextAlignment = 'top' | 'center' | 'bottom' | 'justify';
 export type VisualPosition = 'left' | 'right';
 export type ScrollBehavior = 'fixed' | 'scroll';
 
-export class StoryItemStyle {
-	textAlignment: TextAlignment = 'center'; // Imposta un default, se serve
-	visualPos: VisualPosition = 'left'; // Imposta un default, se serve
-	backgroundScroll: ScrollBehavior = 'fixed';
-	visualScroll: ScrollBehavior = 'fixed';
+export interface StoryItemStyle {
+	textAlignment: TextAlignment
+	visualPos: VisualPosition
+	backgroundScroll: ScrollBehavior
+	visualScroll: ScrollBehavior
 }
-;
+export function updateItemStyle(style: Partial<StoryItemStyle>):StoryItemStyle {
+	return {
+		textAlignment: 'center',
+		visualPos:'left',
+		backgroundScroll:'fixed',
+		visualScroll: 'fixed',
+		...style
+	}
+}
 
 export function parseGeostoryFromJson(text: string): Geostory {
 	const raw = JSON.parse(text);
-
-	const elements = (raw.elements || []).map((el: any) => {
-		const storyItems = (el.storyItems || []).map((item: any) => new StoryItem(item));
-		return new StoryElement(
-			el.order,
-			el.sectionTitle,
-			el.sectionID,
-			el.id,
-			el.style,
-			el.tags,
-			el.actions,
-			storyItems
-		);
-	})
-
-	return new Geostory({
-		id: raw.id,
-		title: raw.title,
-		topic: raw.topic,
-		scenario: raw.scenario,
-		language: raw.language,
-		target: raw.target,
-		exportType: raw.exportType,
-		author: raw.author,
-		timestamp: raw.timestamp ? new Date(raw.timestamp) : new Date(),
-		elements
-	});
+	const retValue = populateGeostory(raw)
+	return (retValue)
 }
 
 export function parseGeostoryFromRaw(raw: any): Geostory {
-	const elements = (raw.elements || []).map((el: any) => {
-		const storyItems = (el.storyItems || []).map((item: any) => new StoryItem(item))
-		return new StoryElement(
-			el.order,
-			el.sectionTitle,
-			el.sectionID,
-			el.id,
-			el.style,
-			el.tags,
-			el.actions,
-			storyItems
-		)
-	})
-	const story = new Geostory({
-		id: raw.id,
-		title: raw.title,
-		topic: raw.topic,
-		scenario: raw.scenario,
-		language: raw.language,
-		target: raw.target,
-		exportType: raw.exportType,
-		author: raw.author,
-		timestamp: raw.timestamp ? new Date(raw.timestamp) : new Date(),
-		elements: elements
-	})
-	return story;
+	// const elements = (raw.elements || []).map((el: any) => {
+	// 	const storyItems = (el.storyItems || []).map((item: any) => new StoryItem(item))
+	// 	return new StoryElement(
+	// 		el.order,
+	// 		el.sectionTitle,
+	// 		el.sectionID,
+	// 		el.id,
+	// 		el.style,
+	// 		el.tags,
+	// 		el.actions,
+	// 		storyItems
+	// 	)
+	// })
+	// const story = new Geostory({
+	// 	id: raw.id,
+	// 	title: raw.title,
+	// 	topic: raw.topic,
+	// 	scenario: raw.scenario,
+	// 	language: raw.language,
+	// 	target: raw.target,
+	// 	exportType: raw.exportType,
+	// 	author: raw.author,
+	// 	timestamp: raw.timestamp ? new Date(raw.timestamp) : new Date(),
+	// 	elements: elements
+	// })
+	return {} as Geostory;
 }
 
 
