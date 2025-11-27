@@ -1,210 +1,256 @@
 {
-	"id": "geostory-canale-sicilia-uuid",
-	"title": "Geostoria: Dinamiche Socio-Ambientali del Canale di Sicilia",
-	"author": "Osservatorio Mediterraneo",
-	"timestamp": "2025-11-26T14:25:41.041Z",
-	"topic": "Geopolitica e Ambiente",
-	"scenario": "Blue Development",
-	"language": "ita",
-	"target": "",
-	"exportType": "pdf",
-	"elements": [
-		{
-			"id": "el-intro-uuid",
-			"order": 1,
-			"sectionTitle": "Introduzione Geografica",
-			"sectionID": "sezione-introduzione",
-			"style": "",
-			"tags": [],
-			"actions": [],
-			"storyItems": [
-				{
-					"id": "item-mare-uuid",
-					"text": "Il Canale di Sicilia è un'area strategica per la biodiversità marina e le rotte commerciali.", 
-					"title": "Il Contesto Marino",
-					"tags": [],
-					"author": "Ricercatore ISMEA",
-					"structure": "page",
-					"timestamp": "2025-11-26T14:25:41.041Z",
-					"mapActions": [],
-					"visual": {
-						"type": "map",
-						"config": {
-							"center": [36.5, 13],
-							"zoom": 7
-						}
-					},
-					"comments": "",
-					"changes": [],
-					"style": {
-						"textAlignment": "center",
-						"visualPos": "left",
-						"backgroundScroll": "fixed",
-						"visualScroll": "fixed"
-					}
-				}
-			]
-		},
-		{
-			"id": "el-pesca-uuid",
-			"order": 2,
-			"sectionTitle": "Temi Principali e Dati",
-			"sectionID": "sezione-temi",
-			"style": "",
-			"tags": [],
-			"actions": [],
-			"storyItems": [
-				{
-					"id": "item-pesca-uuid",
-					"text": "Analisi delle principali zone di pesca del Gambero Rosso e l'impatto delle misure di conservazione.",
-					"title": "Attività di Pesca e Impatti",
-					"tags": ["pesca", "economia", "dati"],
-					"author": "no author",
-					"structure": "page-title",
-					"timestamp": "2025-11-26T14:25:41.041Z",
-					"mapActions": [],
-					"visual": {
-						"type": "map",
-						"config": {
-							"layer": "zone_pesca_sicilia"
-						}
-					},
-					"comments": "",
-					"changes": [],
-					"style": {
-						"textAlignment": "center",
-						"visualPos": "right",
-						"backgroundScroll": "fixed",
-						"visualScroll": "fixed"
-					}
-				}
-			]
-		},
-		{
-			"id": "el-ecologia-uuid",
-			"order": 2,
-			"sectionTitle": "Temi Principali e Dati",
-			"sectionID": "sezione-temi",
-			"style": "",
-			"tags": [],
-			"actions": [],
-			"storyItems": [
-				{
-					"id": "item-ecologia-uuid",
-					"text": "Focalizzazione sulle praterie di Posidonia e le aree marine protette.",
-					"title": "Ecosistemi Vulnerabili",
-					"tags": ["ambiente", "biodiversità"],
-					"author": "no author",
-					"structure": "page",
-					"timestamp": "2025-11-26T14:25:41.041Z",
-					"mapActions": [],
-					"visual": {
-						"type": "map",
-						"config": {
-							"layer": "aree_protette"
-						}
-					},
-					"comments": "",
-					"changes": [],
-					"style": {
-						"textAlignment": "center",
-						"visualPos": "left",
-						"backgroundScroll": "fixed",
-						"visualScroll": "fixed"
-					}
-				}
-			]
-		},
-		{
-			"id": "el-migra-uuid",
-			"order": 3,
-			"sectionTitle": "Impatti Socio-Culturali",
-			"sectionID": "sezione-impatti",
-			"style": "",
-			"tags": [],
-			"actions": [],
-			"storyItems": [
-				{
-					"id": "item-migrazioni-uuid",
-					"text": "Una panoramica degli aspetti socio-economici e delle rotte migratorie che attraversano il canale.",
-					"title": "Flussi Migratori",
-					"tags": [],
-					"author": "no author",
-					"structure": "page",
-					"timestamp": "2025-11-26T14:25:41.041Z",
-					"mapActions": [],
-					"visual": {},
-					"comments": "",
-					"changes": [],
-					"style": {
-						"textAlignment": "center",
-						"visualPos": "left",
-						"backgroundScroll": "fixed",
-						"visualScroll": "fixed"
-					}
-				}
-			]
-		},
-		{
-			"id": "el-comm-uuid",
-			"order": 3,
-			"sectionTitle": "",
-			"sectionID": "sezione-impatti",
-			"style": "",
-			"tags": [],
-			"actions": [],
-			"storyItems": [
-				{
-					"id": "item-commercio-uuid",
-					"text": "L'importanza economica del canale per il traffico marittimo globale.",
-					"title": "Rotte Commerciali",
-					"tags": [],
-					"author": "no author",
-					"structure": "page",
-					"timestamp": "2025-11-26T14:25:41.041Z",
-					"mapActions": [],
-					"visual": {},
-					"comments": "",
-					"changes": [],
-					"style": {
-						"textAlignment": "center",
-						"visualPos": "left",
-						"backgroundScroll": "fixed",
-						"visualScroll": "fixed"
-					}
-				}
-			]
-		},
-		{
-			"id": "el-cultura-uuid",
-			"order": 3,
-			"sectionTitle": "",
-			"sectionID": "sezione-impatti",
-			"style": "",
-			"tags": [],
-			"actions": [],
-			"storyItems": [
-				{
-					"id": "item-cultura-uuid",
-					"text": "Breve storia delle civiltà che hanno navigato queste acque.",
-					"title": "Eredità Culturale",
-					"tags": [],
-					"author": "no author",
-					"structure": "page",
-					"timestamp": "2025-11-26T14:25:41.041Z",
-					"mapActions": [],
-					"visual": {},
-					"comments": "",
-					"changes": [],
-					"style": {
-						"textAlignment": "center",
-						"visualPos": "left",
-						"backgroundScroll": "fixed",
-						"visualScroll": "fixed"
-					}
-				}
-			]
-		}
-	],
-	"sections": {}
+    "id": "geostory-canale-sicilia-uuid",
+    "title": "Geostoria: Dinamiche Socio-Ambientali del Canale di Sicilia",
+    "author": "Osservatorio Mediterraneo",
+    "timestamp": "2025-11-27T15:30:27.971Z",
+    "topic": "Geopolitica e Ambiente",
+    "scenario": "Blue Development",
+    "language": "ita",
+    "target": "",
+    "exportType": "pdf",
+    "elements": [
+        {
+            "id": "el-intro-uuid",
+            "order": 1,
+            "sectionTitle": "Introduzione Geografica",
+            "sectionID": "sezione-introduzione",
+            "style": "",
+            "tags": [],
+            "actions": [],
+            "storyItems": [
+                {
+                    "id": "item-mare-uuid",
+                    "text": "Il Canale di Sicilia è un'area strategica per la biodiversità marina e le rotte commerciali.",
+                    "title": "Il Contesto Marino",
+                    "tags": [],
+                    "author": "Ricercatore ISMEA",
+                    "structure": "page-title",
+                    "timestamp": "2025-11-27T15:30:27.970Z",
+                    "mapActions": [],
+                    "visual": {
+                        "format": "MAP",
+                        "contentType": "application/xml",
+                        "serviceUrl": "https://ows.emodnet-bathymetry.eu/wms",
+                        "standardType": "raster",
+                        "layerParams": {},
+                        "owsFormat": "",
+                        "layerName": "emodnet:mean_sea_level",
+                        "layerType": "wms"
+                    },
+                    "comments": "",
+                    "changes": [],
+                    "style": {
+                        "textAlignment": "center",
+                        "visualPos": "left",
+                        "backgroundScroll": "fixed",
+                        "visualScroll": "fixed"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "el-pesca-uuid",
+            "order": 2,
+            "sectionTitle": "Temi Principali e Dati",
+            "sectionID": "sezione-temi",
+            "style": "",
+            "tags": [],
+            "actions": [],
+            "storyItems": [
+                {
+                    "id": "item-pesca-uuid",
+                    "text": "Analisi delle principali zone di pesca del Gambero Rosso e l'impatto delle misure di conservazione.",
+                    "title": "Attività di Pesca e Impatti",
+                    "tags": [
+                        "pesca",
+                        "economia",
+                        "dati"
+                    ],
+                    "author": "no author",
+                    "structure": "page-title",
+                    "timestamp": "2025-11-27T15:30:27.970Z",
+                    "mapActions": [],
+                    "visual": {
+                        "format": "MAP",
+                        "contentType": "application/xml",
+                        "serviceUrl": "https://geoplatform.tools4msp.eu/geoserver/ows?",
+                        "standardType": "geojson",
+                        "layerParams": {},
+                        "owsFormat": "",
+                        "layerName": "geonode:Dominio_SoS",
+                        "layerType": "geojson",
+                        "viewStyle": {
+                            "fill-color": "#1d530b",
+                            "fill-opacity": 0.68,
+                            "fill-outline-color": "#b0d2a2"
+                        }
+                    },
+                    "comments": "",
+                    "changes": [],
+                    "style": {
+                        "textAlignment": "center",
+                        "visualPos": "right",
+                        "backgroundScroll": "fixed",
+                        "visualScroll": "fixed"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "el-ecologia-uuid",
+            "order": 2,
+            "sectionTitle": "Temi Principali e Dati",
+            "sectionID": "sezione-temi",
+            "style": "",
+            "tags": [],
+            "actions": [],
+            "storyItems": [
+                {
+                    "id": "item-ecologia-uuid",
+                    "text": "Focalizzazione sulle praterie di Posidonia e le aree marine protette.",
+                    "title": "Ecosistemi Vulnerabili",
+                    "tags": [
+                        "ambiente",
+                        "biodiversità"
+                    ],
+                    "author": "no author",
+                    "structure": "page",
+                    "timestamp": "2025-11-27T15:30:27.970Z",
+                    "mapActions": [],
+                    "visual": {
+                        "format": "MAP",
+                        "contentType": "application/xml",
+                        "serviceUrl": "data.europa.eu",
+                        "standardType": "raster",
+                        "layerParams": {},
+                        "owsFormat": "",
+                        "layerName": "Habitat_Directive_Areas",
+                        "layerType": "wms"
+                    },
+                    "comments": "",
+                    "changes": [],
+                    "style": {
+                        "textAlignment": "center",
+                        "visualPos": "left",
+                        "backgroundScroll": "fixed",
+                        "visualScroll": "fixed"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "el-migra-uuid",
+            "order": 3,
+            "sectionTitle": "Impatti Socio-Culturali",
+            "sectionID": "sezione-impatti",
+            "style": "",
+            "tags": [],
+            "actions": [],
+            "storyItems": [
+                {
+                    "id": "item-migrazioni-uuid",
+                    "text": "Una panoramica degli aspetti socio-economici e delle rotte migratorie che attraversano il canale.",
+                    "title": "Flussi Migratori",
+                    "tags": [],
+                    "author": "no author",
+                    "structure": "page",
+                    "timestamp": "2025-11-27T15:30:27.971Z",
+                    "mapActions": [],
+                    "visual": {
+                        "format": "MAP",
+                        "contentType": "application/xml",
+                        "serviceUrl": "data.europa.eu",
+                        "standardType": "raster",
+                        "layerParams": {},
+                        "owsFormat": "",
+                        "layerName": "Habitat_Directive_Areas",
+                        "layerType": "wms"
+                    },
+                    "comments": "",
+                    "changes": [],
+                    "style": {
+                        "textAlignment": "center",
+                        "visualPos": "left",
+                        "backgroundScroll": "fixed",
+                        "visualScroll": "fixed"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "el-comm-uuid",
+            "order": 3,
+            "sectionTitle": "",
+            "sectionID": "sezione-impatti",
+            "style": "",
+            "tags": [],
+            "actions": [],
+            "storyItems": [
+                {
+                    "id": "item-commercio-uuid",
+                    "text": "L'importanza economica del canale per il traffico marittimo globale.",
+                    "title": "Rotte Commerciali",
+                    "tags": [],
+                    "author": "no author",
+                    "structure": "page",
+                    "timestamp": "2025-11-27T15:30:27.971Z",
+                    "mapActions": [],
+                    "visual": {
+                        "format": "MAP",
+                        "contentType": "application/xml",
+                        "serviceUrl": "https://geoplatform.tools4msp.eu/geoserver/ows",
+                        "standardType": "geojson",
+                        "layerParams": {},
+                        "owsFormat": "",
+                        "layerName": "geonode:Aquaculture",
+                        "layerType": "geojson",
+                        "viewStyle": {
+                            "fill-color": "#e2acf4",
+                            "fill-opacity": 0.68,
+                            "fill-outline-color": "#103020"
+                        }
+                    },
+                    "comments": "",
+                    "changes": [],
+                    "style": {
+                        "textAlignment": "center",
+                        "visualPos": "left",
+                        "backgroundScroll": "fixed",
+                        "visualScroll": "fixed"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "el-cultura-uuid",
+            "order": 3,
+            "sectionTitle": "",
+            "sectionID": "sezione-impatti",
+            "style": "",
+            "tags": [],
+            "actions": [],
+            "storyItems": [
+                {
+                    "id": "item-cultura-uuid",
+                    "text": "Breve storia delle civiltà che hanno navigato queste acque.",
+                    "title": "Eredità Culturale",
+                    "tags": [],
+                    "author": "no author",
+                    "structure": "page",
+                    "timestamp": "2025-11-27T15:30:27.971Z",
+                    "mapActions": [],
+                    "visual": {},
+                    "comments": "",
+                    "changes": [],
+                    "style": {
+                        "textAlignment": "center",
+                        "visualPos": "left",
+                        "backgroundScroll": "fixed",
+                        "visualScroll": "fixed"
+                    }
+                }
+            ]
+        }
+    ],
+    "sections": {}
 }

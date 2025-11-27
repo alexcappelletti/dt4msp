@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 
-import { Geostory, Section, StoryElement, StoryItem, StoryItemStyle } from '@/models/geostory'
+import type { Geostory, Section, StoryElement, StoryItem, StoryItemStyle } from '@/models/geostory'
 import { useGeostoryStore } from '@/stores/geostoryStore'
 import { useVisibleStoryElement } from '@/composables/trackingStoryElement'
 import type { MapVisual } from '~/models/visual'
@@ -32,7 +32,7 @@ const storyItem = computed(() => {
 })
 
 const toc = computed(() => {
-	const sections = geostory?.getSections() || new Map<string, Section>();
+	const sections = geostory?.sections || new Map<string, Section>();
 	const tocStructure: { title: string; element: StoryElement }[] = [];
 	const insertedTitles = new Set<string>();
 	for (const sectionKey of sections.keys()) {
@@ -103,7 +103,7 @@ function scrollToNextElement() {
 
 
 function getBackgroundStyle(el:StoryElement): any {
-	const url = el?.storyItems[0]?.visual?.getUrl()
+	const url = el?.storyItems[0]?.background
 	return url ? {
 		backgroundImage: `url('${url}')`,
 		backgroundSize: 'cover',

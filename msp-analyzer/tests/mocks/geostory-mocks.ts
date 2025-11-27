@@ -1,21 +1,30 @@
 import type { Project, Scenario, Theme, Measure, Statement } from '@/models/scenario';
 import { populateScenario, populateTheme, populateMeasure } from '@/models/scenario';
-
+import type {Geostory, StoryItem, StoryElement} from '@/models/geostory'
+import {populateStoryItem, populateGeostory, populateStoryElement, updateItemStyle} from '@/models/geostory'
+import {createMockSOSMaps} from './sos-map-mock'
 
 /**
  * Crea un mock completo di Geostory per i test, ambientato nel Canale di Sicilia.
  */
 export function createSicilyChannelMockGeostory(): Geostory {
 
+	const mockSosMaps = createMockSOSMaps();
+	const emodnetVisual = mockSosMaps[0];
+	const sosVisual = mockSosMaps[1];
+	const aquacoltureVisual = mockSosMaps[2];
+	const shippingVisual = mockSosMaps[3];
+	const protectedAreasVisual = mockSosMaps[4];
+	const fishingZonesVisual = mockSosMaps[5];
 	// --- SEZIONE 1: INTRODUZIONE (1 Elemento, 1 Item) ---
-
 	const itemMare: StoryItem = populateStoryItem({
 		id: "item-mare-uuid",
 		title: "Il Contesto Marino",
 		text: "Il Canale di Sicilia è un'area strategica per la biodiversità marina e le rotte commerciali.",
 		author: "Ricercatore ISMEA",
-		visual: { type: 'map', config: { center: [36.5, 13.0], zoom: 7 } } as any,
-		structure: 'text_only',
+		visual: emodnetVisual,
+		structure: 'page-title',
+
 		style: updateItemStyle({ textAlignment: 'center' }),
 	});
 
@@ -35,8 +44,8 @@ export function createSicilyChannelMockGeostory(): Geostory {
 		title: "Attività di Pesca e Impatti",
 		text: "Analisi delle principali zone di pesca del Gambero Rosso e l'impatto delle misure di conservazione.",
 		tags: ["pesca", "economia", "dati"],
-		visual: { type: 'map', config: { layer: 'zone_pesca_sicilia' } } as any,
-		structure: 'visual_right',
+		visual: sosVisual,
+		structure: 'page-title',
 		style: updateItemStyle({ visualPos: 'right' }),
 	});
 
@@ -45,8 +54,8 @@ export function createSicilyChannelMockGeostory(): Geostory {
 		title: "Ecosistemi Vulnerabili",
 		text: "Focalizzazione sulle praterie di Posidonia e le aree marine protette.",
 		tags: ["ambiente", "biodiversità"],
-		visual: { type: 'map', config: { layer: 'aree_protette' } } as any,
-		structure: 'visual_left',
+		visual: protectedAreasVisual,
+		structure: 'page',
 		style: updateItemStyle({ visualPos: 'left' }),
 	});
 
@@ -74,7 +83,8 @@ export function createSicilyChannelMockGeostory(): Geostory {
 		id: "item-migrazioni-uuid",
 		title: "Flussi Migratori",
 		text: "Una panoramica degli aspetti socio-economici e delle rotte migratorie che attraversano il canale.",
-		structure: 'text_only',
+		visual: protectedAreasVisual,
+		structure: 'page',
 		style: updateItemStyle({}),
 	});
 
@@ -82,7 +92,8 @@ export function createSicilyChannelMockGeostory(): Geostory {
 		id: "item-commercio-uuid",
 		title: "Rotte Commerciali",
 		text: "L'importanza economica del canale per il traffico marittimo globale.",
-		structure: 'text_only',
+		visual: aquacoltureVisual,
+		structure: 'page',
 		style: updateItemStyle({}),
 	});
 
@@ -90,7 +101,7 @@ export function createSicilyChannelMockGeostory(): Geostory {
 		id: "item-cultura-uuid",
 		title: "Eredità Culturale",
 		text: "Breve storia delle civiltà che hanno navigato queste acque.",
-		structure: 'text_only',
+		structure: 'page',
 		style: updateItemStyle({}),
 	});
 

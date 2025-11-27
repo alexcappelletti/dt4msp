@@ -115,6 +115,7 @@ export interface StoryItem {
 	timestamp: Date;
 	tags: string[];
 	mapActions: string[];
+	background: URL;
 	changes: ChangeEvent[];
 	comments: string;
 	////////: string; // Optional structure field
@@ -148,6 +149,7 @@ export function populateStoryItem(stIt: Partial<StoryItem>): StoryItem{
 		mapActions: [],
 		visual: {} as Visual,
 		comments:'',
+		background: new URL(""),
 		changes: [],
 		style:{} as StoryItemStyle,
 		...stIt

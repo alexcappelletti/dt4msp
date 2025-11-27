@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { Geostory } from '@/models/geostory'
+import { populateGeostory } from '@/models/geostory'
 import type { Scenario, Theme } from '@/models/scenario'
 import { MapVisual, type MapVisualOptions } from '@/models/visual'
-import { method } from 'lodash'
+
 
 
  
@@ -65,15 +66,15 @@ export const useGeostoryStore = defineStore('geostory', ()=>{
 		// }),
 		
 
-		// new MapVisual({
-		// 	url: 'https://geoplatform.tools4msp.eu/geoserver/ows?',
-		// 	layerName: 'geonode:Dominio_SoS',
-		// 	layerType: 'geojson',
-		// 	viewStyle: {
-		// 			'fill-color': '#1d530b',
-		// 			'fill-opacity': 0.68,
-		// 			'fill-outline-color': '#b0d2a2'},
-		// 	standardType: 'geojson'} as MapVisualOptions),
+		new MapVisual({
+			url: 'https://geoplatform.tools4msp.eu/geoserver/ows?',
+			layerName: 'geonode:Dominio_SoS',
+			layerType: 'geojson',
+			viewStyle: {
+					'fill-color': '#1d530b',
+					'fill-opacity': 0.68,
+					'fill-outline-color': '#b0d2a2'},
+			standardType: 'geojson'} as MapVisualOptions),
 		// new MapVisual({
 		// 	url: 'https://geoplatform.tools4msp.eu/geoserver/ows',
 		// 	layerName: 'geonode:Aquaculture',
@@ -113,7 +114,8 @@ export const useGeostoryStore = defineStore('geostory', ()=>{
 				method: 'POST',
 				body: params
 			})
-			selectedStory.value = response.foundGeostory
+
+			selectedStory.value = populateGeostory(response.foundGeostory)
 		}catch (err){
 			console.error('Errore durante il caricamento dello scenario dal server:', err)
 			error.value = `Errore durante il caricamento della geostory dal server: ${err}`;

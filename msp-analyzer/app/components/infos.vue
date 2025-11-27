@@ -15,10 +15,12 @@ const storyDetails = computed(() => {
 	if (!g) return null
 	return {
 		Titolo: g.title,
-		Elementi: g.elements?.length,
+		"#elementi": g.elements?.length,
+		Sezioni: g.sections?.size ?? 0,
 		Autore: g.author,
 		Data: g.timestamp,
-		Descrizione: "some description.....",
+		Descrizione: g.target,
+		Elementi: g.elements.map(e => e.storyItems[0]?.title).join(', ')
 	}
 })
 const hasContents = computed(() => {
