@@ -6,7 +6,7 @@ import { populateGeostory,parseGeostoryFromJson } from '@/models/geostory';
 import {createSicilyChannelMockGeostory} from '../mocks/geostory-mocks.test'
 
 // Configura la connessione Redis
-const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379'; 
+const redisUrl = process.env.REDIS_URL ?? 'redis://localhost:6379'; 
 const redisClient = new Redis(redisUrl);
 
 
@@ -15,7 +15,7 @@ const redisClient = new Redis(redisUrl);
 
 // Dati di test campione usando il mock del Canale di Sicilia
 const mockGeostory: Geostory = createSicilyChannelMockGeostory();
-const geostoryKey = `geostory:${mockGeostory.id}`;
+const geostoryKey = `sample:${mockGeostory.id}`;
 
 // Salta i test se non è disponibile un URL Redis valido
 describe.skipIf(!redisUrl)('Redis Data Storage for Geostory Structures (E2E)', () => {
