@@ -22,8 +22,6 @@ const props = withDefaults(defineProps<{
 // ... (ESRI_APIKEY, basemapURL, proxyUrl, basemapEnum, coords objects, etc. rimangono uguali) ...
 const ESRI_APIKEY = "AAPTxy8BH1VEsoebNVZXo8HurE5LO4FUhatJdc1IZlmsXTNIlRYVvxbQjLzaP8nBzH_b9mqspYcaz4ndzHeyjVzD3ZEbNgRdTUwCPlZDm5A2xuAFgzeES7XcWB0s81eXFW7FIr0z0OTu27HBXm2W81y4Sca7zEGL9BQg-bq8vMU28suXRlP-AyOWLXBNadCQrNZl53Yo3tO2BWKB_qjyUXVOeuDLMMOeI0oMgyGKV95U8Gk.AT1_UFi7OU63"
 const basemapURL = "https://basemapstyles-api.arcgis.com/arcgis/rest/services/styles/v2/styles";
-const currentUrl = useRequestURL(); 
-const proxyEndpoint = '/api/geoserver-proxy';
 const basemapEnum = "arcgis/topographic";
 const SaintLucia = { center: [-62.7250, 14.72225] as LngLatLike, zoom: 7.76 }
 const FasciaCostiera = {center: [13.83100, 37.07896] as LngLatLike, zoom: 10.5 }
@@ -39,7 +37,7 @@ const zoomLevel = ref<number>(0);
 const activeLayers = ref<Record<string, boolean>>({});
 
 
-const { buildWmsUrl, buildFeaturesUrl } = useOwsProxyUrl()
+const { buildWmsUrlForMapLibre, buildFeaturesUrl } = useProxyMapServices()
 
 
 
@@ -154,21 +152,7 @@ function setSource(visual: MapVisual) {
 			paint: visual.viewStyle || {} 
 		});
 	} else if (visual.standardType === 'raster') {
-		const tileTemplate = buildWmsUrl({
-			mapUrl: visual.serviceUrl,
-			params: {
-				SERVICE: 'WMS',
-				VERSION: '1.3.0',
-				REQUEST: 'GetMap',
-				LAYERS: visual.layerName ?? '',
-				FORMAT: 'image/png',
-				TRANSPARENT: 'true',
-				CRS: 'EPSG:3857',
-				WIDTH: '256',
-				HEIGHT: '256',
-				BBOX: '{bbox-epsg-3857}'
-			}
-			}) + '&z={z}&x={x}&y={y}'
+		const tileTemplate = buildWmsUrlForMapLibre(visual)
 		mapObj.addSource(sourceId, {
 			type: 'raster',
 			tiles: [tileTemplate], 

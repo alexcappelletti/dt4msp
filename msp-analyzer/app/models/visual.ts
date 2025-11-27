@@ -19,11 +19,11 @@ export type StandardLayerType = 'raster' | 'vector' | 'geojson' | 'unknown';
 
 export class MapVisual extends Visual {
 	readonly format = "MAP";
-	readonly contentType = "application/xml";
+	contentType = "application/xml";
 	serviceUrl: string;
 	standardType: StandardLayerType;
-	layerParams: LayerParams | null;
-	owsFormat: string|null;
+	layerParams: LayerParams | null = {} as LayerParams;
+	owsFormat: string|null = "";
 
 	layerName?: string;
 	layerType?: string;
@@ -70,62 +70,6 @@ export class MapVisual extends Visual {
 		return ""
 	}
 	
-	
-	
-	getMapLibreURI(proxy?: string|null): string {
-		// const url = new URL(this.serviceUrl)
-		// if(this.standardType === "raster") {
-		// 	url.searchParams.set('SERVICE', 'WMS');
-        //     url.searchParams.set('VERSION', '1.3.0');
-        //     url.searchParams.set('REQUEST', 'GetMap');
-        //     url.searchParams.set('LAYERS', this.layerName);
-        //     //url.searchParams.set('STYLES', this.layer_params.Style || '');
-        //     url.searchParams.set('FORMAT', this.owsFormat || 'image/png');
-        //     url.searchParams.set('TRANSPARENT', 'true');
-        //     url.searchParams.set('CRS', 'EPSG:3857'); // MapLibre usa di default 3857 per i tilesets
-        //     url.searchParams.set('WIDTH', '256');
-        //     url.searchParams.set('HEIGHT', '256');
-        //     url.searchParams.set('BBOX', '{bbox-epsg-3857}'); // Placeholder per MapLibre
-        //     return url.toString();
-		// } else if (this.standardType === 'vector'){
-		// 	// Per i vettori, usiamo il metodo WFS esistente
-		// 	url.searchParams.set('SERVICE', 'WFS');
-        //     url.searchParams.set('VERSION', '1.0.0');
-        //     url.searchParams.set('REQUEST', 'GetFeature');
-        //     url.searchParams.set('TYPENAME', this.layerName);
-		// } else if (this.standardType === 'geojson') {
-		// 	url.searchParams.set('SERVICE', 'WFS');
-        //     url.searchParams.set('VERSION', '1.0.0');
-        //     url.searchParams.set('REQUEST', 'GetFeature');
-        //     url.searchParams.set('TYPENAME', this.layerName);
-		// 	url.searchParams.set('OUTPUTFORMAT', 'application/json')
-		// } else {
-		// 	console.warn(`Impossibile generare URI per tipo sconosciuto: ${this.standardType}`);
-		// 	throw new Error(`Unsupported standard type: ${this.standardType}`);
-		// }
-		const url = new URL('https://geoplatform.tools4msp.eu/geoserver/ows?' 
-			+'request=GetMap&styles'
-			+ '&SERVICE=WMS'
-			+ '&VERSION=1.3.0'
-			+'&format=image/png'
-			+'&layers=geonode:CaseStudySoS' 
-			+'&WIDTH=256&HEIGHT=256&transparent=true'
-			//+'&CRS=EPSG:3857'
-			//+'&BBOX={bbox-epsg-3857}'
-			+ '&BBOX=33.184100226407416,8.874491926432095,38.72390734265734,16.43304597701151'
-			+ '&SRS=EPSG:4326'
-		)
-		if (proxy) {
-            // Codifica l'URL finale generato sopra e passalo al proxy come parametro 'wfs' (o 'wms')
-            proxy.searchParams.set('wfs', encodeURIComponent(url));
-			console.log("generated url for proxy: " + proxy.toString())
-			return proxy.toString()
-        }
-		const out = url.toString()
-		console.log("generated url for server: " + out)
-		return out
-	}
-
 	private mapToStandardType(rawType: string): StandardLayerType {
 		const lowerCaseType = rawType.toLowerCase();
 		switch (lowerCaseType) {

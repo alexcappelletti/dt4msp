@@ -22,7 +22,7 @@ export const useGeostoryStore = defineStore('geostory', ()=>{
 		// 	layerName: 'emodnet:mean_2022',
 		// 	layerType: 'raster',
 		// 	zoomLevel: 8
-		// }),
+		// } as MapVisualOptions),
 		// url:'https://ows.emodnet-bathymetry.eu/wms?request=GetMap&styles&format=image/png&layers=emodnet:mean_multicolour&WIDTH=500&HEIGHT=500&BBOX=-70.5000000000000000,11.0000000000000000,43.0000000000000853,90.0000000000000000&transparent=true&SERVICE=WMS&VERSION=1.3.0'
 		new MapVisual({
 			url: 'https://ows.emodnet-bathymetry.eu/wms',
@@ -65,25 +65,25 @@ export const useGeostoryStore = defineStore('geostory', ()=>{
 		// }),
 		
 
-		new MapVisual({
-			url: 'https://geoplatform.tools4msp.eu/geoserver/ows?',
-			layerName: 'geonode:Dominio_SoS',
-			layerType: 'geojson',
-			viewStyle: {
-					'fill-color': '#1d530b',
-					'fill-opacity': 0.68,
-					'fill-outline-color': '#b0d2a2'},
-			standardType: 'geojson'} as MapVisualOptions),
-		new MapVisual({
-			url: 'https://geoplatform.tools4msp.eu/geoserver/ows',
-			layerName: 'geonode:Aquaculture',
-			layerType: 'geojson',
-			viewStyle: {
-				'fill-color': '#e2acf4',
-				'fill-opacity': 0.68,
-				'fill-outline-color': '#103020'
-			},
-			standardType: 'raster'} as MapVisualOptions)
+		// new MapVisual({
+		// 	url: 'https://geoplatform.tools4msp.eu/geoserver/ows?',
+		// 	layerName: 'geonode:Dominio_SoS',
+		// 	layerType: 'geojson',
+		// 	viewStyle: {
+		// 			'fill-color': '#1d530b',
+		// 			'fill-opacity': 0.68,
+		// 			'fill-outline-color': '#b0d2a2'},
+		// 	standardType: 'geojson'} as MapVisualOptions),
+		// new MapVisual({
+		// 	url: 'https://geoplatform.tools4msp.eu/geoserver/ows',
+		// 	layerName: 'geonode:Aquaculture',
+		// 	layerType: 'geojson',
+		// 	viewStyle: {
+		// 		'fill-color': '#e2acf4',
+		// 		'fill-opacity': 0.68,
+		// 		'fill-outline-color': '#103020'
+		// 	},
+		// 	standardType: 'raster'} as MapVisualOptions)
 		 ])
 
 	const availableVisuals = ref<MapVisual[]>([])

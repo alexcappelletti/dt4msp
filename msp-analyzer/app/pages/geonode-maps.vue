@@ -18,7 +18,7 @@ const { data, pending, error, execute } = useFetch('/api/gn-maps-service', {
 	},
 });
 
-const selectedLayer = ref<Layer | null>(null);
+const selectedLayer = ref<GeonodeLayer | null>(null);
 const dialogVisible = ref(false); // Stato per gestire l'apertura/chiusura della dialog
 
 
@@ -54,7 +54,7 @@ const canAcceptLayerAsVisual = (layer: GeonodeLayer): boolean => {
 };
 
 
-const selectLayer = (layer: Layer) => {
+const selectLayer = (layer: GeonodeLayer) => {
     selectedLayer.value = layer;
     dialogVisible.value = true;
 };

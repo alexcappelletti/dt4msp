@@ -2,6 +2,7 @@ import * as tilebelt from '@mapbox/tilebelt'
 
 
 export default defineEventHandler(async (event) => {
+
 	const query = getQuery(event)
 	const { mapUrl, z, x, y, ...rest } = query
 
@@ -42,7 +43,11 @@ export default defineEventHandler(async (event) => {
 	}
 
 	try {
-		const response:any = await $fetch(url.toString())
+		const response:any = await fetch(url.toString())
+		if (!response.ok) {
+			console.error(`Errore HTTP: ${response.status} ${response.statusText}`)
+			return createError({ statusCode: response.status, statusMessage: response.statusText })
+		}
 		const contentType = response.headers.get('content-type') || 'image/png'
 		const buffer = await response.arrayBuffer()
 

@@ -5,7 +5,7 @@ export function normalizeUrl(rawUrl: string): string {
 		return urlObj.origin + urlObj.pathname;
 	} catch (error) {
 		// In caso di URL non valido, restituisce l'input originale o gestisce l'errore
-		console.warn(`normalize invalid url : ${rawUrl}`);
+		console.warn(`normalize invalid url : ${rawUrl ?? '-empty-'}`);
 		return "";
 	}
 }
