@@ -14,6 +14,7 @@ const MIN_DRAWER_WIDTH = 290;
 const { drawerOpen, appTitle } = storeToRefs(
 	useAppStore());
 
+const appVersion = ref(import.meta.env.NPM_PACKAGE_VERSION || '0.0.137');
 const drawerWidth = computed(() => {
 	// Se lo schermo è 'mdAndUp' (medio o più grande), usiamo la logica dei 290 minimi
 	if (mdAndUp.value) {
@@ -39,7 +40,7 @@ const drawerWidth = computed(() => {
 				elevation="0" 
 				color="primary"
 				:title="appTitle" >
-				
+				<span class="app-version text-caption mr-4">v {{ appVersion }}</span>
 				<!-- pulsante per aprire il drawer su schermi piccoli -->
 				<template v-if="!mdAndUp">
 					<v-app-bar-nav-icon @click="drawerOpen = !drawerOpen"></v-app-bar-nav-icon>

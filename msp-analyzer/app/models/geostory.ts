@@ -149,7 +149,7 @@ export function populateStoryItem(stIt: Partial<StoryItem>): StoryItem{
 		mapActions: [],
 		visual: {} as Visual,
 		comments:'',
-		background: new URL(""),
+		background: new URL("https://www.example.com/"),
 		changes: [],
 		style:{} as StoryItemStyle,
 		...stIt

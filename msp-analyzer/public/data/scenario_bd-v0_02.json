@@ -8,152 +8,192 @@
   "spatialResources": [],
   "availableThemes": [
     {
-      "name": "Energia - Oil&Gas",
+      "id": "3ee81b2e-1143-4b56-92b6-9514fda8bacf",
       "indexName": "oil/gas",
+      "name": "Energia - Oil&Gas",
       "type": "secondario",
       "description": "",
-      "geospatialResources": []
+      "geospatialResources": [],
+      "tags": []
     },
     {
-      "name": "Sicurezza e sorveglianza",
+      "id": "816105c4-6ed3-4bd0-9996-56fa7320da40",
       "indexName": "sicurezza",
+      "name": "Sicurezza e sorveglianza",
       "type": "secondario",
       "description": "",
       "geospatialResources": [],
+      "tags": [],
       "impacts": []
     },
     {
-      "name": "Acquacoltura",
+      "id": "18237467-b95d-413b-a8c7-f70002a7ae50",
       "indexName": "H2o",
+      "name": "Acquacoltura",
       "type": "primario",
       "description": "",
       "geospatialResources": [],
+      "tags": [],
       "impacts": []
     },
     {
-      "name": "Difesa costiera",
+      "id": "1b050d5f-1b8b-4f1a-a277-842a36f9a1b3",
       "indexName": "difesa",
+      "name": "Difesa costiera",
       "type": "primario",
       "description": "",
-      "geospatialResources": []
+      "geospatialResources": [],
+      "tags": []
     },
     {
-      "name": "Energia",
+      "id": "de97c75d-27de-4d99-b75e-cf9dbb27cb52",
       "indexName": "energia1",
+      "name": "Energia",
       "type": "primario",
       "description": "",
-      "geospatialResources": []
+      "geospatialResources": [],
+      "tags": []
     },
     {
-      "name": "Paesaggio e patrimonio culturale",
+      "id": "ea3bd453-b077-4d94-a541-826f88eca044",
       "indexName": "paesaggio",
+      "name": "Paesaggio e patrimonio culturale",
       "type": "primario",
       "description": "",
-      "geospatialResources": []
+      "geospatialResources": [],
+      "tags": []
     },
     {
-      "name": "Pesca",
+      "id": "094cd058-a7b9-4f5e-8fa3-2dc2c7fed985",
       "indexName": "pesca",
+      "name": "Pesca",
       "type": "primario",
       "description": "",
-      "geospatialResources": []
+      "geospatialResources": [],
+      "tags": []
     },
     {
-      "name": "Protezione ambientale",
+      "id": "76112fd7-b313-4dce-aa8b-18022468015e",
       "indexName": "ambiente",
+      "name": "Protezione ambientale",
       "type": "primario",
       "description": "",
-      "geospatialResources": []
+      "geospatialResources": [],
+      "tags": []
     },
     {
-      "name": "Ricerca & Innovazione",
+      "id": "1f891aef-dcbb-44e3-b8df-ee2e7e4df704",
       "indexName": "innovazione",
+      "name": "Ricerca & Innovazione",
       "type": "primario",
       "description": "",
-      "geospatialResources": []
+      "geospatialResources": [],
+      "tags": []
     },
     {
-      "name": "Trasporto Marittimo",
+      "id": "e79d8583-c06a-4bbd-ae5b-08c9683f0094",
       "indexName": "trasporto",
+      "name": "Trasporto Marittimo",
       "type": "primario",
       "description": "",
-      "geospatialResources": []
+      "geospatialResources": [],
+      "tags": []
     },
     {
-      "name": "Turismo Costiero e Marittimo",
+      "id": "636002fb-e48f-4a97-837d-828ecb4f4216",
       "indexName": "turismo",
+      "name": "Turismo Costiero e Marittimo",
       "type": "primario",
       "description": "",
-      "geospatialResources": []
+      "geospatialResources": [],
+      "tags": []
     },
     {
-      "name": "Energia rinnovabile",
+      "id": "d396ee2d-c2fb-40dc-89d2-46c0a30956d1",
       "indexName": "Energia1",
+      "name": "Energia rinnovabile",
       "type": "NA",
       "description": "",
-      "geospatialResources": []
+      "geospatialResources": [],
+      "tags": []
     },
     {
-      "name": "Turismo",
+      "id": "218205f8-9ccf-4043-a13f-bc229de9be3d",
       "indexName": "Turismo",
+      "name": "Turismo",
       "type": "NA",
       "description": "",
-      "geospatialResources": []
+      "geospatialResources": [],
+      "tags": []
     }
   ],
   "primaryThemes": [
     {
-      "name": "Acquacoltura",
+      "id": "18237467-b95d-413b-a8c7-f70002a7ae50",
       "indexName": "H2o",
+      "name": "Acquacoltura",
       "type": "primario",
       "description": "",
       "geospatialResources": [],
+      "tags": [],
       "impacts": []
     },
     {
-      "name": "Energia",
+      "id": "de97c75d-27de-4d99-b75e-cf9dbb27cb52",
       "indexName": "energia1",
+      "name": "Energia",
       "type": "primario",
       "description": "",
-      "geospatialResources": []
+      "geospatialResources": [],
+      "tags": []
     },
     {
-      "name": "Pesca",
+      "id": "094cd058-a7b9-4f5e-8fa3-2dc2c7fed985",
       "indexName": "pesca",
+      "name": "Pesca",
       "type": "primario",
       "description": "",
-      "geospatialResources": []
+      "geospatialResources": [],
+      "tags": []
     },
     {
-      "name": "Sicurezza e sorveglianza",
+      "id": "816105c4-6ed3-4bd0-9996-56fa7320da40",
       "indexName": "sicurezza",
+      "name": "Sicurezza e sorveglianza",
       "type": "secondario",
       "description": "",
       "geospatialResources": [],
+      "tags": [],
       "impacts": []
     }
   ],
   "secondaryThemes": [
     {
-      "name": "Difesa costiera",
+      "id": "1b050d5f-1b8b-4f1a-a277-842a36f9a1b3",
       "indexName": "difesa",
+      "name": "Difesa costiera",
       "type": "primario",
       "description": "",
-      "geospatialResources": []
+      "geospatialResources": [],
+      "tags": []
     },
     {
-      "name": "Paesaggio e patrimonio culturale",
+      "id": "ea3bd453-b077-4d94-a541-826f88eca044",
       "indexName": "paesaggio",
+      "name": "Paesaggio e patrimonio culturale",
       "type": "primario",
       "description": "",
-      "geospatialResources": []
+      "geospatialResources": [],
+      "tags": []
     },
     {
-      "name": "Trasporto Marittimo",
+      "id": "e79d8583-c06a-4bbd-ae5b-08c9683f0094",
       "indexName": "trasporto",
+      "name": "Trasporto Marittimo",
       "type": "primario",
       "description": "",
-      "geospatialResources": []
+      "geospatialResources": [],
+      "tags": []
     }
   ],
   "statements": [],
@@ -164,32 +204,10 @@
   ],
   "measures": [
     {
+      "id": "c03632c4-ddec-4f26-b474-647192e24c91",
       "name": "Incremento del traffico marittimo",
       "impact": "Incremento del traffico marittimo",
       "description": "Proiezioni di aumento della densità di traffico per diverse categorie di navi (CAR +30%, CON +53%, PAS +26%, TGC +38%, RRO +33%), basate su studi EMSA (2024) e letteratura di settore (EMSA-EEA 2021, Piano del Mare 2023, Report SRM 2022)",
-      "referencedTheme": [
-        {
-          "name": "Trasporto Marittimo",
-          "indexName": "trasporto",
-          "type": "primario",
-          "description": "",
-          "geospatialResources": []
-        },
-        {
-          "name": "Energia - Oil&Gas",
-          "indexName": "oil/gas",
-          "type": "secondario",
-          "description": "",
-          "geospatialResources": []
-        },
-        {
-          "name": "Difesa costiera",
-          "indexName": "difesa",
-          "type": "primario",
-          "description": "",
-          "geospatialResources": []
-        }
-      ],
       "geospatialResources": [
         {
           "id": "layer_routedensity_allavg",
@@ -209,34 +227,42 @@
           "layerName": "layer_trafficoPSSAPrevisione",
           "legendUrl": ""
         }
+      ],
+      "referencedTheme": [],
+      "referenceThemes": [
+        {
+          "id": "e79d8583-c06a-4bbd-ae5b-08c9683f0094",
+          "indexName": "trasporto",
+          "name": "Trasporto Marittimo",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": [],
+          "tags": []
+        },
+        {
+          "id": "3ee81b2e-1143-4b56-92b6-9514fda8bacf",
+          "indexName": "oil/gas",
+          "name": "Energia - Oil&Gas",
+          "type": "secondario",
+          "description": "",
+          "geospatialResources": [],
+          "tags": []
+        },
+        {
+          "id": "1b050d5f-1b8b-4f1a-a277-842a36f9a1b3",
+          "indexName": "difesa",
+          "name": "Difesa costiera",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": [],
+          "tags": []
+        }
       ]
     },
     {
+      "id": "d6a9d8fd-1e5e-42f8-830e-9a4f8a71080e",
       "name": "Misure di mitigazione",
       "impact": "Misure di mitigazione",
-      "referencedThemes": [
-        {
-          "name": "Ricerca & Innovazione",
-          "indexName": "innovazione",
-          "type": "primario",
-          "description": "",
-          "geospatialResources": []
-        },
-        {
-          "name": "Protezione ambientale",
-          "indexName": "ambiente",
-          "type": "primario",
-          "description": "",
-          "geospatialResources": []
-        },
-        {
-          "name": "Energia",
-          "indexName": "energia1",
-          "type": "primario",
-          "description": "",
-          "geospatialResources": []
-        }
-      ],
       "description": "Implementazione di interventi per ridurre l'impatto del traffico, tra cui limiti di velocità (10 nodi in area CCH), riduzione della rumorosità, miglioramento della gestione delle acque di zavorra (BWM), e uso di combustibili a basse emissioni.",
       "geospatialResources": [
         {
@@ -248,57 +274,42 @@
           "layerName": "layer_speed10nodi",
           "legendUrl": ""
         }
+      ],
+      "referencedTheme": [],
+      "referenceThemes": [
+        {
+          "id": "1f891aef-dcbb-44e3-b8df-ee2e7e4df704",
+          "indexName": "innovazione",
+          "name": "Ricerca & Innovazione",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": [],
+          "tags": []
+        },
+        {
+          "id": "76112fd7-b313-4dce-aa8b-18022468015e",
+          "indexName": "ambiente",
+          "name": "Protezione ambientale",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": [],
+          "tags": []
+        },
+        {
+          "id": "de97c75d-27de-4d99-b75e-cf9dbb27cb52",
+          "indexName": "energia1",
+          "name": "Energia",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": [],
+          "tags": []
+        }
       ]
     },
     {
+      "id": "c266bba6-32ab-4a03-975b-5dacf7f7c7b3",
       "name": "Sviluppo porti sostenibili",
       "impact": "Sviluppo porti sostenibili",
-      "referenceThemes": [
-        {
-          "name": "Sicurezza e sorveglianza",
-          "indexName": "sicurezza",
-          "type": "secondario",
-          "description": "",
-          "geospatialResources": [],
-          "impacts": []
-        },
-        {
-          "name": "Difesa costiera",
-          "indexName": "difesa",
-          "type": "primario",
-          "description": "",
-          "geospatialResources": []
-        },
-        {
-          "name": "Acquacoltura",
-          "indexName": "H2o",
-          "type": "primario",
-          "description": "",
-          "geospatialResources": [],
-          "impacts": []
-        },
-        {
-          "name": "Energia",
-          "indexName": "energia1",
-          "type": "primario",
-          "description": "",
-          "geospatialResources": []
-        },
-        {
-          "name": "Pesca",
-          "indexName": "pesca",
-          "type": "primario",
-          "description": "",
-          "geospatialResources": []
-        },
-        {
-          "name": "Protezione ambientale",
-          "indexName": "ambiente",
-          "type": "primario",
-          "description": "",
-          "geospatialResources": []
-        }
-      ],
       "description": "Elettrificazione delle banchine, disponibilità di combustibili alternativi, gestione dei rifiuti e acque residue (sea water scrubber), in linea con obiettivi di sostenibilità.",
       "geospatialResources": [
         {
@@ -310,42 +321,71 @@
           "layerName": "layer_portiSostenibili",
           "legendUrl": ""
         }
-      ]
-    },
-    {
-      "name": "Traffico correlato a eolico offshore",
-      "impact": "Traffico correlato a eolico offshore",
+      ],
+      "referencedTheme": [],
       "referenceThemes": [
         {
-          "name": "Difesa costiera",
-          "indexName": "difesa",
-          "type": "primario",
-          "description": "",
-          "geospatialResources": []
-        },
-        {
-          "name": "Ricerca & Innovazione",
-          "indexName": "innovazione",
-          "type": "primario",
-          "description": "",
-          "geospatialResources": []
-        },
-        {
-          "name": "Acquacoltura",
-          "indexName": "H2o",
-          "type": "primario",
+          "id": "816105c4-6ed3-4bd0-9996-56fa7320da40",
+          "indexName": "sicurezza",
+          "name": "Sicurezza e sorveglianza",
+          "type": "secondario",
           "description": "",
           "geospatialResources": [],
+          "tags": [],
           "impacts": []
         },
         {
-          "name": "Energia - Oil&Gas",
-          "indexName": "oil/gas",
-          "type": "secondario",
+          "id": "1b050d5f-1b8b-4f1a-a277-842a36f9a1b3",
+          "indexName": "difesa",
+          "name": "Difesa costiera",
+          "type": "primario",
           "description": "",
-          "geospatialResources": []
+          "geospatialResources": [],
+          "tags": []
+        },
+        {
+          "id": "18237467-b95d-413b-a8c7-f70002a7ae50",
+          "indexName": "H2o",
+          "name": "Acquacoltura",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": [],
+          "tags": [],
+          "impacts": []
+        },
+        {
+          "id": "de97c75d-27de-4d99-b75e-cf9dbb27cb52",
+          "indexName": "energia1",
+          "name": "Energia",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": [],
+          "tags": []
+        },
+        {
+          "id": "094cd058-a7b9-4f5e-8fa3-2dc2c7fed985",
+          "indexName": "pesca",
+          "name": "Pesca",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": [],
+          "tags": []
+        },
+        {
+          "id": "76112fd7-b313-4dce-aa8b-18022468015e",
+          "indexName": "ambiente",
+          "name": "Protezione ambientale",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": [],
+          "tags": []
         }
-      ],
+      ]
+    },
+    {
+      "id": "30321103-8c14-4135-b9aa-6200b5e5eb3b",
+      "name": "Traffico correlato a eolico offshore",
+      "impact": "Traffico correlato a eolico offshore",
       "description": "Incremento modesto del traffico a corto raggio per costruzione/manutenzione di campi eolici (es. area OW1, OW2, OW4), con potenziali impatti su rotte esistenti.",
       "geospatialResources": [
         {
@@ -357,28 +397,52 @@
           "layerName": "layer_OWFs",
           "legendUrl": ""
         }
-      ]
-    },
-    {
-      "name": "Isola energetica",
-      "impact": "Isola energetica",
-      "referencedTheme": [
+      ],
+      "referencedTheme": [],
+      "referenceThemes": [
         {
-          "name": "Sicurezza e sorveglianza",
-          "indexName": "sicurezza",
-          "type": "secondario",
+          "id": "1b050d5f-1b8b-4f1a-a277-842a36f9a1b3",
+          "indexName": "difesa",
+          "name": "Difesa costiera",
+          "type": "primario",
           "description": "",
           "geospatialResources": [],
+          "tags": []
+        },
+        {
+          "id": "1f891aef-dcbb-44e3-b8df-ee2e7e4df704",
+          "indexName": "innovazione",
+          "name": "Ricerca & Innovazione",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": [],
+          "tags": []
+        },
+        {
+          "id": "18237467-b95d-413b-a8c7-f70002a7ae50",
+          "indexName": "H2o",
+          "name": "Acquacoltura",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": [],
+          "tags": [],
           "impacts": []
         },
         {
-          "name": "Paesaggio e patrimonio culturale",
-          "indexName": "paesaggio",
-          "type": "primario",
+          "id": "3ee81b2e-1143-4b56-92b6-9514fda8bacf",
+          "indexName": "oil/gas",
+          "name": "Energia - Oil&Gas",
+          "type": "secondario",
           "description": "",
-          "geospatialResources": []
+          "geospatialResources": [],
+          "tags": []
         }
-      ],
+      ]
+    },
+    {
+      "id": "f5178514-8248-48d8-95b1-1a1d4deb58bf",
+      "name": "Isola energetica",
+      "impact": "Isola energetica",
       "description": "Hub per combustibili alternativi (idrogeno, metanolo, elettrico) che riduce pressioni costiere e impone limiti di velocità (10 nodi), con benefici ambientali (rumore, collisioni con megafauna).",
       "geospatialResources": [
         {
@@ -390,50 +454,34 @@
           "layerName": "layer_speed10nodi",
           "legendUrl": ""
         }
-      ]
-    },
-    {
-      "name": "Regolamentazione e sicurezza",
-      "impact": "Regolamentazione e sicurezza",
+      ],
+      "referencedTheme": [],
       "referenceThemes": [
         {
-          "name": "Acquacoltura",
-          "indexName": "H2o",
-          "type": "primario",
-          "description": "",
-          "geospatialResources": [],
-          "impacts": []
-        },
-        {
-          "name": "Sicurezza e sorveglianza",
+          "id": "816105c4-6ed3-4bd0-9996-56fa7320da40",
           "indexName": "sicurezza",
+          "name": "Sicurezza e sorveglianza",
           "type": "secondario",
           "description": "",
           "geospatialResources": [],
+          "tags": [],
           "impacts": []
         },
         {
-          "name": "Energia",
-          "indexName": "energia1",
+          "id": "ea3bd453-b077-4d94-a541-826f88eca044",
+          "indexName": "paesaggio",
+          "name": "Paesaggio e patrimonio culturale",
           "type": "primario",
           "description": "",
-          "geospatialResources": []
-        },
-        {
-          "name": "Pesca",
-          "indexName": "pesca",
-          "type": "primario",
-          "description": "",
-          "geospatialResources": []
-        },
-        {
-          "name": "Protezione ambientale",
-          "indexName": "ambiente",
-          "type": "primario",
-          "description": "",
-          "geospatialResources": []
+          "geospatialResources": [],
+          "tags": []
         }
-      ],
+      ]
+    },
+    {
+      "id": "b06e1651-e97d-4ba3-898d-b87b88829357",
+      "name": "Regolamentazione e sicurezza",
+      "impact": "Regolamentazione e sicurezza",
       "description": "Necessità di approfondire sostenibilità economica e sicurezza nel corridoio NW-SE, con possibili misure aggiuntive come Traffic Separation Schemes (TSS)",
       "geospatialResources": [
         {
@@ -444,6 +492,56 @@
           "description": "--",
           "layerName": "layer_corridoioNW-SE",
           "legendUrl": ""
+        }
+      ],
+      "referencedTheme": [],
+      "referenceThemes": [
+        {
+          "id": "18237467-b95d-413b-a8c7-f70002a7ae50",
+          "indexName": "H2o",
+          "name": "Acquacoltura",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": [],
+          "tags": [],
+          "impacts": []
+        },
+        {
+          "id": "816105c4-6ed3-4bd0-9996-56fa7320da40",
+          "indexName": "sicurezza",
+          "name": "Sicurezza e sorveglianza",
+          "type": "secondario",
+          "description": "",
+          "geospatialResources": [],
+          "tags": [],
+          "impacts": []
+        },
+        {
+          "id": "de97c75d-27de-4d99-b75e-cf9dbb27cb52",
+          "indexName": "energia1",
+          "name": "Energia",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": [],
+          "tags": []
+        },
+        {
+          "id": "094cd058-a7b9-4f5e-8fa3-2dc2c7fed985",
+          "indexName": "pesca",
+          "name": "Pesca",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": [],
+          "tags": []
+        },
+        {
+          "id": "76112fd7-b313-4dce-aa8b-18022468015e",
+          "indexName": "ambiente",
+          "name": "Protezione ambientale",
+          "type": "primario",
+          "description": "",
+          "geospatialResources": [],
+          "tags": []
         }
       ]
     }
@@ -466,48 +564,30 @@
       ],
       "referenceThemes": [
         {
-          "name": "Trasporto Marittimo",
+          "id": "e79d8583-c06a-4bbd-ae5b-08c9683f0094",
           "indexName": "trasporto",
+          "name": "Trasporto Marittimo",
           "type": "primario",
           "description": "",
-          "geospatialResources": []
+          "geospatialResources": [],
+          "tags": []
         },
         {
-          "name": "Energia",
+          "id": "de97c75d-27de-4d99-b75e-cf9dbb27cb52",
           "indexName": "energia1",
+          "name": "Energia",
           "type": "primario",
           "description": "",
-          "geospatialResources": []
+          "geospatialResources": [],
+          "tags": []
         }
       ],
       "affectedMeasures": [
         {
+          "id": "c03632c4-ddec-4f26-b474-647192e24c91",
           "name": "Incremento del traffico marittimo",
           "impact": "Incremento del traffico marittimo",
           "description": "Proiezioni di aumento della densità di traffico per diverse categorie di navi (CAR +30%, CON +53%, PAS +26%, TGC +38%, RRO +33%), basate su studi EMSA (2024) e letteratura di settore (EMSA-EEA 2021, Piano del Mare 2023, Report SRM 2022)",
-          "referencedTheme": [
-            {
-              "name": "Trasporto Marittimo",
-              "indexName": "trasporto",
-              "type": "primario",
-              "description": "",
-              "geospatialResources": []
-            },
-            {
-              "name": "Energia - Oil&Gas",
-              "indexName": "oil/gas",
-              "type": "secondario",
-              "description": "",
-              "geospatialResources": []
-            },
-            {
-              "name": "Difesa costiera",
-              "indexName": "difesa",
-              "type": "primario",
-              "description": "",
-              "geospatialResources": []
-            }
-          ],
           "geospatialResources": [
             {
               "id": "layer_routedensity_allavg",
@@ -527,57 +607,42 @@
               "layerName": "layer_trafficoPSSAPrevisione",
               "legendUrl": ""
             }
-          ]
-        },
-        {
-          "name": "Sviluppo porti sostenibili",
-          "impact": "Sviluppo porti sostenibili",
+          ],
+          "referencedTheme": [],
           "referenceThemes": [
             {
-              "name": "Sicurezza e sorveglianza",
-              "indexName": "sicurezza",
+              "id": "e79d8583-c06a-4bbd-ae5b-08c9683f0094",
+              "indexName": "trasporto",
+              "name": "Trasporto Marittimo",
+              "type": "primario",
+              "description": "",
+              "geospatialResources": [],
+              "tags": []
+            },
+            {
+              "id": "3ee81b2e-1143-4b56-92b6-9514fda8bacf",
+              "indexName": "oil/gas",
+              "name": "Energia - Oil&Gas",
               "type": "secondario",
               "description": "",
               "geospatialResources": [],
-              "impacts": []
+              "tags": []
             },
             {
-              "name": "Difesa costiera",
+              "id": "1b050d5f-1b8b-4f1a-a277-842a36f9a1b3",
               "indexName": "difesa",
-              "type": "primario",
-              "description": "",
-              "geospatialResources": []
-            },
-            {
-              "name": "Acquacoltura",
-              "indexName": "H2o",
+              "name": "Difesa costiera",
               "type": "primario",
               "description": "",
               "geospatialResources": [],
-              "impacts": []
-            },
-            {
-              "name": "Energia",
-              "indexName": "energia1",
-              "type": "primario",
-              "description": "",
-              "geospatialResources": []
-            },
-            {
-              "name": "Pesca",
-              "indexName": "pesca",
-              "type": "primario",
-              "description": "",
-              "geospatialResources": []
-            },
-            {
-              "name": "Protezione ambientale",
-              "indexName": "ambiente",
-              "type": "primario",
-              "description": "",
-              "geospatialResources": []
+              "tags": []
             }
-          ],
+          ]
+        },
+        {
+          "id": "c266bba6-32ab-4a03-975b-5dacf7f7c7b3",
+          "name": "Sviluppo porti sostenibili",
+          "impact": "Sviluppo porti sostenibili",
           "description": "Elettrificazione delle banchine, disponibilità di combustibili alternativi, gestione dei rifiuti e acque residue (sea water scrubber), in linea con obiettivi di sostenibilità.",
           "geospatialResources": [
             {
@@ -589,6 +654,65 @@
               "layerName": "layer_portiSostenibili",
               "legendUrl": ""
             }
+          ],
+          "referencedTheme": [],
+          "referenceThemes": [
+            {
+              "id": "816105c4-6ed3-4bd0-9996-56fa7320da40",
+              "indexName": "sicurezza",
+              "name": "Sicurezza e sorveglianza",
+              "type": "secondario",
+              "description": "",
+              "geospatialResources": [],
+              "tags": [],
+              "impacts": []
+            },
+            {
+              "id": "1b050d5f-1b8b-4f1a-a277-842a36f9a1b3",
+              "indexName": "difesa",
+              "name": "Difesa costiera",
+              "type": "primario",
+              "description": "",
+              "geospatialResources": [],
+              "tags": []
+            },
+            {
+              "id": "18237467-b95d-413b-a8c7-f70002a7ae50",
+              "indexName": "H2o",
+              "name": "Acquacoltura",
+              "type": "primario",
+              "description": "",
+              "geospatialResources": [],
+              "tags": [],
+              "impacts": []
+            },
+            {
+              "id": "de97c75d-27de-4d99-b75e-cf9dbb27cb52",
+              "indexName": "energia1",
+              "name": "Energia",
+              "type": "primario",
+              "description": "",
+              "geospatialResources": [],
+              "tags": []
+            },
+            {
+              "id": "094cd058-a7b9-4f5e-8fa3-2dc2c7fed985",
+              "indexName": "pesca",
+              "name": "Pesca",
+              "type": "primario",
+              "description": "",
+              "geospatialResources": [],
+              "tags": []
+            },
+            {
+              "id": "76112fd7-b313-4dce-aa8b-18022468015e",
+              "indexName": "ambiente",
+              "name": "Protezione ambientale",
+              "type": "primario",
+              "description": "",
+              "geospatialResources": [],
+              "tags": []
+            }
           ]
         }
       ]
@@ -596,97 +720,123 @@
   ],
   "topics": {
     "oil/gas": {
-      "name": "Energia - Oil&Gas",
+      "id": "3ee81b2e-1143-4b56-92b6-9514fda8bacf",
       "indexName": "oil/gas",
-      "type": "secondario",
-      "description": "",
-      "geospatialResources": []
-    },
-    "sicurezza": {
-      "name": "Sicurezza e sorveglianza",
-      "indexName": "sicurezza",
+      "name": "Energia - Oil&Gas",
       "type": "secondario",
       "description": "",
       "geospatialResources": [],
+      "tags": []
+    },
+    "sicurezza": {
+      "id": "816105c4-6ed3-4bd0-9996-56fa7320da40",
+      "indexName": "sicurezza",
+      "name": "Sicurezza e sorveglianza",
+      "type": "secondario",
+      "description": "",
+      "geospatialResources": [],
+      "tags": [],
       "impacts": []
     },
     "H2o": {
-      "name": "Acquacoltura",
+      "id": "18237467-b95d-413b-a8c7-f70002a7ae50",
       "indexName": "H2o",
+      "name": "Acquacoltura",
       "type": "primario",
       "description": "",
       "geospatialResources": [],
+      "tags": [],
       "impacts": []
     },
     "difesa": {
-      "name": "Difesa costiera",
+      "id": "1b050d5f-1b8b-4f1a-a277-842a36f9a1b3",
       "indexName": "difesa",
+      "name": "Difesa costiera",
       "type": "primario",
       "description": "",
-      "geospatialResources": []
+      "geospatialResources": [],
+      "tags": []
     },
     "energia1": {
-      "name": "Energia",
+      "id": "de97c75d-27de-4d99-b75e-cf9dbb27cb52",
       "indexName": "energia1",
+      "name": "Energia",
       "type": "primario",
       "description": "",
-      "geospatialResources": []
+      "geospatialResources": [],
+      "tags": []
     },
     "paesaggio": {
-      "name": "Paesaggio e patrimonio culturale",
+      "id": "ea3bd453-b077-4d94-a541-826f88eca044",
       "indexName": "paesaggio",
+      "name": "Paesaggio e patrimonio culturale",
       "type": "primario",
       "description": "",
-      "geospatialResources": []
+      "geospatialResources": [],
+      "tags": []
     },
     "pesca": {
-      "name": "Pesca",
+      "id": "094cd058-a7b9-4f5e-8fa3-2dc2c7fed985",
       "indexName": "pesca",
+      "name": "Pesca",
       "type": "primario",
       "description": "",
-      "geospatialResources": []
+      "geospatialResources": [],
+      "tags": []
     },
     "ambiente": {
-      "name": "Protezione ambientale",
+      "id": "76112fd7-b313-4dce-aa8b-18022468015e",
       "indexName": "ambiente",
+      "name": "Protezione ambientale",
       "type": "primario",
       "description": "",
-      "geospatialResources": []
+      "geospatialResources": [],
+      "tags": []
     },
     "innovazione": {
-      "name": "Ricerca & Innovazione",
+      "id": "1f891aef-dcbb-44e3-b8df-ee2e7e4df704",
       "indexName": "innovazione",
+      "name": "Ricerca & Innovazione",
       "type": "primario",
       "description": "",
-      "geospatialResources": []
+      "geospatialResources": [],
+      "tags": []
     },
     "trasporto": {
-      "name": "Trasporto Marittimo",
+      "id": "e79d8583-c06a-4bbd-ae5b-08c9683f0094",
       "indexName": "trasporto",
+      "name": "Trasporto Marittimo",
       "type": "primario",
       "description": "",
-      "geospatialResources": []
+      "geospatialResources": [],
+      "tags": []
     },
     "turismo": {
-      "name": "Turismo Costiero e Marittimo",
+      "id": "636002fb-e48f-4a97-837d-828ecb4f4216",
       "indexName": "turismo",
+      "name": "Turismo Costiero e Marittimo",
       "type": "primario",
       "description": "",
-      "geospatialResources": []
+      "geospatialResources": [],
+      "tags": []
     },
     "Energia1": {
-      "name": "Energia rinnovabile",
+      "id": "d396ee2d-c2fb-40dc-89d2-46c0a30956d1",
       "indexName": "Energia1",
+      "name": "Energia rinnovabile",
       "type": "NA",
       "description": "",
-      "geospatialResources": []
+      "geospatialResources": [],
+      "tags": []
     },
     "Turismo": {
-      "name": "Turismo",
+      "id": "218205f8-9ccf-4043-a13f-bc229de9be3d",
       "indexName": "Turismo",
+      "name": "Turismo",
       "type": "NA",
       "description": "",
-      "geospatialResources": []
+      "geospatialResources": [],
+      "tags": []
     }
   },
   "definedGeostories": [],

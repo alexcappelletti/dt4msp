@@ -1,9 +1,9 @@
 // tests/e2e/geostoryRedis.spec.ts
 import { describe, it, expect, beforeEach, afterEach, afterAll } from 'vitest';
 import Redis from 'ioredis';
-import type { Geostory } from '@/models/geostory'; 
-import { populateGeostory,parseGeostoryFromJson } from '@/models/geostory'; 
-import {createSicilyChannelMockGeostory} from '../mocks/geostory-mocks.test'
+import type { Geostory } from '../../app/models/geostory'; 
+import { populateGeostory,parseGeostoryFromJson } from '../../app/models/geostory'; 
+import {createSicilyChannelMockGeostory} from '../mocks/geostory-mocks'
 
 // Configura la connessione Redis
 const redisUrl = process.env.REDIS_URL ?? 'redis://localhost:6379'; 

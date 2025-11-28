@@ -79,7 +79,7 @@ async function readGeostoryFromFile(): Promise<Geostory> {
 		process.cwd(),
 		'public',
 		'data',
-		'geostoryBD.json'
+		'geostorySOS-BD.json'
 	);
 
 	console.log(`Lettura file da: ${filePath}`);

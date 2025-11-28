@@ -1,13 +1,11 @@
-import { describe, test, expect, it } from "vitest";
+import { describe, beforeAll, expect, it } from "vitest";
 import { readFileSync, writeFileSync } from 'fs'
-import { ChangeEvent } from "@/models/changeEvent";
-import {
-	Geostory, StoryElement, StoryItem,
-	populateGeostory, populateStoryElement, populateStoryItem, updateItemStyle
-} from "@/models/geostory";
-import { Scenario } from '@/models/scenario';
+import type {Geostory, StoryElement, StoryItem,} from '../../app/models/geostory'
+import {populateGeostory, populateStoryElement, populateStoryItem, updateItemStyle} from "../../app/models/geostory";
+import type { Scenario } from '../../app/models/scenario';
 
-import { createSicilyChannelMockGeostory } from '../mocks/geostory-mocks'
+import { createSOSMockGeostory } from '../mocks/bd-geostory-mock'
+
 
 
 
@@ -49,11 +47,11 @@ describe('StoryItem class', () => {
 
 
 
-describe("Geostory with sample scenario ", () => {
+describe("Geostory with BD scenario ", () => {
 	const scenarioFile = "./public/data/scenario_bd-v0_02.json";
-	const outFile = "./public/data/geostoryBD.json"
+	const outFile = "./public/data/geostorySOS-BD.json"
 	let scenario: Scenario;
-	let sampleGeostory = createSicilyChannelMockGeostory();
+	let sampleGeostory = createSOSMockGeostory();
 	beforeAll(async () => {
 		scenario = JSON.parse<Scenario>(readFileSync(scenarioFile, 'utf-8'))
 		sampleGeostory.scenario = scenario.name;
@@ -75,11 +73,11 @@ describe("Geostory with sample scenario ", () => {
 		expect(sampleGeostory.title).toBeDefined();
 		expect(sampleGeostory.scenario).toBe(scenario.name);
 		expect(sampleGeostory.timestamp.getTime()).toBeGreaterThan(0)
-		expect(sampleGeostory.elements.length).toBe(6)
-		expect(sampleGeostory.sections.size).toBe(3)
+		expect(sampleGeostory.elements.length).toBe(15)
+		expect(sampleGeostory.sections.size).toBe(7)
 		expect(sampleGeostory.sections.get('sezione-introduzione')?.elements.length).toBe(1);
-		expect(sampleGeostory.sections.get('sezione-temi')?.elements.length).toBe(2);
-		expect(sampleGeostory.sections.get('sezione-impatti')?.elements.length).toBe(3);
+		expect(sampleGeostory.sections.get('sezione-temi')?.elements.length).toBe(8);
+		expect(sampleGeostory.sections.get('sezione-impatti')?.elements.length).toBe(1);
 
 	})
 
@@ -94,14 +92,14 @@ describe("Geostory with sample scenario ", () => {
 	});
 
 	it("should read sampleGS and fix sections", () => {
-		expect(sampleGeostory.sections.size).toBe(3)
+		expect(sampleGeostory.sections.size).toBe(7)
 		const underTest = JSON.parse<Geostory>(readFileSync(outFile, 'utf-8'))
-		expect(underTest.elements.length).toBe(6)
+		expect(underTest.elements.length).toBe(15)
 		expect(sampleGeostory.timestamp.getTime()).toBeGreaterThan(0)
 		expect(underTest.sections).toEqual({})
 		const afterUpdate = populateGeostory(underTest)
 		expect(afterUpdate.id).toBe(sampleGeostory.id)
-		expect(afterUpdate.sections.size).toBe(3)
+		expect(afterUpdate.sections.size).toBe(7)
 	})
 
 	it("should save and read sampleGS", () => {
@@ -111,12 +109,12 @@ describe("Geostory with sample scenario ", () => {
 		expect(underTest.id).toBeDefined();
 		expect(underTest.title).toBeDefined();
 		expect(underTest.scenario).toBe(scenario.name);
-		expect(underTest.elements.length).toBe(6)
-		expect(underTest.sections.size).toBe(3)
+		expect(underTest.elements.length).toBe(15)
+		expect(underTest.sections.size).toBe(7)
 
 		expect(underTest.sections.get('sezione-introduzione')?.elements.length).toBe(1);
-		expect(underTest.sections.get('sezione-temi')?.elements.length).toBe(2);
-		expect(underTest.sections.get('sezione-impatti')?.elements.length).toBe(3);
+		expect(underTest.sections.get('sezione-temi')?.elements.length).toBe(8);
+		expect(underTest.sections.get('sezione-impatti')?.elements.length).toBe(1);
 
 	})
 

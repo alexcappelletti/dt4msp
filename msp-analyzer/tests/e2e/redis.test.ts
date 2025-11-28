@@ -22,7 +22,7 @@ describe('Verifica Connessione Redis', () => {
 		}
 
 		// Esegue una fetch interna all'endpoint API creato
-		const response = await $fetch('/api/status/redis');
+		const response: {status:string, message: string} = await $fetch('/api/status/redis');
 
 		// Asserzione: ci aspettiamo che la risposta indichi successo
 		expect(response.status).toBe('success');

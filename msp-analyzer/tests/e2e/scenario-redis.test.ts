@@ -1,15 +1,14 @@
 // tests/e2e/redis.spec.ts
-import { describe, it, expect, beforeEach, afterEach, skipif } from 'vitest';
+import { describe, it, expect, beforeEach, afterAll } from 'vitest';
 import Redis from 'ioredis';
-import type { Project, Scenario, Theme, Measure, Statement } from '@/models/scenario';
-import { populateScenario, populateTheme, populateMeasure } from '@/models/scenario';
+import type { Project, Scenario, Theme, Measure, Statement, AreaOfInterest } from '../../app/models/scenario';
+import { populateScenario, populateTheme, populateMeasure } from '../../app/models/scenario';
 
 
 const redisUrl = process.env.REDIS_URL; 
 
 // Crea un'istanza del client Redis. Assicurati che il server Redis sia in esecuzione.
 // Per i test E2E, spesso si usa una configurazione locale o mocked.
-const redisClient = new Redis(redisUrl);
 // Dati di test campione
 const mockTheme: Theme = populateTheme({
 	indexName: 'acqua1',
@@ -32,9 +31,11 @@ const mockProject: Project = {
 	description: 'Test di archiviazione dati complessi.',
 	createdAt: new Date(),
 	updatedAt: new Date(),
+	areaOfInterest: {} as AreaOfInterest, 
 	scenarios: [mockScenario],
 };
 describe.skipIf(!redisUrl)('Redis Data Storage for Project Structures', () => {
+	const redisClient = new Redis(redisUrl ?? '');
 	// Pulizia prima di ogni test (opzionale, utile per isolare i test)
 	beforeEach(async () => {
 		// Pulisce solo la chiave specifica del progetto per evitare conflitti
@@ -65,7 +66,7 @@ describe.skipIf(!redisUrl)('Redis Data Storage for Project Structures', () => {
 		expect(retrievedProject.scenarios[0].name).toBe('Scenario Alpha');
 		// Verifica di un oggetto nested (Measure)
 		expect(retrievedProject.scenarios[0].measures[0].name).toBe('Diga');
-		expect(retrievedProject.scenarios[0].measures[0].referenceThemes[0].name).toBe('Gestione Acqua');
+		expect(retrievedProject?.scenarios[0]?.measures[0]?.referenceThemes[0]?.name ?? '').toBe('Gestione Acqua');
 		// Verifica che le date siano state convertite correttamente da/a JSON (saranno stringhe ISO)
 		expect(new Date(retrievedProject.createdAt)).toEqual(mockProject.createdAt);
 	});

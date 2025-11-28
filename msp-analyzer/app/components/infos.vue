@@ -10,6 +10,28 @@ const queryInput = ref('')
 const queryResult = ref<string | null>(null)
 
 
+const storyItemTitles = computed(()=>{
+	const gs = store.selectedStory;
+	if (!gs?.elements || gs.elements.length === 0) {
+		return "Nessun elemento della storia trovato.";
+	}
+	const titles = gs.elements
+		.map(e => e.storyItems[0]?.title) // Estrae il titolo (potrebbe essere undefined)
+		.filter((title): title is string => !!title) // Filtra via eventuali titoli undefined/null
+		.map(title => {
+			// Formatta la prima lettera in maiuscolo
+			if (title.length === 0) return title;
+			const ret = title.toLocaleLowerCase()
+			return ret.charAt(0)
+				.toUpperCase() + ret.slice(1);
+		});
+
+	// Converte l'array in una singola stringa formattata come elenco puntato
+	// Usa '\n' per l'interruzione di riga e aggiunge un punto elenco e uno spazio davanti a ogni titolo
+	return titles.map(title => `${title}`);
+
+})
+
 const storyDetails = computed(() => {
 	const g = store.selectedStory
 	if (!g) return null
@@ -20,7 +42,7 @@ const storyDetails = computed(() => {
 		Autore: g.author,
 		Data: g.timestamp,
 		Descrizione: g.target,
-		Elementi: g.elements.map(e => e.storyItems[0]?.title).join(', ')
+		
 	}
 })
 const hasContents = computed(() => {
@@ -64,6 +86,15 @@ function runQuery() {
 							<div v-for="(value, key) in item.details" :key="key" class="details">
 								<p class="">{{ key }}:</p>
 								<div class="highlight">{{ value || "--" }}</div>
+							</div>
+							<div class="details">
+								<p class="tw:pr-4">Elementi:</p>
+								<div class="highlight">
+									<li v-for="it in storyItemTitles">
+    										{{it}}
+										</li>
+									
+								</div>
 							</div>
 						</div>
 						<div v-else-if="activeTab === 'Query builder' && hasContents">

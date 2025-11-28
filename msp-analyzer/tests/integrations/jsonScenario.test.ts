@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { readFileSync, writeFileSync } from 'fs'
-import type {Scenario, Statement, Measure, Effect, AreaOfInterest} from "../../app/models/scenario"
+import type{ Measure, MapLayer, Scenario, Theme, Effect} from "../../app/models/scenario" 
 import {populateScenario, populateTheme, populateMeasure, populateEffect } from "../../app/models/scenario";
 import {getSpatialMeasures, getNonSpatialMeasures} from '../../app/models/projectDataHelpers'
-import {MapLayer} from  '../../app/models/map'
+import type {Geostory} from '../../app/models/geostory'
+import { readFileSync, writeFileSync } from 'fs'
 
 describe("fixture on json rapresentations of scenario", () => {
 	const outfile = "./public/data/scenario_bd-v0_02.json"
@@ -13,22 +13,21 @@ describe("fixture on json rapresentations of scenario", () => {
 				id: "layer_"+name,
 				name:"sample",
 				type: "map",
-				owsType: "raster",
-				owsUrl: "tinyurl/sample",
+				url: "tinyurl/sample",
 				description: "--",
 				layerName: name,
 				legendUrl: "",
 		}as MapLayer
 
 	}
-	const themes = [
+	const themes: Array<Theme>= [
 		{
 			name:"Energia - Oil&Gas",
 			indexName: "oil/gas",
 			type: "secondario",
 			description: "",
 			geospatialResources:[],
-		}as Theme,
+		} as Partial<Theme>,
 		{	
 			name:"Sicurezza e sorveglianza",
 			indexName: "sicurezza",
@@ -36,7 +35,7 @@ describe("fixture on json rapresentations of scenario", () => {
 			description: "",
 			geospatialResources:[],
 			impacts:[]
-		}as Theme,
+		} as Partial<Theme>,
 		{
 			name:"Acquacoltura",
 			indexName: "H2o",
@@ -44,7 +43,7 @@ describe("fixture on json rapresentations of scenario", () => {
 			description: "",
 			geospatialResources:[],
 			impacts:[]
-		}as Theme,
+		} as Partial<Theme>,
 		{
 			name:"Difesa costiera",
 			indexName: "difesa",
@@ -52,35 +51,35 @@ describe("fixture on json rapresentations of scenario", () => {
 			description: "",
 			geospatialResources:[],
 		
-		}as Theme,
+		} as Partial<Theme>,
 		{	
 			name:"Energia",
 			indexName: "energia1",
 			type: "primario",
 			description: "",
 			geospatialResources:[],
-		}as Theme,
+		} as Partial<Theme>,
 		{
 			name:"Paesaggio e patrimonio culturale",
 			indexName: "paesaggio",
 			type: "primario",
 			description: "",
 			geospatialResources:[],
-		}as Theme,
+		} as Partial<Theme>,
 		{
 			name:"Pesca",
 			indexName: "pesca",
 			type: "primario",
 			description: "",
 			geospatialResources:[],
-		}as Theme,
+		} as Partial<Theme>,
 		{	name:"Protezione ambientale",
 			indexName: "ambiente",
 			type: "primario",
 			description: "",
 			geospatialResources:[],
 			
-		}as Theme,
+		} as Partial<Theme>,
 		{
 			name:"Ricerca & Innovazione",
 			indexName: "innovazione",
@@ -88,14 +87,14 @@ describe("fixture on json rapresentations of scenario", () => {
 			description: "",
 			geospatialResources:[],
 			
-		}as Theme,
+		} as Partial<Theme>,
 		{
 			name:"Trasporto Marittimo",
 			indexName: "trasporto",
 			type: "primario",
 			description: "",
 			geospatialResources:[],
-		}as Theme,
+		} as Partial<Theme>,
 		{
 			name:"Turismo Costiero e Marittimo",
 			indexName: "turismo",
@@ -103,82 +102,79 @@ describe("fixture on json rapresentations of scenario", () => {
 			description: "",
 			geospatialResources:[],
 			
-		}as Theme,
+		} as Partial<Theme>,
 		{
 			name:"Energia rinnovabile",
 			indexName: "Energia1",
 			type: "NA",
 			description: "",
 			geospatialResources:[],
-		}as Theme,
+		} as Partial<Theme>,
 		{
 			name:"Turismo",
 			indexName: "Turismo",
 			type: "NA",
 			description: "",
 			geospatialResources:[],
-			
-		}as Theme
-	]
-	themes.forEach((t, idx) => t = populateTheme(t))
+		} as Partial<Theme>
+	].map((t, idx) => populateTheme(t))
 
 	const measures: Array<Measure> = [
-				{
-					name: "Incremento del traffico marittimo",
-					impact: "Incremento del traffico marittimo",
-					description: "Proiezioni di aumento della densità di traffico per diverse categorie di navi (CAR +30%, CON +53%, PAS +26%, TGC +38%, RRO +33%), basate su studi EMSA (2024) e letteratura di settore (EMSA-EEA 2021, Piano del Mare 2023, Report SRM 2022)",
-					referencedTheme: [themes[9], themes[0],themes[3]],
-					geospatialResources: [
-						getMapLayer("routedensity_allavg"), 
-						getMapLayer("layer_trafficoPSSAPrevisione")]
-				} as Measure,
-				{
-					name: "Misure di mitigazione",
-					impact: "Misure di mitigazione",
-					referencedThemes: [themes[8], themes[7], themes[4]],
-					description: "Implementazione di interventi per ridurre l'impatto del traffico, tra cui limiti di velocità (10 nodi in area CCH), riduzione della rumorosità, miglioramento della gestione delle acque di zavorra (BWM), e uso di combustibili a basse emissioni.",
-					geospatialResources: [
-						getMapLayer("layer_speed10nodi")]
-				} as Measure,
-				{
-					name: "Sviluppo porti sostenibili",
-					impact:"Sviluppo porti sostenibili",
-					referenceThemes: [themes[1], themes[3], themes[2], themes[4], themes[6], themes[7]],
-					description: "Elettrificazione delle banchine, disponibilità di combustibili alternativi, gestione dei rifiuti e acque residue (sea water scrubber), in linea con obiettivi di sostenibilità.",
-					geospatialResources: [
-						getMapLayer("layer_portiSostenibili")]	
-				} as Measure,
-				{
-					name: "Traffico correlato a eolico offshore",
-					impact: "Traffico correlato a eolico offshore",
-					referenceThemes: [themes[3],themes[8], themes[2], themes[0]],
-					description: "Incremento modesto del traffico a corto raggio per costruzione/manutenzione di campi eolici (es. area OW1, OW2, OW4), con potenziali impatti su rotte esistenti.",
-					geospatialResources: [
-						getMapLayer("layer_OWFs")]
-				} as Measure,
-				{
-					name: "Isola energetica",
-					impact: "Isola energetica",
-					referencedTheme: [themes[1], themes[5]],
-					description: "Hub per combustibili alternativi (idrogeno, metanolo, elettrico) che riduce pressioni costiere e impone limiti di velocità (10 nodi), con benefici ambientali (rumore, collisioni con megafauna).",
-					geospatialResources: [
-						getMapLayer("layer_speed10nodi")]
-				} as Measure,
-				{
-					name: "Regolamentazione e sicurezza",
-					impact: "Regolamentazione e sicurezza",
-					referenceThemes: [themes[2], themes[1], themes[4], themes[6], themes[7]],
-					description: "Necessità di approfondire sostenibilità economica e sicurezza nel corridoio NW-SE, con possibili misure aggiuntive come Traffic Separation Schemes (TSS)",
-					geospatialResources: [
-						getMapLayer("layer_corridoioNW-SE")]
-				} as Measure
-			]
-	measures.forEach((m, idx) => m = populateMeasure(m))
+		{
+			name: "Incremento del traffico marittimo",
+			impact: "Incremento del traffico marittimo",
+			description: "Proiezioni di aumento della densità di traffico per diverse categorie di navi (CAR +30%, CON +53%, PAS +26%, TGC +38%, RRO +33%), basate su studi EMSA (2024) e letteratura di settore (EMSA-EEA 2021, Piano del Mare 2023, Report SRM 2022)",
+			referenceThemes: [themes[9], themes[0],themes[3]],
+			geospatialResources: [
+				getMapLayer("routedensity_allavg"), 
+				getMapLayer("layer_trafficoPSSAPrevisione")]
+		} as Partial <Measure>,
+		{
+			name: "Misure di mitigazione",
+			impact: "Misure di mitigazione",
+			referenceThemes: [themes[8], themes[7], themes[4]],
+			description: "Implementazione di interventi per ridurre l'impatto del traffico, tra cui limiti di velocità (10 nodi in area CCH), riduzione della rumorosità, miglioramento della gestione delle acque di zavorra (BWM), e uso di combustibili a basse emissioni.",
+			geospatialResources: [
+				getMapLayer("layer_speed10nodi")]
+		},
+		{
+			name: "Sviluppo porti sostenibili",
+			impact:"Sviluppo porti sostenibili",
+			referenceThemes: [themes[1], themes[3], themes[2], themes[4], themes[6], themes[7]],
+			description: "Elettrificazione delle banchine, disponibilità di combustibili alternativi, gestione dei rifiuti e acque residue (sea water scrubber), in linea con obiettivi di sostenibilità.",
+			geospatialResources: [
+				getMapLayer("layer_portiSostenibili")]	
+		} ,
+		{
+			name: "Traffico correlato a eolico offshore",
+			impact: "Traffico correlato a eolico offshore",
+			referenceThemes: [themes[3],themes[8], themes[2], themes[0]],
+			description: "Incremento modesto del traffico a corto raggio per costruzione/manutenzione di campi eolici (es. area OW1, OW2, OW4), con potenziali impatti su rotte esistenti.",
+			geospatialResources: [
+				getMapLayer("layer_OWFs")]
+		} ,
+		{
+			name: "Isola energetica",
+			impact: "Isola energetica",
+			referenceThemes: [themes[1], themes[5]],
+			description: "Hub per combustibili alternativi (idrogeno, metanolo, elettrico) che riduce pressioni costiere e impone limiti di velocità (10 nodi), con benefici ambientali (rumore, collisioni con megafauna).",
+			geospatialResources: [
+				getMapLayer("layer_speed10nodi")]
+		} as Measure,
+		{
+			name: "Regolamentazione e sicurezza",
+			impact: "Regolamentazione e sicurezza",
+			referenceThemes: [themes[2], themes[1], themes[4], themes[6], themes[7]],
+			description: "Necessità di approfondire sostenibilità economica e sicurezza nel corridoio NW-SE, con possibili misure aggiuntive come Traffic Separation Schemes (TSS)",
+			geospatialResources: [
+				getMapLayer("layer_corridoioNW-SE")]
+		} as Measure
+	].map((m, idx) => populateMeasure(m))
 
 		
 	
 
-	const effects: Array<Effect> = [
+	const effects: Array<Partial<Effect>> = [
 		{
 			name: "Riduzione emissioni inquinanti",	
 			impact: "Riduzione emissioni inquinanti",
@@ -208,7 +204,7 @@ describe("fixture on json rapresentations of scenario", () => {
 		effects: effects,
 		definedGeostories: [] as Geostory[],
 		objectives: ""
-	} as Scenario
+	} as Partial<Scenario>
 
 	it ("should check default scenario", () => {
 		const emptyScenario: Scenario = populateScenario({} as Partial<Scenario>)
@@ -224,8 +220,8 @@ describe("fixture on json rapresentations of scenario", () => {
 		expect(emptyScenario.definedGeostories.length).toBe(0)
 		expect(emptyScenario.availableThemes.length).toBe(0)
 		expect(emptyScenario.objectives).toBe("")
-		expect(emptyScenario.primaryThemes.length).toBe(0)
-		expect(emptyScenario.secondaryThemes.length).toBe(0)
+		expect(emptyScenario.primaryThemes?.length ?? 0).toBe(0)
+		expect(emptyScenario.secondaryThemes?.length ?? 0).toBe(0)
 
 		expect(getSpatialMeasures(emptyScenario).length).toBe(0)
 		expect(getNonSpatialMeasures(emptyScenario).length).toBe(0)
@@ -274,7 +270,4 @@ describe("fixture on json rapresentations of scenario", () => {
 		expect(expected.availableThemes?.length).toBe(13)
 
 	})
-
 })
-
-

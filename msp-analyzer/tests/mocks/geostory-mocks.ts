@@ -1,7 +1,7 @@
-import type { Project, Scenario, Theme, Measure, Statement } from '@/models/scenario';
-import { populateScenario, populateTheme, populateMeasure } from '@/models/scenario';
-import type {Geostory, StoryItem, StoryElement} from '@/models/geostory'
-import {populateStoryItem, populateGeostory, populateStoryElement, updateItemStyle} from '@/models/geostory'
+import type { Project, Scenario, Theme, Measure, Statement } from '../../app/models/scenario';
+import { populateScenario, populateTheme, populateMeasure } from '../../app/models/scenario';
+import type {Geostory, StoryItem, StoryElement} from '../../app/models/geostory'
+import {populateStoryItem, populateGeostory, populateStoryElement, updateItemStyle} from '../../app/models/geostory'
 import {createMockSOSMaps} from './sos-map-mock'
 
 /**
