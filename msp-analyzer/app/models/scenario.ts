@@ -1,6 +1,6 @@
 import { dataset } from "happy-dom/lib/PropertySymbol.js";
 import type { Geostory } from "./geostory";
-import { generateUUID } from "@/utils/generateUUID";
+import { generateUUID } from "#/shared/utils/generateUUID";
 
 
 export interface Project{

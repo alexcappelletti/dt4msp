@@ -39,14 +39,7 @@ export default defineEventHandler(async (event) => {
 			console.error(`Errore HTTP: ${response.status} ${response.statusText}`)
 			return createError({ statusCode: response.status, statusMessage: response.statusText })
 		}
-
-		const contentType = response.headers.get('content-type') || 'application/json'
-		const text = await response.text()
-
-		return new Response(text, {
-			status: 200,
-			headers: { 'Content-Type': contentType }
-		})
+		return response;
 	} catch (err) {
 		console.error('Errore durante il fetch:', err)
 		return createError({ statusCode: 502, statusMessage: 'Proxy error' })

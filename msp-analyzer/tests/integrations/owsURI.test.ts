@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { normalizeUrl, verifyOwsService } from '@/utils/geoserverUrls'
+import { normalizeUrl, verifyOwsService } from '../../shared/utils/geoserverUrls'
 
 describe.skip('normalizeUrl', () => {
 	it.each([

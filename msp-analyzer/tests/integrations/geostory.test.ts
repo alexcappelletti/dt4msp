@@ -3,8 +3,10 @@ import { readFileSync, writeFileSync } from 'fs'
 import type {Geostory, StoryElement, StoryItem,} from '../../app/models/geostory'
 import {populateGeostory, populateStoryElement, populateStoryItem, updateItemStyle} from "../../app/models/geostory";
 import type { Scenario } from '../../app/models/scenario';
+import { ImageVisual } from "../../app/models/visual";
 
 import { createSOSMockGeostory } from '../mocks/bd-geostory-mock'
+import { format } from "path";
 
 
 
@@ -13,11 +15,9 @@ import { createSOSMockGeostory } from '../mocks/bd-geostory-mock'
 
 
 describe('StoryItem class', () => {
-	const mockVisual: Visual = {
-		type: 'image',
-		url: 'https://example.com/image.png',
-		alt: 'Example image'
-	}
+	const mockVisual: ImageVisual = {
+		imageUrl: ""
+	}  
 
 	const baseItemProps: Partial<StoryItem> = {
 		id: 'story-001',
@@ -53,7 +53,7 @@ describe("Geostory with BD scenario ", () => {
 	let scenario: Scenario;
 	let sampleGeostory = createSOSMockGeostory();
 	beforeAll(async () => {
-		scenario = JSON.parse<Scenario>(readFileSync(scenarioFile, 'utf-8'))
+		scenario = JSON.parse(readFileSync(scenarioFile, 'utf-8')) as Scenario
 		sampleGeostory.scenario = scenario.name;
 	})
 	const now = new Date();
@@ -86,14 +86,14 @@ describe("Geostory with BD scenario ", () => {
 		sampleGeostory.elements.forEach((e: StoryElement, index: number) => {
 			expect(e.storyItems.length).toBe(1);
 			if (e.storyItems.length !== 1) {
-				console.error(`Errore nell'elemento a indice ${index} (ID: ${element.id}): si aspettava 1 storyItem, ne ha trovati ${element.storyItems.length}`);
+				console.error(`Errore nell'elemento a indice ${index} (ID: ${e.id}): si aspettava 1 storyItem, ne ha trovati ${e.storyItems.length}`);
 			}
 		});
 	});
 
 	it("should read sampleGS and fix sections", () => {
 		expect(sampleGeostory.sections.size).toBe(7)
-		const underTest = JSON.parse<Geostory>(readFileSync(outFile, 'utf-8'))
+		const underTest = JSON.parse(readFileSync(outFile, 'utf-8')) as Geostory
 		expect(underTest.elements.length).toBe(15)
 		expect(sampleGeostory.timestamp.getTime()).toBeGreaterThan(0)
 		expect(underTest.sections).toEqual({})
@@ -105,7 +105,7 @@ describe("Geostory with BD scenario ", () => {
 	it("should save and read sampleGS", () => {
 		writeFileSync(outFile, JSON.stringify(sampleGeostory, null, 4), 'utf-8')
 		const underTest = populateGeostory(
-			JSON.parse<Geostory>(readFileSync(outFile, 'utf-8')))
+			JSON.parse(readFileSync(outFile, 'utf-8')) as Geostory)
 		expect(underTest.id).toBeDefined();
 		expect(underTest.title).toBeDefined();
 		expect(underTest.scenario).toBe(scenario.name);

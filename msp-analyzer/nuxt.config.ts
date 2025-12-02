@@ -15,6 +15,11 @@ export default defineNuxtConfig({
 		rootId: 'nuxt-root', // opzionale, se vuoi personalizzare l'ID del root element
 		// Usa app/app.vue come root: Nuxt 4 lo rileva automaticamente se presente
 	},
+	alias: {
+		 "#":resolve(__dirname, ".")
+
+
+	},
 	css: [
 		'vuetify/styles',
 		'./app/assets/css/tailwind.css',

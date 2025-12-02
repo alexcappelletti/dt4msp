@@ -1,4 +1,4 @@
-import { generateUUID } from "@/utils/generateUUID";
+import { generateUUID } from "#/shared/utils/generateUUID.ts";
 import { ChangeEvent } from "./changeEvent";
 import { Visual } from "./visual";
 import { mapActions } from "pinia";

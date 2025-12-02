@@ -1,6 +1,6 @@
 
 import type { GeonodeLayer, LayerParams, RawLayerDef } from '~/models/geonode.d.ts'
-import { normalizeUrl } from '~/utils/geoserverUrls.ts'
+import { normalizeUrl } from '#/shared/utils/geoserverUrls.ts'
 const GEONODE_BASE_URL = 'https://geoplatform.tools4msp.eu/api/v2/maps';
 
 
