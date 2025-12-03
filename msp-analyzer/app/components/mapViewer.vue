@@ -66,7 +66,7 @@ onMounted(() => {
 	});
 	
 	map.value.on('error', (e) => { console.error('Errore mappa:', e) });
-	map.value.on('move', () => { updateMapInfo() });
+	//map.value.on('move', () => { updateMapInfo() });
 });
 
 

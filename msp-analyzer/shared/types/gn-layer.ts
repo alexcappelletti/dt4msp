@@ -1,4 +1,3 @@
-// types/geoserver-full-types.ts (Versione raffinata e completa)
 
 /**
  * Interfaccia per la Bounding Box (bbox_polygon e ll_bbox_polygon)

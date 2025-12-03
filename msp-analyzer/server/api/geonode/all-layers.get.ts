@@ -58,8 +58,15 @@ export default defineEventHandler(async (event) => {
 	let allLayers: any[] = [];
 	let totalPages = 0;
 
+	const query = getQuery(event);
+	const searchText = query.searchText ? String(query.searchText) : undefined
+
 	try {
-		const initialResponse = await $fetch<GeoNodeApiResponse>(`${GEONODE_BASE_URL}/api/v2/layers?page_size=${PAGE_SIZE}&page=1`);
+		let initialUrl = `${GEONODE_BASE_URL}/api/v2/layers?page_size=${PAGE_SIZE}&page=1`;
+		if (searchText) {
+			initialUrl += `&q=${encodeURIComponent(searchText)}`;
+		}
+		const initialResponse = await $fetch<GeoNodeApiResponse>(initialUrl);
 		totalPages = Math.ceil(initialResponse.total / PAGE_SIZE);
 		allLayers.push(...initialResponse.layers);
 	} catch (err) {
@@ -72,9 +79,12 @@ export default defineEventHandler(async (event) => {
 
 	// Creiamo le funzioni (task) per tutte le pagine rimanenti (dalla 2 in poi)
 	for (let page = 2; page <= totalPages; page++) {
-		const url = `${GEONODE_BASE_URL}/api/v2/layers?page_size=${PAGE_SIZE}&page=${page}`;
+		let pageUrl = `${GEONODE_BASE_URL}/api/v2/layers?page_size=${PAGE_SIZE}&page=${page}`;
+		if (searchText) {
+			pageUrl += `&q=${encodeURIComponent(searchText)}`;
+		}
 		fetchTasks.push(() =>
-			$fetch<GeoNodeApiResponse>(url)
+			$fetch<GeoNodeApiResponse>(pageUrl)
 				.then(response => response.layers)
 				.catch(err => {
 					console.warn(`Error fetching page ${page}:`, err);
