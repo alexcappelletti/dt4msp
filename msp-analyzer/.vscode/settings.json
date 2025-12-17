@@ -72,7 +72,7 @@
 		"editorInfo.foreground": "#c47d13",
 		"problemsInfoIcon.foreground": "#e92831",
 		"list.activeSelectionForeground": "#e66108",
-		"list.focusBackground": "#db9595"
+		"list.focusBackground": "#55925a"
 	},
 	"files.associations": {
 		"*.css": "tailwindcss"

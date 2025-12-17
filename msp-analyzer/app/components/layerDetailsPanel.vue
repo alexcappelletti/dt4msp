@@ -1,16 +1,23 @@
 <!-- components/geospatial/LayerDetailsPanel.vue -->
 
 <script setup lang="ts">
-// Assicurati che il percorso di importazione per il tipo Layer completo sia corretto
-import type { Layer } from '#/shared/types/gn-layer';
 import { computed } from 'vue';
+import type { Layer } from '#/shared/types/gn-layer';
+import { useLayerHelper } from '@/composables/useLayerHelper';
+
 
 const props = defineProps<{
 	layer: Layer | null;
 	isLoading: boolean;
 }>();
-
+const {ogcTypes} = useLayerHelper();
 const hasDetails = computed(() => props.layer !== null);
+const hasFeatures = computed(() => {
+	return props.layer !== null && ;
+});
+const featuresFound = computed(() => {
+	return 1;
+});
 
 // ... (logica watch/initializeMap omessa per brevità) ...
 </script>
@@ -33,6 +40,7 @@ const hasDetails = computed(() => props.layer !== null);
 					<p class="tw:mb-1"><strong class="tw:font-semibold">Titolo:</strong> {{ layer.title }}</p>
 					<p class="tw:mb-1"><strong class="tw:font-semibold">Nome (Name):</strong> {{ layer.name }}</p>
 					<p class="tw:mb-1"><strong class="tw:font-semibold">Alternativo (Alternate):</strong> {{ layer.alternate }}</p>
+					<p class="tw:mb-1"><strong class="tw:font-semibold">Tipi OGC sopportati:</strong> {{ ogcTypes(layer).join(',') }}</p>
 					<p class="tw:mb-1">
 						<strong class="tw:font-semibold">OWS URL:</strong>
 						<a :href="layer.ows_url" target="_blank" class="tw:text-blue-500 tw:hover:underline tw:break-all">
@@ -41,6 +49,7 @@ const hasDetails = computed(() => props.layer !== null);
 					</p>
 					<p class="tw:mb-1"><strong class="tw:font-semibold">Style di Default:</strong> {{ layer.default_style?.name ||
 						'Nessuno' }}</p>
+					<p class="tw:mb-1"><strong class="tw:font-semibold">Features trovate:</strong> {{ featuresFound }}</p>
 				</div>
 
 				<!-- COLONNA DESTRA (Immagine) con prefisso tw: -->

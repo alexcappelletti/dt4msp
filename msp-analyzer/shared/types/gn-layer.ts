@@ -26,7 +26,7 @@ export interface User {
 /**
  * Interfaccia per i singoli oggetti Stile (Style)
  */
-export interface Style {
+export interface SldStyle {
 	pk: number;
 	name: string;
 	workspace: string;
@@ -120,8 +120,8 @@ export interface Layer {
 	elevation_regex: string | null;
 	use_featureinfo_custom_template: boolean;
 	featureinfo_custom_template: string;
-	default_style: Style;
-	styles: Style[];
+	default_style: SldStyle;
+	styles: SldStyle[];
 	attribute_set: AttributeSetItem[];
 	ptype: string;
 	ows_url: string;

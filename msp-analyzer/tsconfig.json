@@ -16,9 +16,16 @@
     }
   ],
   "compilerOptions": {
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-	
+	"allowImportingTsExtensions": true, // Può aiutare se sono presenti file .ts in dist (improbabile)
+	"esModuleInterop": true,
+	"forceConsistentCasingInFileNames": true,
+	"resolveJsonModule": true, // A volte gli stili importano JSON
+	"moduleResolution": "Bundler",
+	"module": "Preserve",
+	"target": "ES2022",
+	// Assicurati che questi siano presenti:
+	"skipLibCheck": true, // Ignora gli errori di controllo dei tipi nelle librerie esterne
+	"allowSyntheticDefaultImports": true // Utile per import/export misti CJS/ESM
   }
 
 }

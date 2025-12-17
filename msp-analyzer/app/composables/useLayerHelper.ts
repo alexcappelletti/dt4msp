@@ -53,9 +53,9 @@ export const useLayerHelper = () => {
 			VERSION: '2.0.0',
 			SERVICE: 'WFS',
 			REQUEST: 'GetFeature',
-			TYPENAME: `${l.workspace}:${l.name}`,
+			TYPENAME: l.alternate ??`${l.workspace}:${l.name}`,
 			OUTPUTFORMAT: merged.outputFormat,
-			SRSNAME: merged.srsName,
+			//SRSNAME: merged.srsName,
 			//maxFeatures: String(merged.maxFeatures),
 		}
 		if (merged.cqlFilter) {
@@ -66,6 +66,7 @@ export const useLayerHelper = () => {
 	}
 
 	function featureUrl4Proxy(l: Layer, options?: OwsUrlOptions): string {
+			//const query = new URLSearchParams("VERSION=2.0.0&SERVICE=WFS&REQUEST=GetFeature&TYPENAME=geonode:Dominio_SoS&OUTPUTFORMAT=application/json&mapUrl=https://geoplatform.tools4msp.eu/geoserver/ows")
 			const query = new URLSearchParams(buildWfsGetFeatureParams(l))
 			query.set("mapUrl", l.ows_url)
 			
@@ -78,7 +79,7 @@ export const useLayerHelper = () => {
 					query.set(key, value)
 				}
 			}
-			console.log("requesting:  ", query.toString())
+			// console.log("requesting:  ", query.toString())
 			return `/api/map-proxy/ows-request?${query.toString()}`
 		}
 	/**
@@ -154,7 +155,7 @@ export const useLayerHelper = () => {
 		
 	}
 
-
+	
 
 	const ogcTypes = (l: Layer): OGSType[] => {
 		const foundTypes = new Set<OGSType>();

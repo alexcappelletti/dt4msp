@@ -55,35 +55,43 @@ export default defineNuxtConfig({
 		}
 	},
 	vite: {
-	server: {
-		watch: {
-			// force polling on environments where native file watching is unreliable (Windows, Docker, WSL)
-			usePolling: true,
-			interval: 100,
+		server: {
+			watch: {
+				// force polling on environments where native file watching is unreliable (Windows, Docker, WSL)
+				usePolling: true,
+				interval: 100,
+			},
 		},
-	},
-	css: {
-		// preprocessorOptions: {
-		// 	scss: {
-		// 		additionalData: `@use "~/assets/scss/variables" as *;`
+		css: {
+			// preprocessorOptions: {
+			// 	scss: {
+			// 		additionalData: `@use "~/assets/scss/variables" as *;`
+			// 	}
+			// }
+		},
+		plugins: [
+			tailwindcssPlugin(),
+		],
+		// resolve: {
+		// 	alias: {
+		// 		'@': resolve(__dirname, 'app')
 		// 	}
 		// }
+		optimizeDeps: {
+			include: [
+				'geostyler-sld-parser',
+				'geostyler-mapbox-parser',
+				'xmldom'
+			],
+		},
+		
 	},
-	plugins: [
-		tailwindcssPlugin(),
-	],
-	// resolve: {
-	// 	alias: {
-	// 		'@': resolve(__dirname, 'app')
-	// 	}
-	// }
-},
 	postcss: {
-	plugins: {
-		'@tailwindcss/postcss': {},
-		autoprefixer: {},
+		plugins: {
+			'@tailwindcss/postcss': {},
+			autoprefixer: {},
+		},
 	},
-},
 	// fonts: {
 	// 	families: [
 	// 		{name: 'Roboto', weights: [400, 700], styles: ['normal', 'italic']}, // Google Fonts with weights and italics	

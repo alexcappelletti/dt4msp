@@ -1,7 +1,7 @@
 import type { Layer } from '#/shared/types/gn-layer'
 
 const GEONODE_BASE_URL = process.env.GEONODE_API_URL || "https://geoplatform.tools4msp.eu";
-const PAGE_SIZE = 100;
+const PAGE_SIZE = 5;
 const CONCURRENCY_LIMIT = 5; // Il numero massimo di richieste simultanee permesse
 
 interface GeoNodeApiResponse {
@@ -56,7 +56,7 @@ async function fetchWithConcurrencyLimit<T>(
 
 export default defineEventHandler(async (event) => {
 	let allLayers: any[] = [];
-	let totalPages = 0;
+	let totalPages = 10;
 
 	const query = getQuery(event);
 	const searchText = query.searchText ? String(query.searchText) : undefined
@@ -67,8 +67,9 @@ export default defineEventHandler(async (event) => {
 			initialUrl += `&q=${encodeURIComponent(searchText)}`;
 		}
 		const initialResponse = await $fetch<GeoNodeApiResponse>(initialUrl);
-		totalPages = Math.ceil(initialResponse.total / PAGE_SIZE);
+		//totalPages = Math.ceil(initialResponse.total / PAGE_SIZE);
 		allLayers.push(...initialResponse.layers);
+		console.log("found: ", allLayers.length)
 	} catch (err) {
 		console.error("Failed to fetch initial page:", err);
 		throw createError({ statusCode: 500, statusMessage: 'Cannot determine total pages for parallel fetch.' });
