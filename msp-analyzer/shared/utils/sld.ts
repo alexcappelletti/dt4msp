@@ -10,7 +10,7 @@ import type {
 import type { AnyLayer } from 'mapbox-gl';
 
 type FilterTranslator = (filter: Filter) => FilterSpecification;
-type SourcedLayer = FillLayerSpecification | SymbolLayerSpecification | LineLayerSpecification;
+export type SourcedLayer = FillLayerSpecification | SymbolLayerSpecification | LineLayerSpecification;
 
 /**
  * Converte una risposta testuale SLD in un array di LayerSpecification per Maplibre GL JS.

@@ -3,11 +3,13 @@ import { ref, computed } from 'vue';
 import type { Layer } from '#shared/types/gn-layer'
 import { useGeonodeApi } from '@/composables/useGeonodeApi';
 import { useSpatialResourceStore } from '@/stores/spatialResourceStore';
+import { useLayeredMapStore } from '~/stores/layeredMapStore';
 import LayerDetailsPanel from '@/components/layerDetailsPanel.vue';
 
 
 const { getLayer } = useGeonodeApi();
 const store = useSpatialResourceStore();
+const {selectGnLayer} = useLayeredMapStore();
 const loading = ref(false);
 const error = ref<Error | null>(null);
 const selectedLayerDetails = ref<Layer | null>(null); // Dettagli completi per la colonna DX
@@ -23,6 +25,8 @@ const setLayerDetails = async (pk: string) => {
 	try {
 		// Chiamata all'API per ottenere i dettagli completi del layer
 		selectedLayerDetails.value = await getLayer(pk);
+		await selectGnLayer(selectedLayerDetails.value);
+
 	} catch (err: any) {
 		error.value = err instanceof Error ? err : new Error(String(err));
 		selectedLayerDetails.value = null; // Resetta se fallisce
