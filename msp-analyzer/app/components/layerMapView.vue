@@ -3,7 +3,7 @@
 import { shallowRef, watch, onMounted, onUnmounted, ref } from 'vue';
 import maplibregl, { Map as MaplibreMap, type LayerSpecification } from 'maplibre-gl';
 import type { Layer } from '#/shared/types/gn-layer';
-import { useLayerHelper, type OGSType } from '@/composables/useLayerHelper';
+import { useLayerHelper, type OGCType } from '@/composables/useLayerHelper';
 import { useLayeredMapStore } from '~/stores/layeredMapStore';
 //@ts-ignore
 maplibregl.config.FILL_LARGE_MESH_ARRAYS = true;
@@ -41,14 +41,14 @@ const zoomLevel = ref<number>(0)
 
 const dynamicLayerIds = shallowRef<string[]>([]);
 const dynamicSourceIds = shallowRef<string[]>([]);
-const isLoadingLayers = ref(false);	
+const isLoadingLayers = ref(false);
 
 
 const initializeMap = () => {
 	// ... (logica inizializzazione mappa) ...
 	map.value = new maplibregl.Map({
 		container: mapContainer.value!,
-		style:`${basemapURL}/${basemapEnum}?token=${ESRI_APIKEY}`,
+		style: `${basemapURL}/${basemapEnum}?token=${ESRI_APIKEY}`,
 		center: MarMediterraneo.center,
 		zoom: MarMediterraneo.zoom
 
@@ -63,40 +63,43 @@ const initializeMap = () => {
 
 
 watch(
-	[() => mapStore.getGnLayers, ()=> mapStore.selectedOGCType],
+	[() => mapStore.getGnLayers, () => mapStore.selectedOGCType],
 	async ([newGnLayers, newTypeFilter], [oldLayers, oldFilter]) => {
 		if (newGnLayers === oldLayers && newTypeFilter === oldFilter) {
-			return; 
-		}	
-		try{updateMap();} 
-		catch (err) {console.error("Errore durante l'aggiornamento della mappa: ", err);}
-	}, 
+			return;
+		}
+		try { updateMap(); }
+		catch (err) { console.error("Errore durante l'aggiornamento della mappa: ", err); }
+	},
 	{ immediate: true, deep: true });
 
 function clearMap() {
-    if (!map.value) return;
-    dynamicLayerIds.value.forEach(id => {
+	if (!map.value) return;
+	dynamicLayerIds.value.forEach(id => {
 		if (map.value?.getLayer(id)) {
 			map.value.removeLayer(id);
-	}});
-	dynamicLayerIds.value = []; 
+		}
+	});
+	dynamicLayerIds.value = [];
 	dynamicSourceIds.value.forEach(id => {
 		if (map.value?.getSource(id)) {
 			map.value.removeSource(id);
 		}
 	});
-	dynamicSourceIds.value = []; 
-	
+	dynamicSourceIds.value = [];
+
 }
 
 async function updateMap() {
-	if (!map.value || !map.value.isStyleLoaded()) return;
-    clearMap();
+	if (!map.value || !map.value.isStyleLoaded())  { return;}
+	isLoadingLayers.value = true;
+	await new Promise(resolve => setTimeout(resolve, 50));
+	clearMap();
 	const mapInstance = map.value;
-	
+
 	const results = mapStore.getFeaturedLayersState
 	results.forEach(fState => {
-		if (fState.fetchStatus !== 'idle' || !fState.geojsonData) {return;}
+		if (fState.fetchStatus !== 'idle' || !fState.geojsonData) { return; }
 		const { geonodeLayer, geojsonData, styles } = fState;
 		const sourceId = `source-${geonodeLayer.pk}`;
 		if (mapInstance.getSource(sourceId) !== undefined) {
@@ -110,7 +113,7 @@ async function updateMap() {
 		});
 		dynamicSourceIds.value.push(sourceId);
 		console.log("found styles: ", styles.length)
-		if (styles.length === 0) {	
+		if (styles.length === 0) {
 			const geometryType = geojsonData.features?.[0]?.geometry?.type;
 			function getLayerConfig(): LayerSpecification {
 				if (geometryType === 'Polygon' || geometryType === 'MultiPolygon') {
@@ -118,14 +121,14 @@ async function updateMap() {
 						id: `layer-${geonodeLayer.pk}`,
 						source: sourceId,
 						type: 'fill',
-						paint: { 'fill-color': '#088', 'fill-opacity': 0.5 } 
+						paint: { 'fill-color': '#088', 'fill-opacity': 0.5 }
 					};
 				} else if (geometryType === 'LineString' || geometryType === 'MultiLineString') {
 					return {
 						id: `layer-${geonodeLayer.pk}`,
 						source: sourceId,
 						type: 'line',
-						paint: { 'line-color': '#000000', 'line-width': 2 } 
+						paint: { 'line-color': '#000000', 'line-width': 2 }
 					};
 				} else if (geometryType === 'Point' || geometryType === 'MultiPoint') {
 					return {
@@ -140,7 +143,7 @@ async function updateMap() {
 						id: `layer-${geonodeLayer.pk}`,
 						source: sourceId,
 						type: 'fill',
-						paint: {'fill-color': '#02Ae23', 'fill-opacity': 0.3} 
+						paint: { 'fill-color': '#02Ae23', 'fill-opacity': 0.3 }
 					};
 				}
 			}
@@ -156,7 +159,7 @@ async function updateMap() {
 				mapInstance.addLayer(s);
 				dynamicLayerIds.value.push(s.id);
 			});
-			
+
 		}
 	});
 
@@ -197,7 +200,7 @@ async function updateMap() {
 			}
 		}
 	});
-	isLoadingLayers.value = false; 
+	isLoadingLayers.value = false;
 };
 
 
@@ -232,45 +235,54 @@ function getBoundingBox(): [number, number, number, number] | null {
 
 		<!-- Overlay di caricamento Vuetify -->
 		<v-overlay 
-			:model-value="mapStore.isAnyLayerLoading" 
-			class="align-center justify-center"
-			persistent
-			contained
-		>
-			<v-progress-circular
-				color="primary"
-				indeterminate
-				size="64"
-			></v-progress-circular>
+			:model-value="mapStore.isAnyLayerLoading || isLoadingLayers" 
+			class="align-center justify-center loading-overlay" persistent contained>
+			<div class="tw:flex tw:flex-col tw:items-center">
+				<v-progress-circular color="primary" indeterminate size="64"></v-progress-circular>
+				<span class="tw:mt-4 tw:text-white tw:font-bold tw:text-sm">
+            	loading geographic data...</span>
+
+			</div>
+			
 		</v-overlay>
 
-        <!-- Informazioni sulla mappa (opzionale) -->
-        <div class="map-info">
-            Center: {{ centerCoords[0].toFixed(4) }}, {{ centerCoords[1].toFixed(4) }} | Zoom: {{ zoomLevel.toFixed(2) }}
-        </div>
+		<!-- Informazioni sulla mappa (opzionale) -->
+		<div class="map-info">
+			Center: {{ centerCoords[0].toFixed(4) }}, {{ centerCoords[1].toFixed(4) }} | Zoom: {{ zoomLevel.toFixed(2)
+			}}
+		</div>
 	</div>
 </template>
 
 
 <style scoped>
 .map-container-wrapper {
-	position: relative; /* Importante per 'contained' di v-overlay */
-	height: 600px; /* Imposta un'altezza fissa o gestiscila con flexbox */
+	position: relative;
+	/* Importante per 'contained' di v-overlay */
+	height: 600px;
+	/* Imposta un'altezza fissa o gestiscila con flexbox */
 	width: 100%;
+	overflow: hidden;
 }
-
+:deep(.loading-overlay) {
+    z-index: 9999 !important;
+}
+:deep(.v-overlay__scrim) {
+    background: rgba(0, 0, 0, 0.4) !important; /* Nero semitrasparente */
+    opacity: 1 !important;
+}
 .map-container {
 	width: 100%;
 	height: 100%;
 }
 
 .map-info {
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
-    background: rgba(255, 255, 255, 0.8);
-    padding: 5px 10px;
-    border-radius: 4px;
-    z-index: 10;
+	position: absolute;
+	bottom: 10px;
+	left: 10px;
+	background: rgba(255, 255, 255, 0.8);
+	padding: 5px 10px;
+	border-radius: 4px;
+	z-index: 10;
 }
 </style>

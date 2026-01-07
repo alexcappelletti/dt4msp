@@ -4,7 +4,7 @@ import type { LngLatBoundsLike } from 'maplibre-gl'
 
 
 
-export type OGSType = "wfs" | "wms" | "geojson" | "undefined";
+export type OGCType = "wfs" | "wms" | "geojson" | "undefined";
 
 interface OwsUrlOptions {
 	z?: number
@@ -157,13 +157,13 @@ export const useLayerHelper = () => {
 
 	
 
-	const ogcTypes = (l: Layer): OGSType[] => {
-		const foundTypes = new Set<OGSType>();
+	const ogcTypes = (l: Layer): OGCType[] => {
+		const foundTypes = new Set<OGCType>();
 		l.links.forEach(link => {
-			if (link.link_type === 'OGC:WFS') {
-				foundTypes.add('wfs');
-			} else if (link.link_type === 'OGC:WMS') {
+			if (link.link_type === 'OGC:WMS') {
 				foundTypes.add('wms');
+			} else if (link.link_type === 'OGC:WFS') {
+				foundTypes.add('wfs');
 			} else if (link.link_type === 'application/json' || link.url.endsWith('.geojson')) {
 				foundTypes.add('geojson');
 			}

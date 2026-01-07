@@ -1,13 +1,10 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
-import type { LayerSpecification } from 'maplibre-gl'
+import { ref, reactive, computed } from 'vue'
 import WFS from 'ol/format/WFS';
 import { XMLSerializer } from 'xmldom';
-
-import { useLayerHelper, type OGSType } from '@/composables/useLayerHelper'
+import { useLayerHelper, type OGCType } from '@/composables/useLayerHelper'
 import type { Layer } from '#/shared/types/gn-layer';
 import { getLayerFromSLDResponse, type SourcedLayer } from '#/shared/utils/sld';
-
 
 interface LayerState {
 	geonodeLayer: Layer;
@@ -18,134 +15,81 @@ interface LayerState {
 	error: string | null;
 	fetchStatus: 'idle' | 'fetching' | 'error';
 }
+
 export const useLayeredMapStore = defineStore('layeredMap', () => {
 	const { ogcTypes, buildWmsUrlForMapLibre } = useLayerHelper();
 	let currentAbortController: AbortController | null = null;
 
-	const ogsType = ref<OGSType>("wms");  //defaul: raster
+	const ogcType = ref<OGCType | null>(null);
 	const selectedGnLayer = ref<string | null>(null);
 	const layersData = reactive<Record<string, LayerState>>({});
-	const getLayerState = computed(() => (layerPk: string) => layersData[layerPk]);
 
-	const getAvailableOGCTypes = computed(() => {
-		const typesSet = new Set<OGSType>();
-		Object.values(layersData).forEach(state => {
-			const types = ogcTypes(state.geonodeLayer);
-			types.forEach(t => typesSet.add(t as OGSType));
-		});
-		return Array.from(typesSet);
-	})
+	// Getter per il tipo selezionato (ritorna il ref o un default)
+	const selectedOGCType = computed(() => ogcType.value);
 
-	const selectedOGCType = computed(() => ogsType.value);
-
-	function setSelectedOGCType(type: OGSType) {
-		ogsType.value = type;
+	async function setSelectedOGCType(type: OGCType) {
+		ogcType.value = type;
+		const currentLayerPk = selectedGnLayer.value;
+		if (currentLayerPk && layersData[currentLayerPk]) {
+			const layer = layersData[currentLayerPk].geonodeLayer;
+			await fetchOGCLayerData([layer], type);
+		}
 	}
-
-
-	const getRasterLayersState = computed(() => {
-		return Object.values(layersData).filter(state => {
-			// Verifichiamo se tra i tipi OGC del layer è presente 'wms'
-			const types = ogcTypes(state.geonodeLayer);
-			return types.includes('wms');
-		});
-	});
-
-
-	const getFirstLayerState = computed(() => {
-		const allLayers = Object.values(layersData);
-		return allLayers.length > 0 ? allLayers[0] : null;
-	});
-	const getGnLayers = computed(() => Object.values(layersData).map(state => state.geonodeLayer));
-
-	const getFeaturedLayersState = computed(() => {
-		return Object.values(layersData).filter(state => {
-			const types = ogcTypes(state.geonodeLayer);
-			return types.includes('wfs') || types.includes('geojson');
-		});
-	});
-
-
-	const isAnyLayerLoading = computed(() => {
-		return Object.values(layersData).some(l => l.loading);
-	});
-
-	function resetStore() {
-		Object.keys(layersData).forEach(key => delete layersData[Number(key)]);
-	}
-	function clearLayer(pk: number) {
-		delete layersData[pk];
-	}
-
+	/**
+	 * Seleziona il layer e decide quale tipo OGC attivare
+	 */
 	async function selectGnLayer(gnLayer: Layer) {
 		selectedGnLayer.value = gnLayer.pk;
-		await fetchOGCLayerData([gnLayer]);
+		const availableTypes = ogcTypes(gnLayer).map(t => t.toLowerCase()) as OGCType[];
+		let targetType: OGCType;
+		 // 1. Se l'utente ha già una selezione attiva ed è supportata dal nuovo layer, la teniamo
+		if (ogcType.value && availableTypes.includes(ogcType.value.toLowerCase() as OGCType)) {targetType = ogcType.value;} 
+		 // 2. PRIORITÀ WFS: Se non c'è selezione precedente, ma il layer supporta WFS, scegliamo WFS
+    	else if (availableTypes.includes('wms')) {targetType = 'wms';} 
+		else if (availableTypes.includes('wfs')) {targetType = 'wfs';} 
+		else {targetType = availableTypes[0] || 'wms';}
+		console.log("targetType", targetType)
+		setSelectedOGCType(targetType);
+		await fetchOGCLayerData([gnLayer], targetType);
 	}
 
-	async function fetchOGCLayerData(gnLayers: Layer[], typeFilter?: OGSType): Promise<void> {
+	async function fetchOGCLayerData(gnLayers: Layer[], typeFilter?: OGCType): Promise<void> {
 		if (currentAbortController) {
 			currentAbortController.abort();
-			console.log("Precedente fetch interrotto (Abort)");
 		}
 		currentAbortController = new AbortController();
 		const signal = currentAbortController.signal;
 		resetStore();
-		const validTasks = gnLayers.reduce<Promise<void>[]>((acc, layer) => {
-			console.log("fetchOGCLayerData for layer:", layer.name);
-			const types = ogcTypes(layer);
-			const isVector = types.some(t => t === "wfs" || t === "geojson");
-			const isRaster = types.some(t => t === "wms");
-			
-			if (isVector) {
-				console.log(`Layer ${layer.name} supports WMS.`);
-				fetchWMSLayerData(layer);
-			}
+		const tasks: Promise<void>[] = [];
+		gnLayers.forEach(layer => {
+			const types = ogcTypes(layer) as OGCType[];
+			const targetType = typeFilter || (types.includes('wfs') ? 'wfs' : 'wms');
 
+			if (typeFilter === 'wfs' && (types.includes('wfs') || types.includes('geojson'))) {
+            	tasks.push(fetchWFSLayerData(layer, signal));
+        	} 
+	        else if (typeFilter === 'wms' && types.includes('wms')) {
+    	        fetchWMSLayerData(layer);
+        	}
+		});
 
-
-			if (typeFilter) {
-				if (typeFilter === "wfs" && isVector) {
-					acc.push(fetchWFSLayerData(layer, signal));
-				} else if (typeFilter === "wms" && isRaster) {
-					fetchWMSLayerData(layer);
-				}
-			} else {
-				if (isVector) {
-					acc.push(fetchWFSLayerData(layer, signal));
-				}
-				if (isRaster) {
-					fetchWMSLayerData(layer);
-				}
-			}
-			return acc;
-		}, []);
 		try {
-			const results = await Promise.all(validTasks);
-		}
-		catch (error: any) {
-			if (error.name === 'AbortError') {
-				console.log("Fetch annullato correttamente.");
-			} else {
-				throw error;
-			}
+			await Promise.all(tasks);
+		} catch (error: any) {
+			if (error.name !== 'AbortError') throw error;
 		}
 	}
-
 	async function fetchWFSLayerData(layer: Layer, signal: AbortSignal): Promise<void> {
-		if (layersData[layer.pk]?.loading || layersData[layer.pk]?.geojsonData) {
-			return;
-		}
 		layersData[layer.pk] = {
-			rasterTiles: [],
-			geojsonData: null,
-			styles: [],
-			loading: true,
-			error: null,
 			geonodeLayer: layer,
-			fetchStatus: 'idle'
-		};
+			rasterTiles: [], 
+			geojsonData: null, 
+			styles: [],
+			loading: true, 
+			error: null, 
+			fetchStatus: 'fetching'
+		} as LayerState;
 		try {
-			// 1. Fetch WFS Features tramite il tuo proxy
 			const featureRequest = new WFS().writeGetFeature({
 				featureNS: "",
 				featurePrefix: layer.workspace,
@@ -157,78 +101,67 @@ export const useLayeredMapStore = defineStore('layeredMap', () => {
 			const xmlPayload = new XMLSerializer().serializeToString(featureRequest);
 			const [geojsonData, sldText] = await Promise.all([
 				$fetch<GeoJSON.FeatureCollection>('/api/map-proxy/fetch-wfs', {
-					method: 'POST',
-					signal: signal,
+					method: 'POST', signal,
 					body: { lyPayload: xmlPayload, owl_url: layer.ows_url }
 				}),
-				layer.default_style
-					? $fetch<string>('/api/map-proxy/fetch-sld-style', {
-						method: 'POST',
-						signal,
-						body: { sldStyle: layer.default_style }
-					})
-					: Promise.resolve(null)
+				layer.default_style ? $fetch<string>('/api/map-proxy/fetch-sld-style', {
+					method: 'POST', signal,
+					body: { sldStyle: layer.default_style }
+				}) : Promise.resolve(null)
 			]);
 
 			let styles: SourcedLayer[] = [];
-			if (sldText) {
-				styles = await getLayerFromSLDResponse(sldText) as SourcedLayer[];
-			}
-
-			// 3. Aggiornamento atomico dello stato
+			if (sldText) styles = await getLayerFromSLDResponse(sldText) as SourcedLayer[];
 			layersData[layer.pk] = {
-				rasterTiles: [],
-				geonodeLayer: layer,
+				...layersData[layer.pk]!,
 				geojsonData,
 				styles,
-				loading: false,
-				error: null,
-				fetchStatus: 'idle'
+				fetchStatus: 'idle',
+				loading: false // Spegne lo spinner
 			};
-		}
-		catch (error: any) {
-			console.error("Error fetching WFS layer data:", error);
-			if (error.name === 'AbortError') return; // Non facciamo nulla se è un annullamento volontario
 
+		} catch (error: any) {
+			if (error.name === 'AbortError') return;
 			layersData[layer.pk] = {
-				rasterTiles: [],
-				geonodeLayer: layer,
-				geojsonData: null,
-				styles: [],
+				...layersData[layer.pk]!,
 				loading: false,
-				error: (error as Error).message,
+				error: error.message,
 				fetchStatus: 'error'
 			};
 		}
-		console.log("Loaded WFS layer data for:", layer.name);
 	}
+
 	function fetchWMSLayerData(layer: Layer) {
-		if (layersData[layer.pk]?.loading) {
-			return;
-		}
 		layersData[layer.pk] = {
 			geonodeLayer: layer,
 			rasterTiles: [buildWmsUrlForMapLibre(layer)],
-			geojsonData: null, // I WMS non hanno GeoJSON
+			geojsonData: null,
 			styles: [],
-			loading: false, // I WMS sono pronti subito per la mappa
+			loading: false,
 			error: null,
 			fetchStatus: 'idle'
 		};
 	}
 
+	function resetStore() {
+		for (const key in layersData) delete layersData[key];
+	}
+
+	// --- GETTERS ---
+	const getRasterLayersState = computed(() => Object.values(layersData).filter(s => s.rasterTiles.length > 0));
+	const getFeaturedLayersState = computed(() => Object.values(layersData).filter(s => s.geojsonData !== null));
+	const getGnLayers = computed(() => Object.values(layersData).map(state => state.geonodeLayer));
+	const isAnyLayerLoading = computed(() => Object.values(layersData).some(l => l?.loading === true));
 
 	return {
-		getAvailableOGCTypes,
-		setSelectedOGCType,
 		selectedOGCType,
+		setSelectedOGCType,
 		selectGnLayer,
 		fetchOGCLayerData,
 		getRasterLayersState,
 		getFeaturedLayersState,
-		getFirstLayerState,
 		getGnLayers,
 		isAnyLayerLoading,
-		resetStore,
+		resetStore
 	}
 })

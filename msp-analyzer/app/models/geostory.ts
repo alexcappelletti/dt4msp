@@ -172,7 +172,6 @@ export function updateItemStyle(style: Partial<StoryItemStyle>):StoryItemStyle {
 		textAlignment: 'center',
 		visualPos:'left',
 		backgroundScroll:'fixed',
-		visualScroll: 'fixed',
 		...style
 	}
 }

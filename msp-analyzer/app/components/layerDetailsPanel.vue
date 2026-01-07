@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue';
 import type { Layer } from '#/shared/types/gn-layer';
-import { useLayerHelper } from '@/composables/useLayerHelper';
+import { useLayerHelper, type OGCType } from '@/composables/useLayerHelper';
 import { useLayeredMapStore } from '~/stores/layeredMapStore';
 
 const props = defineProps<{
@@ -17,17 +17,17 @@ const hasDetails = computed(() => props.layer !== null);
 /**
  * Logica di default: 
  * Se il layer cambia, decidiamo il tipo OGC iniziale.
- */
-watch(() => props.layer, (newLayer) => {
+//  */
+watch(() => props.layer, async (newLayer) => {
 	if (newLayer) {
 		const availableTypes = ogcTypes(newLayer); // es: ['wms', 'wfs']
 		
-		if (availableTypes.includes('wfs')) {
-			// Priorità al WFS se presente (anche se c'è WMS)
-			mapStore.setSelectedOGCType('WFS');
-		} else if (availableTypes.includes('wms')) {
+		if (availableTypes.includes('wms')) {
 			// Altrimenti usa WMS
-			mapStore.setSelectedOGCType('WMS');
+			mapStore.setSelectedOGCType('wms');
+		} else if (availableTypes.includes('wfs')) {
+			// Priorità al WFS se presente (anche se c'è WMS)
+			mapStore.setSelectedOGCType('wfs');
 		}
 	}
 }, { immediate: true });
@@ -37,14 +37,14 @@ const selectedOGCType = computed({
   get: () => mapStore.selectedOGCType,
   set: (newValue) => {
     if (newValue) {
-      mapStore.setSelectedOGCType(newValue);
+      mapStore.setSelectedOGCType(newValue as OGCType);
     }
   }
 });
 
 // Calcolo dinamico delle feature caricate dallo store
 const featuresFound = computed(() => {
-  if (props.layer && mapStore.selectedOGCType === 'WFS') {
+  if (props.layer && mapStore.selectedOGCType === 'wfs') {
     const state = mapStore.getFeaturedLayersState.find(s => s.geonodeLayer.pk === props.layer?.pk);
     return state?.geojsonData?.features?.length || 0;
   }
@@ -87,11 +87,11 @@ const featuresFound = computed(() => {
 							variant="outlined"
 							divided
 						>
-							<v-btn v-if="ogcTypes(layer).includes('wms')" value="WMS">
+							<v-btn v-if="ogcTypes(layer).includes('wms')" value="wms">
 								<v-icon start>mdi-layers-outline</v-icon>
 								WMS (Raster)
 							</v-btn>
-							<v-btn v-if="ogcTypes(layer).includes('wfs')" value="WFS">
+							<v-btn v-if="ogcTypes(layer).includes('wfs')" value="wfs">
 								<v-icon start>mdi-vector-selection</v-icon>
 								WFS (Vettoriale)
 							</v-btn>
