@@ -1,17 +1,21 @@
 {
-  "name": "msp-plan-builder",
-  "type": "module",
-  "private": true,
-  "scripts": {
-    "build": "nuxt build",
-    "dev": "nuxt dev",
-    "generate": "nuxt generate",
-    "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
-  },
-  "dependencies": {
-    "nuxt": "^4.2.2",
-    "vue": "^3.5.26",
-    "vue-router": "^4.6.4"
-  }
+	"name": "msp-plan-builder",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"build": "nuxt build",
+		"dev": "nuxt dev",
+		"generate": "nuxt generate",
+		"preview": "nuxt preview",
+		"postinstall": "nuxt prepare",
+		"test:unit": "vitest --config vitest.unit.config.ts",
+		"test:e2e": "nuxt test --watch --config vitest.config.ts",
+		"test:e2e:dev": "nuxt test --watch --config vitest.config.ts"
+	},
+	"dependencies": {
+		"nuxt": "^4.2.2",
+		"vue": "^3.5.26",
+		"vue-router": "^4.6.4"
+	}
 }
+

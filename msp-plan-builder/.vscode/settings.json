@@ -1,0 +1,98 @@
+{
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"editor.detectIndentation": false,
+	"editor.insertSpaces": false,
+	"editor.renderWhitespace": "selection",
+	"editor.tabSize": 4,
+	"[vue]": {
+		"editor.defaultFormatter": "vscode.typescript-language-features"
+	},
+	"editor.formatOnSave": true,
+	"editor.lineNumbers": "on",
+	"editor.fontSize": 13,
+	"editor.fontFamily": "Fira code",
+	"editor.tokenColorCustomizations": {
+		"[greenery]": {
+			"textMateRules": [
+				{
+					"scope": "meta.line-number",
+					"settings": {
+						"foreground": "#e4d7d7"
+					}
+				},
+				{
+					"scope": "constant.numeric.line-number",
+					"settings": {
+						"foreground": "#e4d7d7"
+					}
+				},
+				{
+					"scope": "meta.invisible-characters",
+					"settings": {
+						// Imposta un colore esadecimale che risalti sul tuo sfondo scuro,
+						// ad esempio un grigio chiaro o un azzurro tenue.
+						"foreground": "#555555"
+					}
+				}
+			]
+		}
+	},
+	"workbench.colorCustomizations": {
+		"activityBar.background": "#524f4e",
+		"activityBar.dropBorder": "#77036d",
+		"activityBar.foreground": "#a254b6",
+		"activityBar.inactiveForeground": "#bca7c4",
+		"activityBar.border": "#8f918a",
+		"activityBarBadge.background": "#c50ca08e",
+		"activityBarBadge.foreground": "#dd6464",
+		"sideBar.background": "#444242",
+		"statusBar.background": "#3b333b",
+		"editor.foreground": "#9c8888",
+		"editorCursor.foreground": "#f3ebeb",
+		"editorLineNumber.activeForeground": "#e5eebb",
+		"editorLineNumber.foreground": "#7f6f6f",
+		"editorHoverWidget.background": "#4c4e4b",
+		"editorHoverWidget.foreground": "#b19358", // sfondo popup
+		"editorHoverWidget.border": "#999299", // bordo popup
+		"editorError.foreground": "#da132d", // colore testo errore
+		//editorError.background": "#fcfcfc",               // colore sfondo errore	
+		"editorWhitespace.foreground": "#d1f509", //regola che sovrascrive  editor.tokenColorCustomizations:
+		"editorWarning.foreground": "#db9406", // colore testo warning
+		//"editorWarning.background": "#eedcdc", // colore sfondo warning
+		"editorMarkerNavigationError.background": "#e2d8d8",
+		"editorSuggestWidget.foreground": "#d4be98",
+		"editorSuggestWidget.background": "#3c3836",
+		"editorMarkerNavigationError.headerBackground": "#806f6f",
+		"editorMarkerNavigationInfo.background": "#d0e6f6",
+		"editorMarkerNavigationWarning.background": "#fce8d4",
+		"editorHint.border": "#e2e055",
+		"editorHint.foreground": "#005577",
+		"editorInfo.foreground": "#c47d13",
+		"problemsInfoIcon.foreground": "#e92831",
+		"list.activeSelectionForeground": "#e66108",
+		"list.focusBackground": "#55925a"
+	},
+	"files.associations": {
+		"*.css": "tailwindcss"
+	},
+	"editor.quickSuggestions": {
+		"strings": "on"
+	},
+	"typescript.tsdk": "node_modules/typescript/lib",
+	"typescript.preferences.importModuleSpecifier": "shortest",
+	"prettier.useTabs": true,
+	"prettier.tabWidth": 4,
+	"tailwindCSS.classAttributes": [
+		"class",
+		"ui"
+	],
+	"tailwindCSS.experimental.classRegex": [
+		[
+			"ui:\\s*{([^)]*)\\s*}",
+			"(?:'|\"|`)([^']*)(?:'|\"|`)"
+		]
+	],
+	"[json]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+}
