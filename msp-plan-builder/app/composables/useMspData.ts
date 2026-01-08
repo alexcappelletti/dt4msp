@@ -27,13 +27,14 @@ export const useMspData = () => {
 			others: new Map(),
 			scenarios: [],
 		} as AreaOfInterest
-	} as Partial<Project>
+	} as Partial<Project>;
 
-	async fetchProject(projectPK: string): Promise<Project>{
-		await Promise()
-
-		return mockProject
+	async function fetchProject(projectPK: string): Promise<Project>{
+		await new Promise(resolve => setTimeout(resolve, 50));
+		return mockProject as Project
 	}
+	
+	
 	return {
 		mockArea: mockAreaOfInterest,
 	};
