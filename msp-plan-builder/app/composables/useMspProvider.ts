@@ -64,14 +64,11 @@ export const useMspDataProvider = () => {
 
 		return mockScenario;
 	};
-
-	// Puoi aggiungere fetchProject, updateScenario, etc. qui
 	const updateScenario = async (scenario: Scenario) => {
 		console.log("API: Salvataggio scenario in corso...", scenario.id);
 		await new Promise((resolve) => setTimeout(resolve, 300));
 		console.log("API: Salvataggio completato.");
 	};
-
 
 	return {
 		mockAreaOfInterest,
