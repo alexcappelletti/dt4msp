@@ -79,7 +79,6 @@ const createNewScenario = () => {
 		box-shadow: none;
 		text-transform: none; // Rimuovi maiuscolo automatico
 	}
-
 	.nav-item {
 		margin-bottom: 8px;
 		color: #333;
