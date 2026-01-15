@@ -1,4 +1,4 @@
-import { generateUUID } from "#/shared/utils/generateUUID.ts";
+import { generateUUID } from "#/shared/utils/generateUUID";
 import { ChangeEvent } from "./changeEvent";
 import { Visual } from "./visual";
 import { mapActions } from "pinia";
@@ -62,7 +62,33 @@ export function populateGeostory(g: Partial<Geostory>): Geostory{
 		...emptyGs, 
 		...g
 	}
-	if (g.elements) {retVal.sections = groupBySectionID(g.elements)}
+	
+    if (retVal.elements && Array.isArray(retVal.elements)) {
+		retVal.elements = retVal.elements.map((element) => {
+			// 1. Applichiamo il populator agli StoryElement per garantire i valori di default
+			const populatedElement = populateStoryElement(element);
+
+			// 2. Elaboriamo gli storyItems per garantire ID e valori di default
+			if (
+				populatedElement.storyItems &&
+				Array.isArray(populatedElement.storyItems)
+			) {
+				populatedElement.storyItems = populatedElement.storyItems.map(
+					(item) => {
+						// Usiamo populateStoryItem per inizializzare correttamente campi come background, style, ecc.
+						return populateStoryItem(item);
+					},
+				);
+			}
+
+			return populatedElement;
+		});
+	}
+
+	// CRITICO: usiamo retVal.elements (già processati) e non g.elements
+	if (retVal.elements.length > 0) {
+		retVal.sections = groupBySectionID(retVal.elements);
+	}
 	
 	console.log("numero elementi " + retVal.elements?.length)
 	console.log("numero sezioni " + retVal.sections?.size)
@@ -172,6 +198,7 @@ export function updateItemStyle(style: Partial<StoryItemStyle>):StoryItemStyle {
 		textAlignment: 'center',
 		visualPos:'left',
 		backgroundScroll:'fixed',
+		visualScroll: 'scroll',
 		...style
 	}
 }

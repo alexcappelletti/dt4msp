@@ -1,4 +1,4 @@
-import { describe, beforeAll, expect, it } from "vitest";
+import { describe, beforeAll,beforeEach, expect, it } from "vitest";
 import { readFileSync, writeFileSync } from 'fs'
 import type {Geostory, StoryElement, StoryItem,} from '../../app/models/geostory'
 import {populateGeostory, populateStoryElement, populateStoryItem, updateItemStyle} from "../../app/models/geostory";
@@ -203,3 +203,40 @@ describe("Geostory with BD scenario ", () => {
 	// })
 
 })
+
+
+describe('geostory habitat and animals', () => {
+	const habitatFile = "./public/data/habitat_e_animali.json";
+	let geostoryUnderTest: Geostory;
+
+	beforeAll(() => {
+		const raw = JSON.parse(readFileSync(habitatFile, 'utf-8')) as Geostory
+		geostoryUnderTest = populateGeostory(raw);
+	});
+
+	it("should load habitat and animals geostory", () => {
+		expect(geostoryUnderTest.id).toBeDefined();
+		expect(geostoryUnderTest.title).toBe('Animali e habitat');
+		expect(geostoryUnderTest.elements.length).toBe(32);
+		expect(geostoryUnderTest.sections.size).toBe(8);
+
+
+		//expect(geostoryUnderTest.sections.get('animali_e_habitat')?.elements.length).toBe(1);
+		expect(geostoryUnderTest.sections.get('ambiente_4')?.elements.length).toBe(5);
+		expect(
+			geostoryUnderTest.sections.get('ambiente_4')?.elements[3]
+				?.storyItems[0]?.title,
+		).toBe('piante_della_savana');
+
+		expect(geostoryUnderTest.sections.get('ambiente_4')
+			?.elements[3]
+			?.storyItems[0]
+			?.title).toBe("piante_della_savana");
+			expect(
+				geostoryUnderTest.sections.get('ambiente_4')?.elements[3]
+					?.id,
+			).toBeDefined();
+		//expect(geostoryUnderTest.sections.get('ambiente_2')?.length).toBe(1);
+
+	});
+});	

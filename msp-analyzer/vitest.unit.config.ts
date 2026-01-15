@@ -5,7 +5,7 @@ export default defineConfig({
 	test: {
 		environment: 'jsdom',
 		globals: true,
-		include: ['tests/integrations/**/*.{test,spec}.ts'],
+		include: ['tests/integrations/**/*.{test,spec}.ts', 'tests/fixtures/**/*.{test,spec}.ts'], // Include sia integration che unit
 		
 		
 	},

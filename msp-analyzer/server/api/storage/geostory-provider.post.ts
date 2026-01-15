@@ -3,10 +3,10 @@ import type { Scenario } from "~/models/scenario";
 
 export default defineEventHandler(async (event) => {
 	const body = await readBody(event);
-	const geostoryID: string | undefined =
-		typeof body.geostoryID === 'string' ? body.geostoryID : undefined;
+	const geostoryID: string =
+		typeof body.geostoryID === 'string' ? body.geostoryID : "samples";
 	const from: string = body.from || 'storage';    //di default carica da storage
-	console.log('Received request for scenario ID:', geostoryID || 'N/A');
+	console.log('Received request for geostory ID:', geostoryID || 'N/A');
 	try {
 		let data: Geostory | undefined = undefined
 		if (from === 'file') {
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
 		}
 		else if (from === 'storage') {
 			console.log('Loading geostory from storage...');
-			data = await readGeostoryFromStorageKey();
+			data = await readGeostoryFromStorageKey(geostoryID);
 		}
 		if (!data) { throw new Error('Impossibile caricare i dati della gs.'); }
 		return {foundGeostory:data};
@@ -39,7 +39,7 @@ async function readGeostoryFromStorageKey(path?: string | undefined):Promise<Geo
 
 	}
 	const storageName = 'db'
-	const storageKey = 'samples';
+	const storageKey = path || 'samples';
 	console.info(`reading geostory ${storageKey} on ${storageName}`);
 	try {
 		// getItem restituirà i dati del file, già parsati da Nitro se è JSON

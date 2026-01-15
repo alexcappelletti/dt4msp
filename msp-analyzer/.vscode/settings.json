@@ -5,11 +5,28 @@
 	"editor.renderWhitespace": "selection",
 	"editor.tabSize": 4,
 	"[vue]": {
-		"editor.defaultFormatter": "vscode.typescript-language-features"
+		"editor.defaultFormatter": "Vue.volar"
+	},
+	// Configurazione specifica per i file Vue (Official/Volar)
+	"vue.format.enable": true,
+	"prettier.vueIndentScriptAndStyle": true,
+	"editor.codeActionsOnSave": {
+		// Ordina i blocchi <script>, <template>, <style> al salvataggio
+		"source.organizeImports": "explicit",
+		"source.sortMembers.all": "explicit"
+	},
+	// Imposta la lingua predefinita per i blocchi <script> in .vue su TypeScript
+	"vue.script.defaultLang": "ts",
+	// Assicurati che l'HTML in Vue sia formattato con Prettier
+	// Assicurati che i file TS/JS usino Prettier come formatter
+	"[typescript]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[javascript]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
 	},
 	"editor.formatOnSave": true,
 	"editor.lineNumbers": "on",
-	
 	"editor.fontSize": 13,
 	"editor.fontFamily": "Fira code",
 	"editor.tokenColorCustomizations": {
@@ -38,7 +55,6 @@
 			]
 		}
 	},
-	"workbench.colorTheme": "greenery",
 	"workbench.colorCustomizations": {
 		"activityBar.background": "#524f4e",
 		"activityBar.dropBorder": "#77036d",

@@ -5,7 +5,7 @@ import { read } from 'xlsx'
 import { useGeostoryStore } from '@/stores/geostoryStore'
 import { GeostoryXlsxReader, ScenarioXlsxReader } from '~/models/xlsReaders'
 import { useGeostoryPdf } from '@/composables/geostoryToPdf'
-import type { Geostory } from '@/models/geostory'
+import { populateGeostory, type Geostory } from '@/models/geostory'
 import type { Scenario } from '~/models/scenario'
 
 const store = useGeostoryStore()
@@ -39,6 +39,26 @@ async function handleFileUpload(event: Event, type: 'scenario' | 'geostory') {
 		}
 	} catch (err) {
 		console.error('Errore durante la lettura del file:', err)
+	} finally {
+		loading.value = false
+	}
+}
+
+
+async function handleGeostoryJSONFile(event: Event) {
+	const input = event.target as HTMLInputElement
+	const file = input.files?.[0]
+	if (!file) {return}
+
+	loading.value = true
+	try {
+		const text = await file.text()
+		let geostory: Geostory = JSON.parse(text) as Geostory
+		geostory = populateGeostory(geostory)
+		store.selectStory(geostory)
+		fileGeostory.value = file.name;
+	} catch (err) {
+		console.error('Errore durante la lettura del file geostoria:', err)
 	} finally {
 		loading.value = false
 	}
@@ -102,15 +122,15 @@ const viewGeostory = () => {
 		
 		<span class="tw:mt-15">Geostoria</span>
 			<v-file-input 
-				accept=".xlsx"
+				accept=".json"
 				label="carica file geostoria"
-				@change="(e:any) => handleFileUpload(e, 'geostory')">
+				@change="(e:any) => handleGeostoryJSONFile(e)">
 			</v-file-input>	
-			<v-btn
-			variant="outlined"
-			@click="(e:any) => handleFromServer(e, 'geostory')">Esempio geostoria
-		</v-btn>
-		
+			<!-- <v-btn
+				variant="outlined"
+				@click="(e:any) => handleFromServer(e, 'geostory')">Esempio geostoria
+			</v-btn>
+			 -->
 			<v-btn
 				variant="outlined"
 				@click="exportToPDF"

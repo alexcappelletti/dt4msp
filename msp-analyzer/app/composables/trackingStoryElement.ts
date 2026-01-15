@@ -24,23 +24,29 @@ export function useVisibleStoryElement(
 
 		observer = new IntersectionObserver(
 			(entries) => {
-				const visible = entries
-					.filter(e => e.isIntersecting)
-					.sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
-
-				if (visible) {
-					const el = visible.target as HTMLElement
-					const id = el.getAttribute('data-id')
+				// Filtriamo solo gli elementi che stanno entrando o sono già stabili
+				const visibleEntry = entries
+					.filter((e) => e.isIntersecting)
+					// Ordiniamo per ratio di intersezione decrescente per prendere il più visibile
+					.sort(
+						(a, b) => b.intersectionRatio - a.intersectionRatio,
+					)[0];
+				if (visibleEntry) {
+					const id = visibleEntry.target.getAttribute('data-id');
 					if (id && id !== activeElementId.value) {
-						activeElementId.value = id
+						activeElementId.value = id;
 					}
 				}
 			},
 			{
 				root: containerRef.value,
-				threshold: [0.5, 0.75, 1.0]
-			}
-		)
+				// Usa una soglia più bassa (0.2 o 0.3) invece di 0.5 per catturare l'elemento
+				// anche se lo snap lo muove velocemente.
+				threshold: [0.2, 0.5, 0.8],
+				// Fondamentale: riduci il margine d'area per forzare il trigger al centro
+				rootMargin: '-25% 0px -25% 0px',
+			},
+		);
 
 		for (const el of Object.values(elementRefs.value)) {
 			if (el) observer.observe(el)
@@ -66,12 +72,16 @@ export function useVisibleStoryElement(
 	}
 
 	// 🔁 Watch per sincronizzare index esterno (se fornito)
-	watch(activeElementId, (id) => {
-		const idx = elements.value.findIndex(el => el.id === id)
-		if (idx !== -1 && externalIndex) {
-			externalIndex.value = idx
-		}
-	})
+	watch(
+		() => Object.keys(elementRefs.value).length,
+		(count) => {
+			if (count > 0) {
+				if (observer) observer.disconnect();
+				observeVisibility();
+			}
+		},
+		{ flush: 'post' },
+	);
 
 	onMounted(() => {
 		nextTick(observeVisibility)

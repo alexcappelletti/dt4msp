@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 
 import type { Geostory, Section, StoryElement, StoryItem, StoryItemStyle } from '@/models/geostory'
 import { useGeostoryStore } from '@/stores/geostoryStore'
 import { useVisibleStoryElement } from '@/composables/trackingStoryElement'
-import type { MapVisual } from '~/models/visual'
+import type { ImageVisual, MapVisual } from '~/models/visual'
 
 import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/24/solid'
 import MapViewer from '@/components/mapViewer.vue'
 
 const index = ref(0)
+const activeSectionId = ref<string | null>(null);
 const geostory = useGeostoryStore().selectedStory
 const store = useGeostoryStore()
 const containerRef = ref<HTMLElement | null>(null)
@@ -51,37 +52,29 @@ const toc = computed(() => {
 });
 
 // 
-const currentSectionModel = computed({
-	get: () => activeElement.value?.sectionID ?? null,
-	set: (sectionId) => {
-		// Quando l'utente clicca sul bottone, il v-model chiama il setter.
-		const element = elements.value.find(el => el.sectionID === sectionId);
-		if (element) {scrollTo(element.id);}
-	}
-});
 function getVerticalAlignmentClass(element: StoryElement): string {
-    // Dovrai adattare questo percorso se lo stile non si trova qui esattamente
-    const pos = element.storyItems?.[0]?.style?.textAlignment || 'center'; 
+	// Dovrai adattare questo percorso se lo stile non si trova qui esattamente
+	const pos = element.storyItems?.[0]?.style?.textAlignment || 'center';
 
-    switch (pos) {
-        case 'top':
-            return 'tw:justify-start'; // Allinea in alto
-        case 'bottom':
-            return 'tw:justify-end';   // Allinea in basso
-        case 'center':
-        default:
-            return 'tw:justify-center'; // Allinea al centro
-    }
+	switch (pos) {
+		case 'top':
+			return 'tw:justify-start'; // Allinea in alto
+		case 'bottom':
+			return 'tw:justify-end';   // Allinea in basso
+		case 'center':
+		default:
+			return 'tw:justify-center'; // Allinea al centro
+	}
 }
 
 function isMapOnLeft(element: StoryElement): boolean {
-    const visualPos = element.storyItems?.[0]?.style?.visualPos || 'right';
-    return visualPos === 'left';
+	const visualPos = element.storyItems?.[0]?.style?.visualPos || 'right';
+	return visualPos === 'left';
 }
 
 
 
-function setAlignment(propName: keyof StoryItemStyle, value: string){
+function setAlignment(propName: keyof StoryItemStyle, value: string) {
 	if (activeElement.value?.storyItems?.[0]?.style) {
 		(activeElement.value.storyItems[0].style as any)[propName] = value;
 	}
@@ -92,17 +85,21 @@ function setAlignment(propName: keyof StoryItemStyle, value: string){
 
 function scrollToPreviousElement() {
 	const prev = elements.value[Math.max(0, activeIndex.value - 1)]
-	if (prev) {scrollTo(prev.id)}
+	if (prev) { scrollTo(prev.id) }
 }
 
 function scrollToNextElement() {
 	const next = elements.value[Math.min(elements.value.length - 1, activeIndex.value + 1)]
-	if (next){ scrollTo(next.id)}
+	if (next) { scrollTo(next.id) }
 }
 
+function handleTocClick(sectionId: string, elementId: string) {
+	activeSectionId.value = sectionId;
+	 // Highlight immediato
+	scrollTo(elementId); // Esegue lo scroll
+}
 
-
-function getBackgroundStyle(el:StoryElement): any {
+function getBackgroundStyle(el: StoryElement): any {
 	const url = el?.storyItems[0]?.background
 	return url ? {
 		backgroundImage: `url('${url}')`,
@@ -120,180 +117,164 @@ function setRef(el: Element | ComponentPublicInstance | null, id: string) {
 
 function close() {
 	navigateTo('/')
-	
 }
+watch(activeElementId, (newId) => {
+	console.log(
+		'Active Element changed to ID:', newId
+	)
+	if (!newId) return;
+	const el = elements.value.find(e => e.id === newId);
+	console.log(
+		'Corresponding Section ID:', el?.sectionID
+	)
+	if (el && el.sectionID) {
+		// Forza l'aggiornamento del modello reattivo di Vuetify
+		activeSectionId.value = el.sectionID;
+		index.value = elements.value.indexOf(el);
+	}
+}, { immediate: true });
+// Aggiungi questo per gestire il caricamento iniziale
+onMounted(async () => {
+	await nextTick();
+	if (elements.value.length > 0) {
+		// Se c'è un elemento attivo all'inizio, impostiamo la sezione
+		const initialEl = elements.value[index.value];
+		if (initialEl) activeSectionId.value = initialEl.sectionID;
+	}
+});
 </script>
-
 <template>
-	<div class="border-md  tw:min-h-100">
-		<div class="tw:flex tw:flex-row ">
-			<!-- pseudo navigation on sections-->
-			<v-item-group 
-				v-model="currentSectionModel"
-				class="d-flex ga-4 ml-10 align-center"
-				mandatory>
-				
-				<v-item 
-					v-for="(item, idx) in toc"
-					:key="item.element.id"
-					:value="item.element.sectionID"
-					v-slot="{ isSelected }">
-					<!-- Usa :color per cambiare il colore del pulsante e renderlo flat (elevation-0) -->
-					<v-btn
-						:variant="isSelected ? 'flat' : 'outlined'" 
-						:color="isSelected ? 'primary' : ''"
-						@click="scrollTo(item.element.id)">
-						
-						{{ item.title || 'Sezione' }}
-					</v-btn>
-				</v-item>	
+	<div class="tw:flex tw:flex-col tw:min-h-screen">
+
+		<!-- HEADER / NAVIGATION -->
+		<header
+			class="tw:flex tw:items-center tw:p-4 tw:bg-white/80 tw:backdrop-blur-md tw:border-b tw:sticky tw:top-0 tw:z-[100]">
+
+			<v-item-group v-model="activeSectionId" class="tw:flex tw:gap-4 tw:ml-6 tw:align-center" mandatory>
+				<!-- Iterazione sulla TOC -->
+				<v-item v-for="item in toc" :key="item.element.id" :value="item.element.sectionID">
+					<!-- Qui definiamo lo slot che riceve isSelected e toggle -->
+					<template v-slot="{ isSelected, toggle }">
+						<v-btn :variant="isSelected ? 'flat' : 'text'" :color="isSelected ? 'primary' : 'grey-darken-1'"
+							class="tw:rounded-full"
+							:class="{ 'tw:font-bold tw:scale-105': isSelected }"
+							@click="handleTocClick(item.element.sectionID, item.element.id)">
+							{{ item.title || 'Sezione' }}
+						</v-btn>
+					</template>
+				</v-item>
 			</v-item-group>
-			<v-btn
-				class="ml-auto mr-10"
-				variant="outlined"
-				icon="mdi-close"
-				@click="close">
 
-			</v-btn>
-			
-
-		</div>
-		<!-- Story Elements here-->
-		<div class="st-element" ref="containerRef" >
-			<div v-for="(element, idx) in elements"
-				:key="element.id"
+			<v-btn class="tw:ml-auto tw:mr-6" variant="outlined" icon="mdi-close" @click="close" />
+		</header>
+		<main class="st-container" ref="containerRef">
+			<section 
+				v-for="element in elements" 
+				:key="element.id" 
 				:ref="el => setRef(el, element.id)"
-				:data-id="element.id"
-				:class="['selected-element',
-					isVisible(element.id) ? 'tw:ring-4 tw:ring-ux2' : 'tw:bg-ux5'			
-				]
-
-				">
-				<div :class="['tw:grid tw:h-full', 
-					element.storyItems[0]?.visual?.format === 'MAP' ? 
-					'tw:grid-cols-1 tw:md:grid-cols-2' : 'tw:grid-cols-1'
-
+				:data-id="element.id" 
+				:class="[ 'st-section', element.style === 'parallax-scroll' ? 'is-parallax' : '']">
+				<div :class="[
+					'tw:grid tw:min-h-screen tw:w-full',
+					element.storyItems[0]?.visual?.format ? 'tw:md:grid-cols-2' : 'tw:grid-cols-1'
 				]">
-					<!-- Text with Background content -->
-					<div 
-						:class="[
-							'tw:relative tw:flex tw:flex-col',
-							getVerticalAlignmentClass(element),
-							{ 'tw:md:order-2': isMapOnLeft(element) } 
-						]"
-						:style="getBackgroundStyle(element)">
-						<div class="tw:p-6  tw:z-10 
-							tw:bg-black/40 tw:backdrop-blur-sm">
-						
-						<h2 class="tw:mb-2 tw:text-xl tw:text-ux1 ">
-							{{element.storyItems[0]?.title}}
-						</h2>
-						<p class="tw:text-white tw:text-2xl tw:mb-4 tw:mt-5">
-							{{element.storyItems[0]?.text}}
-						</p>
-					</div>
-					</div>
-					<!-- Visual Section -->
-					 <!-- :visuals="[element.storyItems[0]?.visual as MapVisual]" -->
-						
-					<MapViewer v-if="element.storyItems[0]?.visual?.format === 'MAP'"
-					:visuals="store.mapVisuals"
-					:info="false"
-						:class="['tw:h-96 tw:rounded-lg tw:overflow-hidden tw:shadow',
-							{'tw:md:order-1': isMapOnLeft(element)}]"/> 
 
+					<!-- TEXT COMPONENT: Massima larghezza se solo testo, 50% se visual -->
+					<article :class="[
+						'tw:relative tw:flex tw:flex-col tw:p-12 tw:z-20',
+						getVerticalAlignmentClass(element),
+						{ 'tw:md:order-2': isMapOnLeft(element) }
+					]">
+						<div class="tw:max-w-none">
+							<h2 class="tw:mb-6 tw:text-5xl tw:font-black tw:text-ux1 tw:uppercase tw:tracking-tighter">
+								{{ element.storyItems[0]?.title }}
+							</h2>
+							<p
+								class="tw:text-gray-800 tw:text-xl tw:leading-relaxed tw:whitespace-pre-line tw:font-medium">
+								{{ element.storyItems[0]?.text }}
+							</p>
+						</div>
+					</article>
 
+					<!-- VISUAL COMPONENT: Sticky per effetto parallasse -->
+					<aside v-if="element.storyItems[0]?.visual?.format" :class="[
+						'tw:relative tw:h-screen tw:top-0 tw:sticky',
+						{ 'tw:md:order-1': isMapOnLeft(element) }
+					]">
+						<div class="tw:absolute tw:inset-0 tw:w-full tw:h-full">
+							<MapViewer v-if="element.storyItems[0]?.visual?.format === 'MAP'"
+								:visuals="store.mapVisuals" :info="false" class="tw:h-full tw:w-full" />
+
+							<img v-else-if="element.storyItems[0]?.visual?.format === 'IMAGE'"
+								:src="(element.storyItems[0].visual as ImageVisual).serviceUrl"
+								class="tw:w-full tw:h-full tw:object-cover" />
+						</div>
+					</aside>
 				</div>
-			</div>
-		</div> 
-	<!-- Navigation Buttons -->
-  	<!-- <div class="
-		relative bottom-0 left-0 
-		w-full flex justify-end gap-4 px-6 -top-7 z-10">
-		<button :disabled="index <= 0"
-			class="nav-button"
-			@click="scrollToPreviousElement">
-			<ChevronUpIcon class="w-4 h-4 sm:w-5 sm:h-5" />
-		</button>
-
-		<button :disabled="index >= elements.length - 1"
-			class="nav-button"
-			@click="scrollToNextElement">
-				<ChevronDownIcon class="w-4 h-4 sm:w-5 sm:h-5" />
-		</button>
-	</div>	 -->
-
-	<!--<div class="z-20 bg-white/80 mt-1 backdrop-blur-sm px-4 flex flex-wrap gap-2  m-5"> 
-		<button
-			v-for="(item, idx) in toc"
-			:key="item.element.id"
-			@click="scrollTo(item.element.id)"
-			:class="[
-			'text-sm px-3 py-2 rounded-full whitespace-nowrap transition-colors',
-			activeElement?.sectionID === item.element.sectionID
-				? 'bg-primary text-white font-semibold'
-				: 'bg-ux5 text-ux1 hover:bg-neutral-400 hover:text-white'
-			]"
-		>
-			
-		</button> 
-	</div> -->
-	</div>	
-		<div class="tw:mt-10 tw:pl-10 tw:flex tw:flex-row tw:gap-4 tw:bg-alex">
-			<v-btn @click="setAlignment('textAlignment', 'top')">text@top</v-btn>
-			<v-btn @click="setAlignment('textAlignment', 'center')">centerd</v-btn>
-			<v-btn @click="setAlignment('textAlignment', 'bottom')">text@bottom</v-btn>
-			<v-btn class="tw:ml-20" @click="setAlignment('visualPos', 'left')">map@left</v-btn>
-			<v-btn @click="setAlignment('visualPos', 'right')">map@right</v-btn>
-		</div>
-
-		
-		<!-- <v-btn @click="activeElement?.style?.textAlignment = 'center'"></v-btn>
-		<v-btn @click="activeElement?.style?.textAlignment = 'bottom'"></v-btn> -->
-
-
-
+			</section>
+		</main>
+	</div>
 </template>
-<style lang="css" scoped>
-@reference "@/assets/css/tailwind.css";
 
-.sam {
-	@apply tw:mt-8
-
+<style scoped>
+.st-container {
+	height: calc(100vh - 64px);
+	/* Altezza header */
+	overflow-y: auto;
+	scroll-behavior: smooth;
+	/* Attiviamo lo snap per un feedback preciso */
+	scroll-snap-type: y mandatory;
+	background-color: #fff;
+	scroll-padding: 2px;
 }
 
-.st-element {
-	@apply 
-		tw:relative tw:h-[82vh] 
-		tw:snap-y tw:snap-mandatory 
-		tw:scroll-p-5
-		tw:overflow-y-auto 
-		tw:px-4 
-		tw:py-6 
-		tw:bg-gray-200;
-}
-.selected-element{
-	@apply tw:shadow tw:snap-start 
-	tw:overflow-hidden 
-	tw:m-5 
-	tw:border tw:rounded-2xl tw:border-ux3;
-	height: calc(100% - 0.2rem); /* poco meno del contenitore */
-
+.st-section {
+	//position: relative;
+	min-height: calc(100vh - 64px);
+	scroll-snap-align: start;
+	scroll-snap-stop: always;
+	border-bottom: 1px solid #eee;
+	/* Separatore sottile invece del ring */
 }
 
-
-.element-full-h {
-	height: 100%;
+/* Effetto Parallasse: la sezione successiva copre la precedente */
+.is-parallax {
+	z-index: 1;
 }
-.img {
-    background-image: url("https://design-earth.org/files/gimgs/193_056B8804.jpg");
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
+
+/* Rimuoviamo il bordo verde (tw:ring-4) che avevi prima */
+.selected-element {
+	/* Pulito da bordi */
 }
-/* .nav-button {
-	@apply tw:mt-2 px-4 py-2 bg-primary text-ux5 rounded-lg text-sm hover:bg-ux1 transition-colors;
 
+/* Stile per il testo quando non c'è il visual (Massima larghezza) */
+.tw:grid-cols-1 article {
+	max-width: 1200px;
+	margin: 0 auto;
+}
 
-} */
+/* Visual Sticky logic */
+aside {
+	z-index: 10;
+	height: 100vh;
+	position: sticky;
+	top: 0;
+}
+
+/* Miglioriamo la leggibilità del testo sopra le immagini se necessario */
+article h2 {
+	text-shadow: 0 2px 10px rgba(238, 231, 231, 0.5);
+}
+.tw:transition-all {
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.v-btn--active {
+	opacity: 1 !important;
+	border: 2px solid rgb(var(--v-theme-primary)) !important;
+}/* Forza la visualizzazione del pulsante attivo di Vuetify */
+:deep(.v-btn--active) {
+	background-color: rgb(var(--v-theme-primary)) !important;
+	color: white !important;
+	opacity: 1 !important;
+}
 </style>
