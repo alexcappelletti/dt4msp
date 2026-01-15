@@ -1,0 +1,1129 @@
+{
+	
+	"title": "Animali e habitat",
+	"author": "Greta Dedel",
+	"timestamp": "2025-12-30T13:002:00.000Z",
+	"topic": "",
+	"scenario": "",
+	"language": "ita",
+	"target": "",
+	"exportType": "Webpage",
+	"elements": [
+		{
+			
+			"sectionTitle": "Animali e habitat",
+			"sectionID": "animali_e_habitat",
+			"style": "",
+			"tags": [],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "ANIMALI E HABITAT",
+					"title": "",
+					"tags": ["animali e habitat"],
+					"author": "Greta Dedel",
+					"structure": "page-title",
+					"timestamp": "2025-12-302T13:08:00.000Z",
+					"mapActions": [],
+					"visual": {},
+					"comments": "",
+					"background": "",
+					"changes": [],
+					"style": {}
+				}
+			]
+		},
+		{
+			
+			"order": 2,
+			"sectionTitle": "introduzione",
+			"sectionID": "intro",
+			"style": "",
+			"tags": ["intro"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "Ciao giovane esploratore! Oggi inizia la tua grande avventura: farai parte della Squadra Globale degli Habitat. \n La tua missione è viaggiare in giro per il mondo, scoprire ambienti diversi e capire come piante e animali riescono a vivere lì, ognuno con i propri trucchi e adattamenti.Ricorda le regole della missione: osserva tutto,annota gli adattamenti,fai sempre tante domande.\nPronto? Andiamo!",
+					"title": "ALLA SCOPERTA DEGLI HABITAT DEL PIANETA!",
+					"tags": ["animali_habitat"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.588Z",
+					"mapActions": [],
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpeg",
+						"serviceUrl": "https://new.express.adobe.com/webpage/WhV6EMpd9D4wZ/resources/71912aaf-3f74-4db9-9dce-dcd94db9e3af-coppia_di_as?asset_id=5688797e-ed8e-4767-bd78-5492c465dc68&img_etag=%22ff28cc68f5da4e38b06e30c310699691%22&image_assets=false&size=2560"
+					},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "right",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 3,
+			"sectionTitle": "ambiente bosco",
+			"sectionID": "ambiente_1",
+			"style": "parallax-scroll",
+			"tags": ["animali_habitat", "bosco"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "PRIMO AMBIENTE: IL BOSCO  Benvenuto nel bosco temperato, un luogo fresco, pieno di ombra e di luce. Intorno a te si alzano tronchi altissimi e foglie grandi che filtrano il sole. Se stai in silenzio, puoi sentire scricchiolii, fruscii e piccoli movimenti.",
+					"title": "ambiente_bosco",
+					"tags": ["animali_habitat", "bosco"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.589Z",
+					"mapActions": [],
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpeg",
+						"serviceUrl": "https://www.reteclima.it/wp-content/uploads/distribuzione-foreste-dominio-climatico.png"
+					},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 4,
+			"sectionTitle": "ambiente_bosco",
+			"sectionID": "ambiente_1",
+			"style": "parallax-scroll",
+			"tags": ["animali e habitat", "bosco"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "ANIMALI DEL BOSCO Gli animali del bosco si muovono tra rami, foglie e ombre: lo scoiattolo arrampica grazie alle sue zampette affilate, il picchio usa il suo becco come un martello, il cervo ascolta tutto con le sue orecchie \"radar\".",
+					"title": "animali_bosco",
+					"tags": ["animali"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.589Z",
+					"mapActions": [],
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpeg",
+						"serviceUrl": "https://us.123rf.com/450wm/valeriikhadeiev/valeriikhadeiev1811/valeriikhadeiev181101041/127392611-set-di-simpatici-animali-della-foresta-orso-procione-scoiattolo-lepre-volpe-lupo-riccio-alce.jpg?ver=6"
+					},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 5,
+			"sectionTitle": "ambiente_bosco",
+			"sectionID": "ambiente_1",
+			"style": "",
+			"tags": ["animali e habitat", "bosco"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "Sfida: Come ti muoveresti tu se dovessi saltare veloce tra i rami?",
+					"title": "sfida_animali",
+					"tags": ["animali_sfida"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.589Z",
+					"mapActions": [],
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpg",
+						"serviceUrl": "https://new.express.adobe.com/webpage/WhV6EMpd9D4wZ/resources/2a7fea01-8638-4964-826f-ba952b8df557-concetto_di_?asset_id=4f03c74c-8c0c-49ae-8f03-85b9c932618e&img_etag=%22ef4bd0138ce047da8a7e8beda7fd53d0%22&image_assets=false&size=2560"
+					},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 6,
+			"sectionTitle": "ambiente_bosco",
+			"sectionID": "ambiente_1",
+			"style": "parallax-scroll",
+			"tags": ["animali_habitat", "bosco"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "Le piante del bosco competono per la luce.\nGli alberi crescono altissimi, le foglie larghe catturano più sole e i semi viaggiano grazie al vento.",
+					"title": "piante_del_bosco",
+					"tags": ["piante"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.590Z",
+					"mapActions": [],
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpg",
+						"serviceUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdBCOYARn7jh_eHWi34f-cNtAqt6iabLDzPA&s"
+					},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 7,
+			"sectionTitle": "ambiente_bosco",
+			"sectionID": "ambiente_1",
+			"style": "parallax-scroll",
+			"tags": ["animali_habitat", "bosco"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "Sfida: Trova tre foglie diverse. Cosa cambia nella forma?",
+					"title": "sfida_piante_bosco",
+					"tags": ["piante_sfida"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.590Z",
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpg",
+						"serviceUrl": "https://new.express.adobe.com/webpage/WhV6EMpd9D4wZ/resources/2a7fea01-8638-4964-826f-ba952b8df557-concetto_di_?asset_id=4f03c74c-8c0c-49ae-8f03-85b9c932618e&img_etag=%22ef4bd0138ce047da8a7e8beda7fd53d0%22&image_assets=false&size=2560"
+					},
+					"visual": {},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 8,
+			"sectionTitle": "ambiente deserto",
+			"sectionID": "ambiente_2",
+			"style": "parallax-scroll",
+			"tags": ["animali_habitat", "deserto"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "SOPRAVVIVERE NEL DESERTO\nBenvenuto nel luogo del caldo estremo. Di giorno brucia, di notte gela. Qui l’acqua è rarissima!",
+					"title": "ambiento_deserto",
+					"tags": ["animali e habitat", "deserto"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.589Z",
+					"mapActions": [],
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpeg",
+						"serviceUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6c/Trockenklimate.png"
+					},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 9,
+			"sectionTitle": "ambiente deserto",
+			"sectionID": "ambiente_2",
+			"style": "parallax-scroll",
+			"tags": ["animali_habitat", "deserto"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "ANIMALI DEL DESERTO: Per sopravvivere servono adattamenti speciali: \nil cammello resiste giorni senza bere,\nla volpe del deserto ha orecchie enormi che disperdono calore,\nmolti animali escono solo di notte.",
+					"title": "Animali deserto",
+					"tags": ["animali"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.589Z",
+					"mapActions": [],
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpeg",
+						"serviceUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcReqTrsDg-MfZXYITqqofpejHV3eiCQAXytzA&s"
+					},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 10,
+			"sectionTitle": "ambiente deserto",
+			"sectionID": "ambiente_2",
+			"style": "parallax-scroll",
+			"tags": ["animali_habitat", "deserto"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "Sfida: Perché secondo te il loro pelo è quasi sempre chiaro?",
+					"title": "sfida_animali_deserto",
+					"tags": ["animali_sfida"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.589Z",
+					"mapActions": [],
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpg",
+						"serviceUrl": "https://new.express.adobe.com/webpage/WhV6EMpd9D4wZ/resources/2a7fea01-8638-4964-826f-ba952b8df557-concetto_di_?asset_id=4f03c74c-8c0c-49ae-8f03-85b9c932618e&img_etag=%22ef4bd0138ce047da8a7e8beda7fd53d0%22&image_assets=false&size=2560"
+					},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 11,
+			"sectionTitle": "",
+			"sectionID": "ambiente_2",
+			"style": "parallax-scroll",
+			"tags": ["animali_habitat", "deserto"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "PIANTE DEL DESERTO \nQui le piante devono risparmiare acqua.\nI cactus la conservano nel fusto, le spine evitano che evapori, e le radici possono essere molto profonde",
+					"title": "piante_del_deserto",
+					"tags": ["piante"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.590Z",
+					"mapActions": [],
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpg",
+						"serviceUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOCXazaCsRVfSXmQvWApdcJS7rm7RDs1io0g&s"
+					},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 12,
+			"sectionTitle": "",
+			"sectionID": "ambiente_2",
+			"style": "",
+			"tags": ["animali_habitat", "deserto"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "Sfida: Disegna un cactus inventato con un adattamento speciale!",
+					"title": "sfida_piante",
+					"tags": ["sfida"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.590Z",
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpg",
+						"serviceUrl": "https://new.express.adobe.com/webpage/WhV6EMpd9D4wZ/resources/2a7fea01-8638-4964-826f-ba952b8df557-concetto_di_?asset_id=4f03c74c-8c0c-49ae-8f03-85b9c932618e&img_etag=%22ef4bd0138ce047da8a7e8beda7fd53d0%22&image_assets=false&size=2560"
+					},
+					"visual": {},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 13,
+			"sectionTitle": "ambiente polare",
+			"sectionID": "ambiente_3",
+			"style": "",
+			"tags": ["animali_habitat", "polo"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "VIAGGIO NEL FREDDO POLARE:Benvenuto tra ghiaccio e vento fortissimo. Qui la luce cambia con le stagioni: a volte c’è giorno quasi continuo, a volte quasi solo notte.",
+					"title": "Ambiente_polare",
+					"tags": ["animali_habitat", "polare"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.589Z",
+					"mapActions": [],
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpeg",
+						"serviceUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/LocationPolarRegions.png/1200px-LocationPolarRegions.png"
+					},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 14,
+			"sectionTitle": "",
+			"sectionID": "ambiente_3",
+			"style": "",
+			"tags": ["animali_habitat", "polo"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "ANIMALI POLARI. Gli animali devono proteggersi dal freddo:l’orso polare ha un enorme strato di grasso, i pinguini si stringono insieme per scaldarsi,alcuni pesci hanno nel sangue una specie di ‘antigelo’.",
+					"title": "Animali polari",
+					"tags": ["animali"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.589Z",
+					"mapActions": [],
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpeg",
+						"serviceUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTuyxm_7d3WnuiMnU3bboQWZDXF0fZAu5ZpAQ&s"
+					},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 15,
+			"sectionTitle": "",
+			"sectionID": "ambiente_3",
+			"style": "",
+			"tags": ["animali_habitat", "polo"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "Sfida: Come ti scalderesti se non avessi vestiti moderni?",
+					"title": "sfida_animali_polari",
+					"tags": ["animali_sfida"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.589Z",
+					"mapActions": [],
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpg",
+						"serviceUrl": "https://new.express.adobe.com/webpage/WhV6EMpd9D4wZ/resources/2a7fea01-8638-4964-826f-ba952b8df557-concetto_di_?asset_id=4f03c74c-8c0c-49ae-8f03-85b9c932618e&img_etag=%22ef4bd0138ce047da8a7e8beda7fd53d0%2&image_assets=false&size=2560"
+					},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 16,
+			"sectionTitle": "",
+			"sectionID": "ambiente_3",
+			"style": "",
+			"tags": ["animali_habitat", "polo"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "PIANTE POLARI Le piante qui sono poche ma fortissime: crescono basse, hanno radici poco profonde e vivono solo in estate.",
+					"title": "piante_dei_poli",
+					"tags": ["piante"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.590Z",
+					"mapActions": [],
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpg",
+						"serviceUrl": "https://www.shutterstock.com/image-vector/tundra-plant-collection-vector-flat-260nw-2416293245.jpg"
+					},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 17,
+			"sectionTitle": "",
+			"sectionID": "ambiente_3",
+			"style": "",
+			"tags": ["animali_habitat", "polo"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "Sfida: Trova due modi per sopravvivere su un suolo gelato.",
+					"title": "sfida_polari_piante",
+					"tags": ["piante_sfida"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.590Z",
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpg",
+						"serviceUrl": "https://new.express.adobe.com/webpage/WhV6EMpd9D4wZ/resources/2a7fea01-8638-4964-826f-ba952b8df557-concetto_di_?asset_id=4f03c74c-8c0c-49ae-8f03-85b9c932618e&img_etag=%22ef4bd0138ce047da8a7e8beda7fd53d0%22&image_assets=false&size=2560"
+					},
+
+					"visual": {},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+
+		{
+			
+			"order": 18,
+			"sectionTitle": "ambiente savana",
+			"sectionID": "ambiente_4",
+			"style": "",
+			"tags": ["animali_habitat", "savana"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "LA SAVANA La savana è calda, ma piena di vita: erba alta, alberi sparsi, enormi erbivori e predatori veloci.",
+					"title": "Ambiente_savana",
+					"tags": ["animali e habitat", "savana"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.589Z",
+					"mapActions": [],
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpeg",
+						"serviceUrl": "https://upload.wikimedia.org/wikipedia/commons/1/15/Koppen_classification_worldmap_Aw.png"
+					},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 19,
+			"sectionTitle": "",
+			"sectionID": "ambiente_4",
+			"style": "",
+			"tags": ["animali_habitat", "savana"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "ANIMALI SAVANA Le giraffe mangiano foglie molto in alto,i leoni cacciano in gruppo,le zebre si confondono nel branco grazie alle strisce.",
+					"title": "Animali savana",
+					"tags": ["animali"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.589Z",
+					"mapActions": [],
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpeg",
+						"serviceUrl": "https://png.pngtree.com/thumb_back/fh260/background/20250603/pngtree-adorable-african-safari-animals-cartoon-illustration-image_17382041.jpg"
+					},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 20,
+			"sectionTitle": "",
+			"sectionID": "ambiente_4",
+			"style": "",
+			"tags": ["animali_habitat", "savana"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "Sfida: Perché le strisce aiutano le zebre a sopravvivere?",
+					"title": "sfida_animali_savana",
+					"tags": ["animali_sfida"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.589Z",
+					"mapActions": [],
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpg",
+						"serviceUrl": "https://new.express.adobe.com/webpage/WhV6EMpd9D4wZ/resources/2a7fea01-8638-4964-826f-ba952b8df557-concetto_di_?asset_id=4f03c74c-8c0c-49ae-8f03-85b9c932618e&img_etag=%22ef4bd0138ce047da8a7e8beda7fd53d0%22&image_assets=false&size=2560"
+					},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 21,
+			"sectionTitle": "",
+			"sectionID": "ambiente_4",
+			"style": "",
+			"tags": ["animali_habitat", "savana"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "PIANTE SAVANA  Nella savana le piante resistono al caldo e alla siccità. Il baobab conserva acqua, l’acacia ha spine e radici profonde, e l’erba alta cresce anche con poca pioggia. ",
+					"title": "piante_della_savana",
+					"tags": ["piante"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.590Z",
+					"mapActions": [],
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpg",
+						"serviceUrl": "https://new.express.adobe.com/webpage/WhV6EMpd9D4wZ/resources/2a7fea01-8638-4964-826f-ba952b8df557-concetto_di_?asset_id=4f03c74c-8c0c-49ae-8f03-85b9c932618e&img_etag=%22ef4bd0138ce047da8a7e8beda7fd53d0%22&image_assets=false&size=2560"
+					},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 22,
+			"sectionTitle": "",
+			"sectionID": "ambiente_4",
+			"style": "",
+			"tags": ["#animali e habitat", "#polo"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "Sfida: Perché le strisce aiutano le zebre a sopravvivere?",
+					"title": "sfida_piante_savana",
+					"tags": ["#piante_sfida"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.590Z",
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpg",
+						"serviceUrl": "https://new.express.adobe.com/webpage/WhV6EMpd9D4wZ/resources/2a7fea01-8638-4964-826f-ba952b8df557-concetto_di_?asset_id=4f03c74c-8c0c-49ae-8f03-85b9c932618e&img_etag=%22ef4bd0138ce047da8a7e8beda7fd53d0%22&image_assets=false&size=2560"
+					},
+					"visual": {},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+
+		{
+			
+			"order": 23,
+			"sectionTitle": "ambiente marino",
+			"sectionID": "ambiente_5",
+			"style": "",
+			"tags": ["#animali_habitat", "#marino"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "Scendiamo lentamente in mare: più andiamo giù, meno luce c’è. Ognuna delle tre zone del mare ospita animali diversi.",
+					"title": "Ambiente_marino",
+					"tags": ["#animali_habitat", "#marino"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.589Z",
+					"mapActions": [],
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpeg",
+						"serviceUrl": "https://lh3.googleusercontent.com/proxy/3t9HX-eF6sLnmb1H3WnckpZ56aZLwnZGAQYdWcVwaO4fyYEbmrH0Ub-hQsW6StDWfpuBMBQ5fDUYYHT-mWDTms-Pfw"
+					},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 24,
+			"sectionTitle": "",
+			"sectionID": "ambiente_5",
+			"style": "",
+			"tags": ["#animali_habitat", "#marino"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "I pesci respirano con le branchie, le meduse si fanno trasportare dall’acqua, i pesci abissali producono bioluminescenza, una luce naturale.",
+					"title": "Animali marini",
+					"tags": ["#animali"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.589Z",
+					"mapActions": [],
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpeg",
+						"serviceUrl": "https://media.istockphoto.com/id/1989617228/it/vettoriale/stampa.jpg?s=612x612&w=0&k=20&c=onIVWOF_d1H4B50WuYu740N3BSkfI7te6ZDWgRqQx-o="
+					},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 25,
+			"sectionTitle": "ambiente_marino",
+			"sectionID": "ambiente_5",
+			"style": "",
+			"tags": ["#animali_habitat", "#marino"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "Sfida: Perché alcuni pesci sono trasparenti?",
+					"title": "sfida_animali_marini",
+					"tags": ["#animali_sfida"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.589Z",
+					"mapActions": [],
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpg",
+						"serviceUrl": "https://new.express.adobe.com/webpage/WhV6EMpd9D4wZ/resources/2a7fea01-8638-4964-826f-ba952b8df557-concetto_di_?asset_id=4f03c74c-8c0c-49ae-8f03-85b9c932618e&img_etag=%22ef4bd0138ce047da8a7e8beda7fd53d0%22&image_assets=false&size=2560"
+					},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 26,
+			"sectionTitle": "ambiente marini",
+			"sectionID": "ambiente_5",
+			"style": "",
+			"tags": ["#animali_habitat", "#marini"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "Le piante marine vivono dove arriva la luce. Le alghe e le posidonie creano vere \"praterie sott’acqua\", piene di vita. ",
+					"title": "piante_marine",
+					"tags": ["#piante"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.590Z",
+					"mapActions": [],
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpg",
+						"serviceUrl": "https://thumbs.dreamstime.com/b/piante-di-mare-ed-alghe-marine-acquatiche-illustrazione-stabilita-di-vettore-dell-alga-96140500.jpg"
+					},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 27,
+			"sectionTitle": "ambiente_marini",
+			"sectionID": "ambiente_5",
+			"style": "",
+			"tags": ["#animali_habitat", "#marini"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "Sfida: Perché le strisce aiutano le zebre a sopravvivere?",
+					"title": "sfida_piante_marine ",
+					"tags": ["#piante_sfida"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.590Z",
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpg",
+						"serviceUrl": "https://new.express.adobe.com/webpage/WhV6EMpd9D4wZ/resources/2a7fea01-8638-4964-826f-ba952b8df557-concetto_di_?asset_id=4f03c74c-8c0c-49ae-8f03-85b9c932618e&img_etag=%22ef4bd0138ce047da8a7e8beda7fd53d0%22&image_assets=false&size=2560"
+					},
+					"visual": {},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+
+		{
+			
+			"order": 28,
+			"sectionTitle": "ambiente montagna",
+			"sectionID": "ambiente_6",
+			"style": "",
+			"tags": ["#animali_habitat", "#montagna"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "In montagna tutto è più faticoso: l’aria è sottile, il vento forte e il terreno ripido",
+					"title": "Ambiente_montagna",
+					"tags": ["#animali_habitat", "#montagna"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.589Z",
+					"mapActions": [],
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpeg",
+						"serviceUrl": "https://preview.redd.it/world-mountain-map-v0-ehyfq2wy6t7f1.png?width=1080&crop=smart&auto=webp&s=87c926985abaa62517e3be7117edaef340717831"
+					},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 29,
+			"sectionTitle": "ambiente montagna",
+			"sectionID": "ambiente_6",
+			"style": "",
+			"tags": ["#animali_habitat", "#montagna"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "Ogni animale ha il suo trucco per sopravvivere:\n lo stambecco ha zoccoli antiscivolo,\n la marmotta dorme in letargo tutto l’inverno,\n l’aquila vola sfruttando l’aria calda..",
+					"title": "Animali montagna",
+					"tags": ["#animali"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.589Z",
+					"mapActions": [],
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpeg",
+						"serviceUrl": "https://st2.depositphotos.com/1499637/8008/v/450/depositphotos_80085388-stock-illustration-funny-mountain-animals-deer-eagle.jpg"
+					},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 30,
+			"sectionTitle": "ambiente_montagna",
+			"sectionID": "ambiente_6",
+			"style": "",
+			"tags": ["#animali_habitat", "#montagna"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "Sfida: Quale animale ti sembra il più coraggioso?",
+					"title": "sfida_animali_montagna",
+					"tags": ["#animali_sfida"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.589Z",
+					"mapActions": [],
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpg",
+						"serviceUrl": "https://new.express.adobe.com/webpage/WhV6EMpd9D4wZ/resources/2a7fea01-8638-4964-826f-ba952b8df557-concetto_di_?asset_id=4f03c74c-8c0c-49ae-8f03-85b9c932618e&img_etag=%22ef4bd0138ce047da8a7e8beda7fd53d0%22&image_assets=false&size=2560"
+					},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 31,
+			"sectionTitle": "ambiente montagna",
+			"sectionID": "ambiente_6",
+			"style": "",
+			"tags": ["#animali_habitat", "#montagna"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "Le piante qui crescono basse, hanno radici forti e foglie piccole per resistere al vento.",
+					"title": "piante_della_montagna",
+					"tags": ["#piante"],
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.590Z",
+					"mapActions": [],
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpg",
+						"serviceUrl": "https://thumbs.dreamstime.com/b/collezione-vintage-di-alberi-diversit%C3%A0-con-nomi-antichi-disegni-incisi-della-rousse-xx-sciele-e-raccolta-catadiottrica-degli-197793174.jpg"
+					},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		},
+		{
+			
+			"order": 31,
+			"sectionTitle": "ambiente_montagna",
+			"sectionID": "ambiente_6",
+			"style": "",
+			"tags": ["#animali e habitat", "#montagna"],
+			"actions": [],
+			"storyItems": [
+				{
+					
+					"text": "Sfida: Cerca tre fiori di montagna e confrontali!",
+					"title": "sfida_piante_marine ",
+					"tags": ["#piante_sfida"],
+
+					"author": "no author",
+					"structure": "page",
+					"timestamp": "2025-12-02T11:08:57.590Z",
+					"visual": {
+						"format": "IMAGE",
+						"contentType": "img/jpg",
+						"serviceUrl": "https://new.express.adobe.com/webpage/WhV6EMpd9D4wZ/resources/2a7fea01-8638-4964-826f-ba952b8df557-concetto_di_?asset_id=4f03c74c-8c0c-49ae-8f03-85b9c932618e&img_etag=%22ef4bd0138ce047da8a7e8beda7fd53d0%22&image_assets=false&size=2560"
+					},
+					"visual": {},
+					"comments": "",
+					"background": "https://www.example.com/",
+					"changes": [],
+					"style": {
+						"textAlignment": "center",
+						"visualPos": "left",
+						"backgroundScroll": "fixed",
+						"visualScroll": "fixed"
+					}
+				}
+			]
+		}
+	],
+	"sections": {}
+}
