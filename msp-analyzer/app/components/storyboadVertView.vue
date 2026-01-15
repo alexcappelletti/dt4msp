@@ -95,7 +95,7 @@ function scrollToNextElement() {
 
 function handleTocClick(sectionId: string, elementId: string) {
 	activeSectionId.value = sectionId;
-	 // Highlight immediato
+	// Highlight immediato
 	scrollTo(elementId); // Esegue lo scroll
 }
 
@@ -119,14 +119,8 @@ function close() {
 	navigateTo('/')
 }
 watch(activeElementId, (newId) => {
-	console.log(
-		'Active Element changed to ID:', newId
-	)
 	if (!newId) return;
 	const el = elements.value.find(e => e.id === newId);
-	console.log(
-		'Corresponding Section ID:', el?.sectionID
-	)
 	if (el && el.sectionID) {
 		// Forza l'aggiornamento del modello reattivo di Vuetify
 		activeSectionId.value = el.sectionID;
@@ -156,8 +150,7 @@ onMounted(async () => {
 					<!-- Qui definiamo lo slot che riceve isSelected e toggle -->
 					<template v-slot="{ isSelected, toggle }">
 						<v-btn :variant="isSelected ? 'flat' : 'text'" :color="isSelected ? 'primary' : 'grey-darken-1'"
-							class="tw:rounded-full"
-							:class="{ 'tw:font-bold tw:scale-105': isSelected }"
+							class="tw:rounded-full" :class="{ 'tw:font-bold tw:scale-105': isSelected }"
 							@click="handleTocClick(item.element.sectionID, item.element.id)">
 							{{ item.title || 'Sezione' }}
 						</v-btn>
@@ -168,55 +161,76 @@ onMounted(async () => {
 			<v-btn class="tw:ml-auto tw:mr-6" variant="outlined" icon="mdi-close" @click="close" />
 		</header>
 		<main class="st-container" ref="containerRef">
-			<section 
-				v-for="element in elements" 
-				:key="element.id" 
-				:ref="el => setRef(el, element.id)"
-				:data-id="element.id" 
-				:class="[ 'st-section', element.style === 'parallax-scroll' ? 'is-parallax' : '']">
-				<div :class="[
-					'tw:grid tw:min-h-screen tw:w-full',
-					element.storyItems[0]?.visual?.format ? 'tw:md:grid-cols-2' : 'tw:grid-cols-1'
-				]">
-
-					<!-- TEXT COMPONENT: Massima larghezza se solo testo, 50% se visual -->
-					<article :class="[
-						'tw:relative tw:flex tw:flex-col tw:p-12 tw:z-20',
-						getVerticalAlignmentClass(element),
-						{ 'tw:md:order-2': isMapOnLeft(element) }
-					]">
-						<div class="tw:max-w-none">
-							<h2 class="tw:mb-6 tw:text-5xl tw:font-black tw:text-ux1 tw:uppercase tw:tracking-tighter">
-								{{ element.storyItems[0]?.title }}
-							</h2>
-							<p
-								class="tw:text-gray-800 tw:text-xl tw:leading-relaxed tw:whitespace-pre-line tw:font-medium">
-								{{ element.storyItems[0]?.text }}
-							</p>
-						</div>
-					</article>
-
-					<!-- VISUAL COMPONENT: Sticky per effetto parallasse -->
-					<aside v-if="element.storyItems[0]?.visual?.format" :class="[
-						'tw:relative tw:h-screen tw:top-0 tw:sticky',
-						{ 'tw:md:order-1': isMapOnLeft(element) }
-					]">
-						<div class="tw:absolute tw:inset-0 tw:w-full tw:h-full">
-							<MapViewer v-if="element.storyItems[0]?.visual?.format === 'MAP'"
-								:visuals="store.mapVisuals" :info="false" class="tw:h-full tw:w-full" />
-
-							<img v-else-if="element.storyItems[0]?.visual?.format === 'IMAGE'"
-								:src="(element.storyItems[0].visual as ImageVisual).serviceUrl"
+			<section v-for="element in elements" :key="element.id" :ref="el => setRef(el, element.id)"
+				:data-id="element.id" :class="[
+					'st-section',
+					element.style === 'parallax-scroll' ? 'is-parallax' : '',
+					element.storyItems[0]?.structure === 'page-title' ? 'is-page-title' : '']">
+				<template v-if="element.storyItems[0]?.structure === 'page-title'">
+					<div class="tw:relative tw:h-full tw:w-full tw:flex tw:items-center tw:justify-center">
+						<!-- Visual come sfondo (Full Screen) -->
+						<div class="tw:absolute tw:inset-0 tw:z-0">
+							<img v-if="element.storyItems[0]?.background"
+								:src="element.storyItems[0].background.toString()"
 								class="tw:w-full tw:h-full tw:object-cover" />
 						</div>
-					</aside>
-				</div>
+
+						<!-- Testo centrato con sfocatura localizzata -->
+						<article class="page-title-container tw:relative 
+							tw:z-10 tw:text-center tw:px-12 tw:py-8 tw:max-w-7xl">
+							<h1 class="page-title-hero 
+                				tw:font-black tw:text-white tw:uppercase tw:tracking-tighter">
+								{{ element.storyItems[0]?.text }}
+							</h1>
+						</article>
+					</div>
+				</template>
+
+				<template v-else>
+					<div :class="[
+						'tw:grid tw:min-h-screen tw:w-full',
+						element.storyItems[0]?.visual?.format ? 'tw:md:grid-cols-2' : 'tw:grid-cols-1'
+					]">
+						<!-- TEXT COMPONENT: Massima larghezza se solo testo, 50% se visual -->
+						<article :class="[
+							'tw:relative tw:flex tw:flex-col tw:p-12 tw:z-20',
+							getVerticalAlignmentClass(element),
+							{ 'tw:md:order-2': isMapOnLeft(element) }
+						]">
+							<div class="tw:max-w-none">
+								<h2
+									class="tw:mb-6 tw:text-5xl tw:font-black tw:text-ux3 tw:uppercase tw:tracking-tighter">
+									{{ element.storyItems[0]?.title }}
+								</h2>
+								<p
+									class="tw:text-gray-800 tw:text-xl tw:leading-relaxed tw:whitespace-pre-line tw:font-medium">
+									{{ element.storyItems[0]?.text }}
+								</p>
+							</div>
+						</article>
+
+						<!-- VISUAL COMPONENT: Sticky per effetto parallasse -->
+						<aside v-if="element.storyItems[0]?.visual?.format" :class="[
+							'tw:relative tw:h-screen tw:top-0 tw:sticky',
+							{ 'tw:md:order-1': isMapOnLeft(element) }
+						]">
+							<div class="tw:absolute tw:inset-0 tw:w-full tw:h-full">
+								<MapViewer v-if="element.storyItems[0]?.visual?.format === 'MAP'"
+									:visuals="store.mapVisuals" :info="false" class="tw:h-full tw:w-full" />
+
+								<img v-else-if="element.storyItems[0]?.visual?.format === 'IMAGE'"
+									:src="(element.storyItems[0].visual as ImageVisual).serviceUrl"
+									class="tw:w-full tw:h-full tw:object-cover tw:shadow-2xl tw:rounded-xl" />
+							</div>
+						</aside>
+					</div>
+				</template>
 			</section>
 		</main>
 	</div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .st-container {
 	height: calc(100vh - 64px);
 	/* Altezza header */
@@ -265,16 +279,73 @@ aside {
 article h2 {
 	text-shadow: 0 2px 10px rgba(238, 231, 231, 0.5);
 }
-.tw:transition-all {
+
+.transition-all {
 	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 .v-btn--active {
 	opacity: 1 !important;
 	border: 2px solid rgb(var(--v-theme-primary)) !important;
-}/* Forza la visualizzazione del pulsante attivo di Vuetify */
+}
+
+/* Forza la visualizzazione del pulsante attivo di Vuetify */
 :deep(.v-btn--active) {
 	background-color: rgb(var(--v-theme-primary)) !important;
-	color: white !important;
+	color: rgb(192, 209, 185) !important;
 	opacity: 1 !important;
+}
+.page-title-hero {
+	/* Imposta la dimensione al 10% dell'altezza del viewport */
+	font-size: 10vh;
+
+	/* Assicura che l'interlinea sia compatta per font così grandi */
+	line-height: 0.9;
+
+	/* Opzionale: aggiungi un limite minimo per schermi molto piccoli (es. mobile) */
+	@media (max-width: 768px) {
+		font-size: 8vh;
+		line-height: 1;
+	}
+}
+
+/* Se vuoi che il titolo sia perfettamente centrato verticalmente nel viewport 
+   (considerando l'header da 64px) */
+.is-page-title {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: calc(100vh - 64px);
+	text-align: center;
+	background-color: #d4e2cbee;
+}
+
+// .is-page-title h1 {
+// 	/* Effetto tipografico moderno */
+// 	line-height: 0.85;
+// 	word-break: break-word;
+// }
+// /* Animazione d'entrata fluida per il testo quando diventa attivo */
+// .is-page-title article {
+// 	opacity: 0;
+// 	transform: translateY(30px);
+// 	transition: all 1s ease-out;
+// }
+
+/* Se usi isVisible(element.id) puoi attivare l'animazione */
+.st-section[data-id] article {
+	/* Se l'ID corrente è quello attivo, anima */
+}
+
+/* Miglioramento per lo Scrollytelling Parallasse */
+.is-parallax.is-page-title {
+	z-index: 5;
+	/* Priorità visiva */
+}
+/* Supporto per testi lunghi nei titoli copertina */
+@media (max-width: 768px) {
+	.is-page-title h1 {
+		font-size: 4rem !important;
+	}
 }
 </style>

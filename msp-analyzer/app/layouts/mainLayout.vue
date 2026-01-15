@@ -5,6 +5,8 @@ import { useWindowSize } from '@vueuse/core';
 import { useDisplay } from 'vuetify';
 import loaderNav from '~/components/loaderNav.vue';
 import { useAppStore } from '~/stores/appStore';
+const config = useRuntimeConfig()
+const appVersion = config.public.version || '0.0.212';
 
 const { width } = useWindowSize(); 
 const { mdAndUp } = useDisplay();
@@ -14,7 +16,6 @@ const MIN_DRAWER_WIDTH = 290;
 const { drawerOpen, appTitle } = storeToRefs(
 	useAppStore());
 
-const appVersion = ref(import.meta.env.NPM_PACKAGE_VERSION || '0.0.137');
 const drawerWidth = computed(() => {
 	// Se lo schermo è 'mdAndUp' (medio o più grande), usiamo la logica dei 290 minimi
 	if (mdAndUp.value) {

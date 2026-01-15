@@ -2,6 +2,7 @@
 import { defineNuxtConfig } from 'nuxt/config'
 import tailwindcssPlugin from '@tailwindcss/vite'
 import { resolve } from 'path';
+import pkg from './package.json'
 
 export default defineNuxtConfig({
 	compatibilityDate: '2025-07-15',
@@ -28,6 +29,9 @@ export default defineNuxtConfig({
 	runtimeConfig: {
 		// Questa variabile è accessibile SOLO sul server tramite useRuntimeConfig().redisUrl
 		redisUrl: process.env.REDIS_URL,
+		public: {
+			version: pkg.version
+		}
 	},
 	// build: {
 	// 	transpile: ['vuetify'] // Aggiunto: necessario per l'SSR e per risolvere l'errore .css
