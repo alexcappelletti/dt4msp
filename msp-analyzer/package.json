@@ -8,7 +8,7 @@
     "dev": "nuxt dev",
     "generate": "tsx bump-version.ts && nuxt nuxt generate",
     "preview": "nuxt preview",
-    "prebuild": "tsx scripts/bump-version.ts",
+    "prebuild": "tsx bump-version.ts",
     "postinstall": "nuxt prepare",
     "test:unit": "vitest --config vitest.unit.config.ts",
     "test:e2e": "nuxt test --watch --config vitest.config.ts",
