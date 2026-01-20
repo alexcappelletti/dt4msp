@@ -142,8 +142,10 @@ onMounted(async () => {
 
 		<!-- HEADER / NAVIGATION -->
 		<header
-			class="tw:flex tw:items-center tw:p-4 tw:bg-white/80 tw:backdrop-blur-md tw:border-b tw:sticky tw:top-0 tw:z-[100]">
-
+			class="tw:w-full tw:flex 
+			tw:items-center tw:p-4 tw:bg-white/80 
+			tw:backdrop-blur-md tw:border-b tw:sticky tw:top-0 tw:z-[100] tw:shadow-md">
+			
 			<v-item-group v-model="activeSectionId" class="tw:flex tw:gap-4 tw:ml-6 tw:align-center" mandatory>
 				<!-- Iterazione sulla TOC -->
 				<v-item v-for="item in toc" :key="item.element.id" :value="item.element.sectionID">
