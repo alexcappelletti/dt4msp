@@ -2,6 +2,13 @@
 // Puoi recuperare l'ID dalla route se vuoi fetchare i dati reali
 const route = useRoute();
 const areaId = route.params.id; 
+
+onMounted(async() => {
+	// Logica per fetchare i dati dell'area usando areaId
+	
+});
+
+
 </script>
 
 <!-- pages/areas/[id].vue -->
@@ -10,7 +17,7 @@ const areaId = route.params.id;
 			
 
 			<!-- Contenuto Principale -->
-			<areas-area-form-general />
+			<areas-area-form />
 		</div>
 </template>
 

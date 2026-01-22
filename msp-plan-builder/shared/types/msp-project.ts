@@ -29,7 +29,7 @@ export interface AreaOfInterest {
 	scenarios: Array<Scenario>;
 	statements?: Array<Statement>;
 	temporalScope: string;
-	others: Map<string, OptionalData>
+	others: Map<string, OptionalData>;
 	
 }
 

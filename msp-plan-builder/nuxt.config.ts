@@ -18,7 +18,6 @@ export default defineNuxtConfig({
 	css: [
 		"vuetify/styles",
 		//qui tailwind eventualmente
-		
 	],
 	vite: {
 		server: {
@@ -31,9 +30,9 @@ export default defineNuxtConfig({
 		css: {
 			preprocessorOptions: {
 				scss: {
-					additionalData: `@use "~/assets/scss/variables" as *;`
-				}
-			}
+					additionalData: `@use "~/assets/scss/variables" as *;`,
+				},
+			},
 		},
 	},
 	vuetify: {
@@ -56,11 +55,11 @@ export default defineNuxtConfig({
 							// Colori predefiniti di Vuetify (light)
 							background: "#FFFFFF",
 							surface: "#FFFFFF",
-							primary: "#48a10cff",
-							secondary: "#424242",
+							primary: "#cb9aec",
+							secondary: "#6750A4",
 							error: "#7c3225ff",
 							info: "#64f321ff",
-							success: "#89b88bff",
+							success: "#8171ad",
 							warning: "#93ff07ff",
 							// Aggiungi qui i tuoi colori personalizzati per il tema chiaro
 							alex: "#AA77B6",
@@ -89,5 +88,4 @@ export default defineNuxtConfig({
 			},
 		},
 	},
-
 });

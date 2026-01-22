@@ -2,10 +2,10 @@
 @use "sass:color"; 
 // 1. Variabile Sass (comoda per calcoli come darken/lighten)
 $main-rose-color: #FEF7FF;
-$main-rose-color-dark-real: #F3EDF7;
+$main-rose-color-dark-real: #cb9aec;
 $main-dark-rose-color: color.scale($main-rose-color, $lightness: -10%);
 $bt-color: #FFD8E4;
-
+$primary: var(--v-theme-primary);
 // 2. Esponiamola come variabile CSS nativa (massima sicurezza)
 :root {
 	--main-rose: #{$main-rose-color};
