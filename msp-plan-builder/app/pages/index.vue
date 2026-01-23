@@ -2,12 +2,14 @@
 <script setup lang="ts">
 // Opzione 1: Reindirizza automaticamente alla prima area quando si arriva alla root '/'
 import { useRouter } from 'vue-router';
+import { onMounted } from 'vue';
+import { useHead } from '@unhead/vue';
 
 const router = useRouter();
 
 // Reindirizza non appena la pagina viene caricata lato client
 onMounted(() => {
-	router.push('/areas/1');
+	//router.push('/areas/1');
 });
 
 // Imposta un titolo per questa pagina specifica

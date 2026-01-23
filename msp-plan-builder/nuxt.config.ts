@@ -14,7 +14,7 @@ export default defineNuxtConfig({
 		"#": resolve(__dirname, "."),
 	},
 
-	modules: ["vuetify-nuxt-module"],
+	modules: ["vuetify-nuxt-module", "@pinia/nuxt"],
 	css: [
 		"vuetify/styles",
 		//qui tailwind eventualmente

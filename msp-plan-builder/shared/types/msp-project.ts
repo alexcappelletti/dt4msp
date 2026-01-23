@@ -49,6 +49,7 @@ export interface Scenario {
 	primaryThemes?: Array<Theme>; //temi primari selezionati per lo scenario
 	secondaryThemes?: Array<Theme>; //temi secondari selezionati per lo scenario
 	topics: Record<string, Theme>;  //themi specifificati per index name ->serve per indizzare i temi quando si usa il query-language
+	feedbacks?: Array<Feedback>;
 	definedGeostories: [];
 	objectives: string;
 }
@@ -70,6 +71,17 @@ export interface Statement {
 	imageUrl?: string|URL;
 	sectorThemes?: Array<Theme>; //specifica i statement  che sono associati ad uno o piú temi
 }
+
+export interface Feedback {
+	readonly id: string;
+	rating: number; //valutazione da 1 a 5
+	comment: string;	
+	author: string;
+	createdAt: Date;	
+	updatedAt?: Date;
+	status: "new" | "reviewed" | "resolved";
+}
+
 export interface Aspect {
 	name: string;
 	readonly id: string;
@@ -103,6 +115,7 @@ export function populateScenario(scenario: Partial<Scenario>): Scenario {
 		datasets: [],
 		measures: [],
 		effects: [],
+		feedbacks: [],
 		topics: {},
 		definedGeostories: [],
 		
@@ -167,7 +180,20 @@ export function populateEffect(effect: Partial<Effect>): Effect {
 		...effect
 	}
 }
-
+export function populateStatement(statement: Partial<Statement>): Statement {
+	const defaultStatement: Statement = {
+		id: generateUUID(),	
+		shortName: '',
+		longName: '',
+		description: '',
+		imageUrl: undefined,
+		sectorThemes: new Array<Theme>()
+	} as Statement;
+	return {
+		...defaultStatement,
+		...statement,
+	};
+}	
 
 export class MapLayer {
 

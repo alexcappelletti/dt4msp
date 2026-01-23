@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useRoute } from 'vue-router';
+import { onMounted } from 'vue';
 // Puoi recuperare l'ID dalla route se vuoi fetchare i dati reali
 const route = useRoute();
 const areaId = route.params.id; 
@@ -15,9 +17,8 @@ onMounted(async() => {
 <template>
 	<div class="d-flex areaOI-panel">
 			
-
 			<!-- Contenuto Principale -->
-			<areas-area-form />
+			<area-general-form />
 		</div>
 </template>
 

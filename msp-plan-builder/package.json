@@ -13,8 +13,10 @@
 		"test:e2e:dev": "nuxt test --watch --config vitest.config.ts"
 	},
 	"dependencies": {
+		"@pinia/nuxt": "^0.11.3",
 		"lodash-es": "^4.17.22",
 		"nuxt": "^4.2.2",
+		"pinia": "^3.0.4",
 		"vue": "^3.5.26",
 		"vue-router": "^4.6.4",
 		"vuetify-nuxt-module": "^0.19.2"

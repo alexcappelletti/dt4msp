@@ -1,5 +1,5 @@
 import type { AreaOfInterest, Project, Statement } from "#/shared/types/msp-project"; // Assicurati che il percorso sia corretto
-import { furtherExampleStatements } from "#/shared/types/mocked";
+import { furtherExampleStatements, availableThemesMock } from "#/shared/mocks/mocked";
 import { ref } from "vue";
 
 

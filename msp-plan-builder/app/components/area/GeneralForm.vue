@@ -2,7 +2,8 @@
 <script setup lang="ts">
 import StatementList from './StatementList.vue';
 import StatementForm from './StatementForm.vue';
-import type { AreaOfInterest } from '#/shared/types/msp-project';
+import type { AreaOfInterest, Statement } from '#/shared/types/msp-project';
+import { generateUUID } from '#/shared/utils/generateUUID';
 import { debounce } from 'lodash-es';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useMspDataProvider } from '~/composables/useMspProvider';
@@ -223,7 +224,7 @@ watch(
 						@edit:statement="handleEditRequest"
 						@delete:statement="handleDeleteStatement" 
 						class="pa-4" />
-					<p v-else class="pa-4">Nessun dato statements disponibile.</p>
+					<p v-else class="pa-4">Nessun statements disponibile.</p>
 				</v-window-item>
 				
 				<v-window-item value="map">
