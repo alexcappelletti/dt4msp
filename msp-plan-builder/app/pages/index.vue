@@ -3,7 +3,6 @@
 // Opzione 1: Reindirizza automaticamente alla prima area quando si arriva alla root '/'
 import { useRouter } from 'vue-router';
 import { onMounted } from 'vue';
-import { useHead } from '@unhead/vue';
 
 const router = useRouter();
 
