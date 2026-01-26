@@ -42,7 +42,7 @@ export interface Scenario {
 	temporalScope: string;
 	spatialResources: string[]
 	datasets: string[];
-	measures: Array<Measure>;
+	measures: Array<Aspect>;
 	statements?: Array<Statement>;
 	effects?: Array<Effect>;
 	availableThemes: Array<Theme>;  //tutti i temi disponibili per lo scenario

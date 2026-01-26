@@ -1,1 +1,1 @@
-<template>Feedbacks</template>
+	<template>Feedbacks</template>

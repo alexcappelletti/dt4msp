@@ -234,7 +234,7 @@ watch(
 		</div>
 		<!-- FAB Button in basso a destra -->
 		<div v-if="tab === 'statements' && currentStatementView === 'list' && hasArea" class="fab-container">
-			<v-speed-dial location="top center" transition="scale-transition">
+			<v-speed-dial location="top left" transition="scale-transition">
 				<template v-slot:activator="{ props: activatorProps }">
 					<v-btn v-bind="activatorProps" color="primary" icon="mdi-plus" size="large" elevation="4"></v-btn>
 				</template>
@@ -243,14 +243,14 @@ watch(
 				<v-btn key="1" color="secondary" prepend-icon="mdi-tag-multiple"
 					@click="openNewStatementForm('Sector-specific')">
 					Sector-specific
-					<v-tooltip activator="parent" location="left">Crea statement specifico per settore</v-tooltip>
+					
 				</v-btn>
 
 				<!-- Opzione General -->
 				<v-btn key="2" color="surface-variant" prepend-icon="mdi-earth"
 					@click="openNewStatementForm('General')">
 					General
-					<v-tooltip activator="parent" location="left">Crea statement generale</v-tooltip>
+					
 				</v-btn>
 			</v-speed-dial>
 		</div>

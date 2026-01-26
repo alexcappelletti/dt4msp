@@ -7,8 +7,6 @@ const props = defineProps<{
 	statements: Statement[];
 }>();
 
-const emit = defineEmits(['delete:statement', 'edit:statement']);
-
 // Logica di filtro semplificata (qui puoi espanderla)
 const currentFilter = ref('Tutti');
 const availableFilters = ['Tutti', 'Generale', 'Sector-specific'];
@@ -18,13 +16,18 @@ const filteredStatements = computed(() => {
 	// Aggiungi qui una logica di filtro reale basata sulle proprietà dello Statement
 	return props.statements;
 });
+
+const emit = defineEmits(['delete:statement', 'edit:statement']);
+
 const deleteStatement = (id: string) => {
 	emit('delete:statement', id);
 };
 
 const editStatement = (statement: Statement) => {
+	console.log('Editing statement:', statement);
 	emit('edit:statement', statement);
 };
+
 </script>
 
 <template>
@@ -82,7 +85,6 @@ const editStatement = (statement: Statement) => {
 				</v-card-text>
 			</v-card>
 		</div>
-
 		<v-alert v-else type="info" variant="tonal" class="mt-4">
 			Nessuno statement trovato con i filtri correnti.
 		</v-alert>
@@ -90,6 +92,12 @@ const editStatement = (statement: Statement) => {
 </template>
 
 <style scoped>
+.statements-list-container {
+	/* background-color: aquamarine; */
+	min-width: 100%	;
+	/* Aggiunge un po' di padding per non incollare ai bordi */
+	padding: 20px;
+}
 .statements-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
