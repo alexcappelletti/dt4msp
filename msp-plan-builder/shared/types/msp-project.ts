@@ -39,9 +39,9 @@ export interface Scenario {
 	temporalScope: string;
 	spatialResources: string[];
 	datasets: string[];
-	domainMeasures: Array<DomainMeasure>;
 	statements?: Array<Statement>;
-	effects?: Array<DomainEffect>;
+	domainMeasures: Array<DomainMeasure>;
+	domainEffects?: Array<DomainEffect>;
 	availableThemes: Array<Theme>; //tutti i temi disponibili per lo scenario
 	primaryThemes?: Array<Theme>; //temi primari selezionati per lo scenario
 	secondaryThemes?: Array<Theme>; //temi secondari selezionati per lo scenario
@@ -93,6 +93,9 @@ export interface Measure extends Omit<Aspect, "type"> {
 	geospatialResources: MapLayer[];
 }
 export interface Effect <T extends DomainMeasure> {
+	name: string;
+	description: string;
+	readonly id: string;
 	affected: Array<T>; 
 }
 export type DomainEffect = Effect<Measure> | Effect<Aspect>;
@@ -113,7 +116,7 @@ export function populateScenario(scenario: Partial<Scenario>): Scenario {
 		statements: [],
 		datasets: [],
 		domainMeasures: [],
-		effects: [],
+		domainEffects: [],
 		feedbacks: [],
 		topics: {},
 		definedGeostories: [],
@@ -194,6 +197,9 @@ export function populateEffect<T extends DomainMeasure>(
 ): DomainEffect {
 	const defaultEffect: Effect<T> = {
 		affected: [],
+		name: "",
+		description: "",
+		id: generateUUID(),
 	};
 
 	const merged = {

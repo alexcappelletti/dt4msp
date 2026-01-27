@@ -3,6 +3,8 @@ import type {
 	Aspect,
 	Feedback,
 	Measure,
+	DomainEffect,
+	DomainMeasure,
 	Scenario,
 	Statement,
 } from "#/shared/types/msp-project";
@@ -11,6 +13,8 @@ import {
 	populateMeasure,
 	populateScenario,
 	populateStatement,
+	populateAspect,
+	populateEffect,
 } from "#/shared/types/msp-project";
 import { generateUUID } from "#/shared/utils/generateUUID";
 import { availableThemesMock } from "./mocked";
@@ -148,36 +152,104 @@ export const mockMarineMeasures: Measure[] = [
 		geospatialResources: [new MapLayer()],
 	}),
 ];
+
 export const mockAspects: Aspect[] = [
-	{
-		id: generateUUID(),
+	populateAspect({
 		name: "Quadro Normativo Pesca Transfrontaliera",
 		description:
 			"Analisi delle normative vigenti tra Italia, Tunisia e Malta per la gestione congiunta delle acque internazionali.",
-		referenceThemes: [], // Può essere popolato con oggetti Theme se necessario
-	},
-	{
-		id: generateUUID(),
+		referenceThemes: [],
+	}),
+	populateAspect({
 		name: "Protocollo di Monitoraggio Specie Aliene",
 		description:
 			"Linee guida metodologiche per la raccolta dati standardizzata sulla presenza di specie termofile nel Mediterraneo centrale.",
 		referenceThemes: [],
-	},
-	{
-		id: generateUUID(),
+	}),
+	populateAspect({
 		name: "Programma di Sensibilizzazione Comunità Locali",
 		description:
 			"Iniziative educative rivolte ai pescatori e agli operatori turistici di Mazara del Vallo e Sciacca sulla conservazione marina.",
 		referenceThemes: [],
-	},
-	{
-		id: generateUUID(),
+	}),
+	populateAspect({
 		name: "Certificazione di Sostenibilità Blue Economy",
 		description:
 			"Standard di certificazione per le imprese turistiche operanti nelle isole minori (Lampedusa, Linosa, Pantelleria).",
 		referenceThemes: [],
-	},
+	}),
 ];
+// 5 Effetti Spaziali (basati su Measure)
+const spatialEffects: DomainEffect[] = [
+	populateEffect<Measure>("Measure", {
+		name: "Espansione Habitat Posidonia",
+		description: "Effetto cartografico della ricrescita praterie.",
+		affected: [mockMarineMeasures[0]!, mockMarineMeasures[1]!], // Assumendo mockMeasures esistenti
+	}),
+	populateEffect<Measure>("Measure", {
+		name: "Zone di Restrizione Pesca",
+		description: "Buffer spaziali definiti dalle coordinate GPS.",
+		affected: [mockMarineMeasures[2]!],
+	}),
+	populateEffect<Measure>("Measure", {
+		name: "Monitoraggio Inquinamento Costiero",
+		description: "Visualizzazione hotspot inquinamento.",
+		affected: [mockMarineMeasures[3]!],
+	}),
+	populateEffect<Measure>("Measure", {
+		name: "Riforestazione Marina",
+		description: "Aree identificate per il trapianto di fanerogame.",
+		affected: [mockMarineMeasures[0]!],
+	}),
+	populateEffect<Measure>("Measure", {
+		name: "Erosione Costiera Contenuta",
+		description: "Layer di impatto delle barriere soffolte.",
+		affected: [mockMarineMeasures[1]!, mockMarineMeasures[3]!],
+	}),
+];
+
+// 7 Effetti Non Spaziali (basati su Aspect)
+const nonSpatialEffects: DomainEffect[] = [
+    populateEffect<Aspect>("Aspect", {
+        name: "Semplificazione Amministrativa",
+        
+        description: "Impatto sulle procedure di autorizzazione.",
+        affected: [mockAspects[0]!]
+    }),
+    populateEffect<Aspect>("Aspect", {
+        name: "Consapevolezza Sociale",
+        description: "Risultato dei programmi educativi.",
+        affected: [mockAspects[2]!]
+    }),
+    populateEffect<Aspect>("Aspect", {
+        name: "Standardizzazione Dati",
+        description: "Effetto del protocollo di monitoraggio.",
+        affected: [mockAspects[1]!]
+    }),
+    populateEffect<Aspect>("Aspect", {
+        name: "Prestigio Internazionale",
+        description: "Impatto della certificazione Blue Economy.",
+        affected: [mockAspects[3]!]
+    }),
+    populateEffect<Aspect>("Aspect", {
+        name: "Cooperazione Transfrontaliera",
+        description: "Miglioramento relazioni Italia-Tunisia.",
+        affected: [mockAspects[0]!]
+    }),
+    populateEffect<Aspect>("Aspect", {
+        name: "Inclusione Pescatori",
+        description: "Coinvolgimento attivo nel processo decisionale.",
+        affected: [mockAspects[2]!, mockAspects[3]!]
+    }),
+    populateEffect<Aspect>("Aspect", {
+        name: "Rigore Scientifico",
+        description: "Validazione dei dati raccolti.",
+        affected: [mockAspects[1]!]
+    })
+];
+
+
+
 /**
  * Genera uno scenario mock completo per i test.
  * @param id L'ID dello scenario.
@@ -200,6 +272,7 @@ export function createScenarioMock(id: string): Scenario {
 		statements: mockStatements,
 		feedbacks: mockFeedbacks,
 		domainMeasures: [...mockMarineMeasures, ...mockAspects],
+		domainEffects: [...spatialEffects, ...nonSpatialEffects],
 		primaryThemes: [availableThemesMock[0]!],
 		secondaryThemes: [availableThemesMock[1]!],
 	});
