@@ -1,14 +1,14 @@
 <!-- app/pages/scenarios/[id].vue -->
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import type { Scenario, Statement } from '#/shared/types/msp-project';
 import { useScenarioStore } from '@/stores/scenarioStore';
 import { storeToRefs } from 'pinia';
-import type { Scenario, Statement } from '#/shared/types/msp-project';
-type ViewModeType = 
-	'tab-view' | 
-	'edit-statement' | 
-	'edit-measures' | 
+import { computed, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
+type ViewModeType =
+	'tab-view' |
+	'edit-statement' |
+	'edit-measures' |
 	'edit-effects' |
 	'edit-feedbacks';
 const route = useRoute();
@@ -21,7 +21,7 @@ const scenarioStore = useScenarioStore();
 const { selectedScenario } = storeToRefs(scenarioStore);
 
 const viewMode = ref<ViewModeType>('tab-view');
-const selectedStatement = ref<Statement | null>(null);	
+const selectedStatement = ref<Statement | null>(null);
 
 
 
@@ -95,7 +95,7 @@ const handleSaveStatement = (formData: Partial<Statement>) => {
 const handleCancelEditStatement = () => {
 	viewMode.value = 'tab-view';
 	selectedStatement.value = null;
-};	
+};
 
 onMounted(async () => {
 	const scenarioId = route.params.pk as string;
@@ -119,15 +119,15 @@ onMounted(async () => {
 			</div>
 		</v-fade-transition>
 
-		
-		<div v-if="viewMode === 'tab-view' && selectedScenario" >
+
+		<div v-if="viewMode === 'tab-view' && selectedScenario">
 			<v-tabs v-model="tab" color="primary">
 				<v-tab value="general">Generale</v-tab>
 				<v-tab value="statements">Statements</v-tab>
 				<v-tab value="measures">Misure</v-tab>
 				<v-tab value="effects">Effects</v-tab>
 				<v-tab value="feedback">Feedback</v-tab>
-<!-- 				
+				<!-- 				
 				<v-tab value="map">Mappa</v-tab> -->
 			</v-tabs>
 			<div class="scenario-window">
@@ -136,16 +136,13 @@ onMounted(async () => {
 						<scenario-general-form />
 					</v-window-item>
 					<v-window-item value="statements">
-						<scenario-statements :statements="selectedScenario.statements || []" 
-							v-if="hasStatements"
-							@edit:statement="handleEditRequest" 
-							@delete:statement="handleDeleteStatement"
-							 />
+						<scenario-statements :statements="selectedScenario.statements || []" v-if="hasStatements"
+							@edit:statement="handleEditRequest" @delete:statement="handleDeleteStatement" />
 						<p v-else class="pa-4">Nessun statements disponibile.</p>
 					</v-window-item>
 
 					<v-window-item value="measures">
-						<scenario-measures :measures="selectedScenario.measures || []" />
+						<scenario-measures :measures="selectedScenario.domainMeasures || []" />
 
 					</v-window-item>
 					<v-window-item value="effects">
@@ -154,7 +151,7 @@ onMounted(async () => {
 					<v-window-item value="feedback">
 						<scenario-feedbacks />
 					</v-window-item>
-					
+
 					<v-window-item value="map">
 						<p>Integrazione Mappa</p>
 					</v-window-item>
@@ -162,10 +159,8 @@ onMounted(async () => {
 			</div>
 		</div>
 
-		<statement-form v-if="viewMode === 'edit-statement' && selectedStatement" 
-			:initial-data="selectedStatement"
-			@save="handleSaveStatement" 
-			@cancel="handleCancelEditStatement" />
+		<statement-form v-if="viewMode === 'edit-statement' && selectedStatement" :initial-data="selectedStatement"
+			@save="handleSaveStatement" @cancel="handleCancelEditStatement" />
 		<!-- FAB Button in basso a destra -->
 		<div class="fab-speed-dial-container" v-if="viewMode === 'tab-view' && tab === 'statements'">
 			<v-speed-dial location="top right" transition="scale-transition">
@@ -192,9 +187,10 @@ onMounted(async () => {
 	border: 1px solid red;
 	background-color: peru;
 }
+
 .position-absolute {
 	position: absolute !important;
-	
+
 }
 
 /* Assicura che il v-container occupi l'altezza necessaria per calcolare lo scrolling */
@@ -202,7 +198,7 @@ onMounted(async () => {
 	height: 100%;
 	display: flex;
 	flex-direction: column;
-	
+
 }
 
 /* Applica altezza massima e scrolling solo al contenuto delle tab */
@@ -231,6 +227,7 @@ onMounted(async () => {
 :deep(.v-window-item) {
 	/* Il padding è già gestito nel wrapper, ma se i componenti figli sono complessi, potrebbe servire qui */
 }
+
 .fab-speed-dial-container {
 	position: absolute;
 	/* Rimane fisso rispetto alla finestra (viewport) */
