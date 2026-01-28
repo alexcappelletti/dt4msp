@@ -129,7 +129,7 @@ const cancelForm = () => {
 				<v-expand-transition>
 					<v-row v-if="isSectorSpecific">
 						<v-col cols="12">
-							<v-label>Theme</v-label>
+							<v-label>Temi</v-label>
 
 							<!-- 2. Mostra un loader finché i temi non sono caricati -->
 							<v-progress-linear v-if="themesLoading" indeterminate color="primary"

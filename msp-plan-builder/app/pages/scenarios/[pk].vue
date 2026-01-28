@@ -1,125 +1,135 @@
-<!-- app/pages/scenarios/[id].vue -->
 <script setup lang="ts">
-import type { Scenario, Statement } from '#/shared/types/msp-project';
+import type { Scenario, Statement, Measure, Aspect, DomainMeasure } from '#/shared/types/msp-project';
 import { useScenarioStore } from '@/stores/scenarioStore';
+import {useThemesProvider} from '@/composables/useThemesProvider';
+import { generateUUID } from "#/shared/utils/generateUUID"; // Import mancante
 import { storeToRefs } from 'pinia';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-type ViewModeType =
-	'tab-view' |
-	'edit-statement' |
-	'edit-measures' |
-	'edit-effects' |
-	'edit-feedbacks';
+
+type ViewModeType = 'tab-view' | 'edit';
+
 const route = useRoute();
+const scenarioStore = useScenarioStore();
+const { selectedScenario } = storeToRefs(scenarioStore); // Reattivo dallo store
 
 const tab = ref('general');
-const scenarioData = ref<Scenario | null>(null);
 const isLoading = ref(true);
 const isSaving = ref(false);
-const scenarioStore = useScenarioStore();
-const { selectedScenario } = storeToRefs(scenarioStore);
 
 const viewMode = ref<ViewModeType>('tab-view');
 const selectedStatement = ref<Statement | null>(null);
+const selectedMeasure = ref<DomainMeasure | null>(null); // Aggiunto ref mancante
+
+// Utilizziamo direttamente selectedScenario dallo store per evitare sfasamenti
+const hasStatements = computed(() => (selectedScenario.value?.statements?.length ?? 0) > 0);
+const hasMeasures = computed(() => (selectedScenario.value?.domainMeasures?.length ?? 0) > 0);
+const hasEffects = computed(() => (selectedScenario.value?.domainEffects?.length ?? 0) > 0);
 
 
-
-const hasStatements = computed(() => {
-	return scenarioData.value?.statements !== undefined && scenarioData.value.statements.length > 0;
-});
-const hasScenario = computed(() => scenarioData.value !== null);
-
+// --- LOGICA STATEMENT ---
 const handleNewStatement = (type: 'General' | 'Sector-specific') => {
-	// Logica per gestire la cancellazione del form di nuovo statement
-	console.log('Cancellazione del form di nuovo statement');
-	viewMode.value = 'edit-statement';
+	viewMode.value = 'edit';
 	selectedStatement.value = {
-		id: '', // Sarà generato al salvataggio
+		id: '',
 		shortName: '',
 		longName: '',
 		description: '',
-		// Se è sector-specific, inizializziamo l'array, altrimenti undefined
 		sectorThemes: type === 'Sector-specific' ? [] : undefined
-	};
-	console.log('Apertura del form di nuovo statement di tipo:', type);
-	console.log('Selected Statement:', selectedStatement.value);
+	} as Statement;
 };
-
-const handleEditRequest = (statement: Statement) => {
-	// Logica per gestire la richiesta di modifica dello statement
-	viewMode.value = 'edit-statement';
-	selectedStatement.value = statement;
-	console.log('Modifica richiesta per lo statement:', statement);
-
-};
-const handleDeleteStatement = (statementId: string) => {
-	if (!scenarioData.value || !scenarioData.value.statements) return;
-
-	const index = scenarioData.value.statements.findIndex(s => s.id === statementId);
-	if (index !== -1) {
-		scenarioData.value.statements.splice(index, 1);
-	}
-};
-
 const handleSaveStatement = (formData: Partial<Statement>) => {
-	if (!scenarioData.value) return;
-	if (!scenarioData.value.statements) scenarioData.value.statements = [];
+	if (!selectedScenario.value) return;
+	if (!selectedScenario.value.statements) selectedScenario.value.statements = [];
 
 	if (selectedStatement.value?.id) {
-		// --- LOGICA EDIT ---
-		const index = scenarioData.value.statements.findIndex(s => s.id === selectedStatement.value!.id);
+		const index = selectedScenario.value.statements.findIndex(s => s.id === selectedStatement.value!.id);
 		if (index !== -1) {
-			scenarioData.value.statements[index] = {
-				...selectedStatement.value,
-				...formData
-			} as Statement;
-			console.log("Statement aggiornato con successo");
+			selectedScenario.value.statements[index] = { ...selectedStatement.value, ...formData } as Statement;
 		}
 	} else {
-		// --- LOGICA NUOVO ---
-		const newStatement: Statement = {
+		selectedScenario.value.statements.push({
+			...formData,
 			id: generateUUID(),
-			shortName: formData.shortName || '',
-			longName: formData.longName || '',
-			description: formData.description || '',
-			sectorThemes: formData.sectorThemes
-		};
-		scenarioData.value.statements.push(newStatement);
-		console.log("Nuovo statement creato con successo");
+		} as Statement);
 	}
 	viewMode.value = 'tab-view';
 	selectedStatement.value = null;
 };
 
-const handleCancelEditStatement = () => {
+
+const handleEditStatement = (statement: Statement) => {
+	viewMode.value = 'edit';
+	selectedStatement.value = statement;
+};
+
+const handleDeleteStatement = (statementId: string) => {
+	if (!selectedScenario.value?.statements) return;
+	selectedScenario.value.statements = selectedScenario.value.statements.filter(s => s.id !== statementId);
+};
+
+const handleNewMeasure = (type: 'Spatial' | 'Contextual') => {
+	viewMode.value = 'edit';
+	// Logica di inizializzazione per Aspect o Measure
+	selectedMeasure.value = type === 'Spatial'
+		? {
+			type: 'Spatial',
+			id: '',
+			description: '',
+			name: '',
+			impact: '',
+			geospatialResources: []
+		} as DomainMeasure
+		: {
+			type: 'Contextual',
+			id: '',
+			description: '',
+			name: '',
+		} as DomainMeasure;
+
+};
+const handleEditMeasure = (measure: DomainMeasure) => {
+	viewMode.value = 'edit';
+	selectedMeasure.value = measure;
+};
+const handleSaveAspect = (formData: Partial<DomainMeasure>) => {
+	if (!selectedScenario.value) return;
+	if (!selectedScenario.value.domainMeasures) selectedScenario.value.domainMeasures = [];
+
+	if (selectedMeasure.value?.id) {
+		const index = selectedScenario.value.domainMeasures.findIndex(m => m.id === selectedMeasure.value!.id);
+		if (index !== -1) {
+			selectedScenario.value.domainMeasures[index] = { ...selectedMeasure.value, ...formData } as DomainMeasure;
+		}
+	} else {
+		selectedScenario.value.domainMeasures.push({
+			...formData,
+			id: generateUUID(),
+		} as DomainMeasure);
+	}
 	viewMode.value = 'tab-view';
-	selectedStatement.value = null;
+	selectedMeasure.value = null;
+};
+const handleDeleteMeasure = (measureId: string) => {
+	if (!selectedScenario.value?.domainMeasures) return;
+	selectedScenario.value.domainMeasures = selectedScenario.value.domainMeasures
+		.filter(m => m.id !== measureId);
 };
 
 onMounted(async () => {
-	const scenarioId = route.params.pk as string;
-	await useScenarioStore().fetchScenarioMock(scenarioId);
-	scenarioData.value = useScenarioStore().selectedScenario;
+	const scenarioId = route.params.id as string; // pk o id in base al tuo router
+	await scenarioStore.fetchScenarioMock(scenarioId);
 	isLoading.value = false;
 });
 
 
-// Debounce di 500ms
 </script>
+
 <template>
 	<v-container fluid class="main-scenario-container">
 		<v-progress-linear v-if="isLoading" indeterminate color="primary"></v-progress-linear>
 
-		<v-fade-transition>
-			<div v-if="isSaving" class="text-caption text-primary d-flex align-center position-absolute"
-				style="top: 70px; right: 20px; z-index: 10;">
-				<v-progress-circular indeterminate size="16" width="2" class="mr-2"></v-progress-circular>
-				Salvataggio automatico...
-			</div>
-		</v-fade-transition>
-
-
+		<!-- Utilizziamo selectedScenario dallo store -->
 		<div v-if="viewMode === 'tab-view' && selectedScenario">
 			<v-tabs v-model="tab" color="primary">
 				<v-tab value="general">Generale</v-tab>
@@ -127,56 +137,62 @@ onMounted(async () => {
 				<v-tab value="measures">Misure</v-tab>
 				<v-tab value="effects">Effects</v-tab>
 				<v-tab value="feedback">Feedback</v-tab>
-				<!-- 				
-				<v-tab value="map">Mappa</v-tab> -->
 			</v-tabs>
+
 			<div class="scenario-window">
 				<v-window v-model="tab">
 					<v-window-item value="general">
 						<scenario-general-form />
 					</v-window-item>
+
 					<v-window-item value="statements">
 						<scenario-statements :statements="selectedScenario.statements || []" v-if="hasStatements"
-							@edit:statement="handleEditRequest" @delete:statement="handleDeleteStatement" />
+							@edit:statement="handleEditStatement" @delete:statement="handleDeleteStatement" />
 						<p v-else class="pa-4">Nessun statements disponibile.</p>
 					</v-window-item>
 
 					<v-window-item value="measures">
-						<scenario-measures :measures="selectedScenario.domainMeasures || []" />
-
+						<scenario-domain-measures 
+							:domain-measures="selectedScenario.domainMeasures || []" 
+							@edit:measure="handleEditMeasure"
+							@delete:measure="handleDeleteMeasure" />
 					</v-window-item>
+
 					<v-window-item value="effects">
-						<scenario-effects />
-					</v-window-item>
-					<v-window-item value="feedback">
-						<scenario-feedbacks />
-					</v-window-item>
-
-					<v-window-item value="map">
-						<p>Integrazione Mappa</p>
+						<scenario-domain-effects :domain-effects="selectedScenario.domainEffects || []" />
 					</v-window-item>
 				</v-window>
 			</div>
 		</div>
 
-		<statement-form v-if="viewMode === 'edit-statement' && selectedStatement" :initial-data="selectedStatement"
-			@save="handleSaveStatement" @cancel="handleCancelEditStatement" />
-		<!-- FAB Button in basso a destra -->
-		<div class="fab-speed-dial-container" v-if="viewMode === 'tab-view' && tab === 'statements'">
-			<v-speed-dial location="top right" transition="scale-transition">
-				<template v-slot:activator="{ props: activatorProps }">
-					<v-btn v-bind="activatorProps" color="primary" icon="mdi-plus" size="large" elevation="4"></v-btn>
-				</template>
-				<!-- Opzione Sector-specific -->
-				<v-btn key="1" color="secondary" prepend-icon="mdi-tag-multiple"
-					@click="handleNewStatement('Sector-specific')">
-					Sector-specific
-				</v-btn>
+		<!-- Forms di editing -->
+		<statement-form v-if="viewMode === 'edit' && tab === 'statements' && selectedStatement" 
+			:initial-data="selectedStatement"
+			@save="handleSaveStatement" @cancel="viewMode = 'tab-view'" />
 
-				<!-- Opzione General -->
-				<v-btn key="2" color="surface-variant" prepend-icon="mdi-earth" @click="handleNewStatement('General')">
-					General
-				</v-btn>
+		<!-- Fix: Aggiunto controllo per selectedMeasure -->
+		<scenario-aspect-form v-if="viewMode === 'edit' && tab === 'measures' && selectedMeasure"
+			:initial-data="selectedMeasure" 
+			@save="handleSaveAspect" 
+			@cancel="viewMode = 'tab-view'" />
+
+		<!-- FABs -->
+		<div class="fab-speed-dial-container"
+			v-if="viewMode === 'tab-view' && tab !== 'general'">
+			<v-speed-dial v-if="tab === 'statements'" location="top right" transition="scale-transition">
+				<template v-slot:activator="{ props }">
+					<v-btn v-bind="props" color="primary" icon="mdi-plus" size="large"></v-btn>
+				</template>
+				<v-btn key="1" color="secondary" @click="handleNewStatement('Sector-specific')">Sector-specific</v-btn>
+				<v-btn key="2" color="surface-variant" @click="handleNewStatement('General')">General</v-btn>
+			</v-speed-dial>
+
+			<v-speed-dial v-if="tab === 'measures'" location="top right" transition="scale-transition">
+				<template v-slot:activator="{ props }">
+					<v-btn v-bind="props" color="primary" icon="mdi-plus" size="large"></v-btn>
+				</template>
+				<v-btn key="1" color="secondary" @click="handleNewMeasure('Contextual')">Non-spatial</v-btn>
+				<v-btn key="2" color="surface-variant" @click="handleNewMeasure('Spatial')">Spatial</v-btn>
 			</v-speed-dial>
 		</div>
 	</v-container>

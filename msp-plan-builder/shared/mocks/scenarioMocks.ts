@@ -181,27 +181,27 @@ export const mockAspects: Aspect[] = [
 ];
 // 5 Effetti Spaziali (basati su Measure)
 const spatialEffects: DomainEffect[] = [
-	populateEffect<Measure>("Measure", {
+	populateEffect<Measure>("Spatial", {
 		name: "Espansione Habitat Posidonia",
 		description: "Effetto cartografico della ricrescita praterie.",
 		affected: [mockMarineMeasures[0]!, mockMarineMeasures[1]!], // Assumendo mockMeasures esistenti
 	}),
-	populateEffect<Measure>("Measure", {
+	populateEffect<Measure>("Spatial", {
 		name: "Zone di Restrizione Pesca",
 		description: "Buffer spaziali definiti dalle coordinate GPS.",
 		affected: [mockMarineMeasures[2]!],
 	}),
-	populateEffect<Measure>("Measure", {
+	populateEffect<Measure>("Spatial", {
 		name: "Monitoraggio Inquinamento Costiero",
 		description: "Visualizzazione hotspot inquinamento.",
 		affected: [mockMarineMeasures[3]!],
 	}),
-	populateEffect<Measure>("Measure", {
+	populateEffect<Measure>("Spatial", {
 		name: "Riforestazione Marina",
 		description: "Aree identificate per il trapianto di fanerogame.",
 		affected: [mockMarineMeasures[0]!],
 	}),
-	populateEffect<Measure>("Measure", {
+	populateEffect<Measure>("Spatial", {
 		name: "Erosione Costiera Contenuta",
 		description: "Layer di impatto delle barriere soffolte.",
 		affected: [mockMarineMeasures[1]!, mockMarineMeasures[3]!],
@@ -210,38 +210,38 @@ const spatialEffects: DomainEffect[] = [
 
 // 7 Effetti Non Spaziali (basati su Aspect)
 const nonSpatialEffects: DomainEffect[] = [
-    populateEffect<Aspect>("Aspect", {
+    populateEffect<Aspect>("Contextual", {
         name: "Semplificazione Amministrativa",
         
         description: "Impatto sulle procedure di autorizzazione.",
         affected: [mockAspects[0]!]
     }),
-    populateEffect<Aspect>("Aspect", {
+    populateEffect<Aspect>("Contextual", {
         name: "Consapevolezza Sociale",
         description: "Risultato dei programmi educativi.",
         affected: [mockAspects[2]!]
     }),
-    populateEffect<Aspect>("Aspect", {
+    populateEffect<Aspect>("Contextual", {
         name: "Standardizzazione Dati",
         description: "Effetto del protocollo di monitoraggio.",
         affected: [mockAspects[1]!]
     }),
-    populateEffect<Aspect>("Aspect", {
+    populateEffect<Aspect>("Contextual", {
         name: "Prestigio Internazionale",
         description: "Impatto della certificazione Blue Economy.",
         affected: [mockAspects[3]!]
     }),
-    populateEffect<Aspect>("Aspect", {
+    populateEffect<Aspect>("Contextual", {
         name: "Cooperazione Transfrontaliera",
         description: "Miglioramento relazioni Italia-Tunisia.",
         affected: [mockAspects[0]!]
     }),
-    populateEffect<Aspect>("Aspect", {
+    populateEffect<Aspect>("Contextual", {
         name: "Inclusione Pescatori",
         description: "Coinvolgimento attivo nel processo decisionale.",
         affected: [mockAspects[2]!, mockAspects[3]!]
     }),
-    populateEffect<Aspect>("Aspect", {
+    populateEffect<Aspect>("Contextual", {
         name: "Rigore Scientifico",
         description: "Validazione dei dati raccolti.",
         affected: [mockAspects[1]!]

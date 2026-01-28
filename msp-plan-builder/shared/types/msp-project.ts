@@ -80,7 +80,7 @@ export interface Feedback {
 }
 export type DomainMeasure = Measure | Aspect;
 export interface Aspect {
-	readonly type: "Aspect";
+	readonly type: "Contextual";
 	name: string;
 	readonly id: string;
 	description: string;
@@ -88,7 +88,7 @@ export interface Aspect {
 	longName?: string;
 }
 export interface Measure extends Omit<Aspect, "type"> {
-	readonly type: "Measure";
+	readonly type: "Spatial";
 	impact: string;
 	geospatialResources: MapLayer[];
 }
@@ -159,7 +159,7 @@ export function populateTheme(theme: Partial<Theme>): Theme {
 export function populateAspect(aspect: Partial<Aspect> = {}): Aspect {
 	const defaultAspect: Aspect = {
 		id: generateUUID(),
-		type: "Aspect",
+		type: "Contextual",
 		name: "",
 		description: "",
 		referenceThemes: [],
@@ -169,7 +169,7 @@ export function populateAspect(aspect: Partial<Aspect> = {}): Aspect {
 	return {
 		...defaultAspect,
 		...aspect,
-		type: "Aspect", 
+		type: "Contextual", 
 	};
 }
 
@@ -177,7 +177,7 @@ export function populateAspect(aspect: Partial<Aspect> = {}): Aspect {
 export function populateMeasure(measure: Partial<Measure> = {}): Measure {
 	const defaultMeasure: Measure = {
 		id: generateUUID(),
-		type: "Measure",
+		type: "Spatial",
 		name: "",
 		description: "",
 		impact: "",
@@ -188,7 +188,7 @@ export function populateMeasure(measure: Partial<Measure> = {}): Measure {
 	return {
 		...defaultMeasure,
 		...measure,
-		type: "Measure", 
+		type: "Spatial", 
 	};
 }
 export function populateEffect<T extends DomainMeasure>(

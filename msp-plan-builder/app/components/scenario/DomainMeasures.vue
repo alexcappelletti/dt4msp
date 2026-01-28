@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import type { Measure, Theme } from '#/shared/types/msp-project';
+import type { DomainMeasure, Theme } from '#/shared/types/msp-project';
 import { useScenarioStore } from '@/stores/scenarioStore';
 export type MeasureType = 'Spatial' | 'Non-spatial';
 
 
 const props = defineProps<{
-	measures: Measure[];
+	domainMeasures: DomainMeasure[];
 }>();
+// Eventi emessi dal componente per gestire edit, delete e l'apertura del form per nuova misura
+const emit = defineEmits(['delete:measure', 'edit:measure']);
+
 const store = useScenarioStore();
 
 // --- Gestione dei Temi Disponibili (Caricati da un'altra fonte/API) ---
@@ -22,31 +25,33 @@ const availableFilters = ['Tutti', 'Spatial', 'Non-spatial'];
 
 
 const filteredMeasures = computed(() => {
-	if (currentFilter.value === 'Tutti') return props.measures;
+	if (currentFilter.value === 'Tutti') return props.domainMeasures;
 	// Filtro basato sul tipo di misura (Spatial/Non-spatial)
 	if (currentFilter.value === 'Spatial') {
-		return props.measures.filter(m => isSpatial(m));
+		return props.domainMeasures.filter(m => isSpatial(m));
 	}
 	if (currentFilter.value === 'Non-spatial') {
-		return props.measures.filter(m => isNonSpatial(m));
+		return props.domainMeasures.filter(m => isNonSpatial(m));
 	}
 	return []
 });
 
-function isSpatial(measure: Measure): boolean {
+function isSpatial(measure: DomainMeasure): boolean {
+	if (!measure) return false;
+	if (measure.type !== 'Spatial') return false;
 	return measure.geospatialResources !== undefined && Array.isArray(measure.geospatialResources);
 }
-function isNonSpatial(measure: Measure): boolean {
-	return measure.geospatialResources === undefined;
+function isNonSpatial(measure: DomainMeasure): boolean {
+	if (!measure) return false;
+	return measure.type !== 'Contextual'
 }
-// Eventi emessi dal componente per gestire edit, delete e l'apertura del form per nuova misura
-const emit = defineEmits(['delete:measure', 'edit:measure']);
+
 
 const deleteMeasure = (id: string) => {
 	emit('delete:measure', id);
 };
 
-const editMeasure = (measure: Measure) => {
+const editMeasure = (measure: DomainMeasure) => {
 	console.log('Editing measure:', measure);
 	emit('edit:measure', measure);
 };
