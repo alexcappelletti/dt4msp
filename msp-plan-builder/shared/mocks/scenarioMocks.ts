@@ -73,7 +73,8 @@ const mockStatements: Statement[] = [
 // Mock focalizzati sull'ambiente marino del Canale di Sicilia
 export const mockMarineMeasures: Measure[] = [
 	populateMeasure({
-		name: "Protezione delle praterie di Posidonia Oceanica",
+		name: "Protezione",
+		longName: "Protezione delle praterie di Posidonia Oceanica",
 		description:
 			"Installazione di sistemi di ormeggio ecologici (boe ecosostenibili) per evitare lo sradicamento causato dalle ancore nelle Egadi.",
 		impact: "Aumento della densità dei fasci di Posidonia del 12% in 3 anni",
@@ -81,7 +82,8 @@ export const mockMarineMeasures: Measure[] = [
 	}),
 
 	populateMeasure({
-		name: "Ripristino del Coralligeno Profondo",
+		name: "Ripristino",
+		longName: "Ripristino del Coralligeno Profondo",
 		description:
 			"Rimozione di reti fantasma e attrezzature da pesca abbandonate dai banchi profondi del Canale di Sicilia.",
 		impact: "Riduzione dello stress meccanico sugli ecosistemi bentonici",
@@ -89,7 +91,8 @@ export const mockMarineMeasures: Measure[] = [
 	}),
 
 	populateMeasure({
-		name: "Monitoraggio dello Stretto di Sicilia (Rotte Migratorie)",
+		name: "Monitoraggio",
+		longName: "Monitoraggio dello Stretto di Sicilia (Rotte Migratorie)",
 		description:
 			"Implementazione di boe acustiche per il monitoraggio dei cetacei e la regolazione del traffico mercantile.",
 		impact: "Diminuzione del rischio di collisione con grandi vertebrati marini",
@@ -97,7 +100,8 @@ export const mockMarineMeasures: Measure[] = [
 	}),
 
 	populateMeasure({
-		name: "Contrasto alle Specie Aliene (Invasione Lessepsiana)",
+		name: "Specie Aliene",
+		longName: "Contrasto alle Specie Aliene (Invasione Lessepsiana)",
 		description:
 			"Programma di monitoraggio e pesca selettiva del Pesce Coniglio e del Pesce Leone nel Canale di Sicilia sud-orientale.",
 		impact: "Salvaguardia della biodiversità ittica autoctona",
@@ -105,7 +109,8 @@ export const mockMarineMeasures: Measure[] = [
 	}),
 
 	populateMeasure({
-		name: "Regolamentazione Pesca a Strascico sui Banchi",
+		name: "Regolamentazione",
+		longName: "Regolamentazione Pesca a Strascico sui Banchi",
 		description:
 			"Istituzione di zone di restrizione della pesca (FRA - Fish Restricted Areas) sui banchi sommersi (es. Banco Avventura).",
 		impact: "Recupero degli stock ittici commerciali (Merluzzo e Gambero Rosa)",
@@ -113,7 +118,8 @@ export const mockMarineMeasures: Measure[] = [
 	}),
 
 	populateMeasure({
-		name: "Sentinel Marine Pollution - Rilevamento Idrocarburi",
+		name: "Telerilevamento",
+		longName: "Sentinel Marine Pollution - Rilevamento Idrocarburi",
 		description:
 			"Sistema di telerilevamento satellitare per l'identificazione precoce di sversamenti illegali lungo le rotte petroliere.",
 		impact: "Intervento tempestivo entro 4 ore dalla segnalazione",
@@ -121,7 +127,8 @@ export const mockMarineMeasures: Measure[] = [
 	}),
 
 	populateMeasure({
-		name: "Rafforzamento Area Marina Protetta (AMP) Pelagie",
+		name: "Area Marina Protetta",
+		longName: "Rafforzamento Area Marina Protetta (AMP) Pelagie",
 		description:
 			"Ampliamento della zona di protezione integrale intorno all'Isola dei Conigli (Lampedusa).",
 		impact: "Incremento della biomassa ittica (spillover effect) nelle zone limitrofe",
@@ -129,7 +136,8 @@ export const mockMarineMeasures: Measure[] = [
 	}),
 
 	populateMeasure({
-		name: "Sistema di Allerta Precoce Ondate di Calore Marine",
+		name: "Allerta Prot. Civile",
+		longName: "Sistema di Allerta Precoce Ondate di Calore Marine",
 		description:
 			"Rete di sensori termometrici a diverse profondità per monitorare il riscaldamento delle acque tra Sicilia e Tunisia.",
 		impact: "Previsione degli eventi di sbiancamento dei coralli mediterranei",
@@ -137,7 +145,8 @@ export const mockMarineMeasures: Measure[] = [
 	}),
 
 	populateMeasure({
-		name: "Gestione Plastiche alle Foci dei Fiumi",
+		name: "Ambiente",
+		longName: "Gestione Plastiche alle Foci dei Fiumi",
 		description:
 			"Installazione di barriere cattura-plastica alla foce dei fiumi siciliani che scaricano nel Canale.",
 		impact: "Riduzione del 40% delle microplastiche riversate in mare",
@@ -145,7 +154,8 @@ export const mockMarineMeasures: Measure[] = [
 	}),
 
 	populateMeasure({
-		name: "Erosione Costiera e Ripascimento Morbido",
+		name: "Erosione Costiera",
+		longName: "Erosione Costiera e Ripascimento Morbido",
 		description:
 			"Interventi di protezione delle coste basse del trapanese tramite barriere soffolte naturali.",
 		impact: "Stabilizzazione della linea di costa e protezione degli habitat dunali",
@@ -155,25 +165,29 @@ export const mockMarineMeasures: Measure[] = [
 
 export const mockAspects: Aspect[] = [
 	populateAspect({
-		name: "Quadro Normativo Pesca Transfrontaliera",
+		name: "Cooperazione Transfrontaliera Pesca",
+		longName: "Quadro Normativo Pesca Transfrontaliera",
 		description:
 			"Analisi delle normative vigenti tra Italia, Tunisia e Malta per la gestione congiunta delle acque internazionali.",
 		referenceThemes: [],
 	}),
 	populateAspect({
-		name: "Protocollo di Monitoraggio Specie Aliene",
+		name: "Monitoraggio Specie",
+		longName: "Protocollo di Monitoraggio Specie Aliene",
 		description:
 			"Linee guida metodologiche per la raccolta dati standardizzata sulla presenza di specie termofile nel Mediterraneo centrale.",
 		referenceThemes: [],
 	}),
 	populateAspect({
-		name: "Programma di Sensibilizzazione Comunità Locali",
+		name: "Comunità Locali",
+		longName: "Programma di Sensibilizzazione Comunità Locali",
 		description:
 			"Iniziative educative rivolte ai pescatori e agli operatori turistici di Mazara del Vallo e Sciacca sulla conservazione marina.",
 		referenceThemes: [],
 	}),
 	populateAspect({
-		name: "Certificazione di Sostenibilità Blue Economy",
+		name: "Blue Economy",
+		longName: "Certificazione di Sostenibilità Blue Economy",
 		description:
 			"Standard di certificazione per le imprese turistiche operanti nelle isole minori (Lampedusa, Linosa, Pantelleria).",
 		referenceThemes: [],

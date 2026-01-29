@@ -2,6 +2,15 @@
 import { computed, ref } from 'vue';
 import type { DomainMeasure, Theme } from '#/shared/types/msp-project';
 import { useScenarioStore } from '@/stores/scenarioStore';
+
+interface MenuItem {
+	title: string;
+	icon: string;
+	action: (measure: DomainMeasure) => void;
+}
+
+
+
 export type MeasureType = 'Spatial' | 'Non-spatial';
 
 
@@ -9,7 +18,7 @@ const props = defineProps<{
 	domainMeasures: DomainMeasure[];
 }>();
 // Eventi emessi dal componente per gestire edit, delete e l'apertura del form per nuova misura
-const emit = defineEmits(['delete:measure', 'edit:measure']);
+const emit = defineEmits(['delete:measure', 'edit:measure', 'clone:measure']);
 
 const store = useScenarioStore();
 
@@ -46,15 +55,11 @@ function isNonSpatial(measure: DomainMeasure): boolean {
 	return measure.type !== 'Contextual'
 }
 
+const menuItems = (measure: DomainMeasure): MenuItem[] => [
+	{ title: 'Duplicate', icon: 'mdi-content-copy', action: (measure) => emit('clone:measure', measure) },
+	{ title: 'Delete', icon: 'mdi-delete', action: (measure) => emit('delete:measure', measure) },
+];
 
-const deleteMeasure = (id: string) => {
-	emit('delete:measure', id);
-};
-
-const editMeasure = (measure: DomainMeasure) => {
-	console.log('Editing measure:', measure);
-	emit('edit:measure', measure);
-};
 
 </script>
 
@@ -75,13 +80,12 @@ const editMeasure = (measure: DomainMeasure) => {
 		<!-- Lista di Card -->
 		<div v-if="filteredMeasures.length > 0" class="measures-grid">
 			<v-card v-for="measure in filteredMeasures" :key="measure.id" class="measure-card hover-effect"
-				@click="editMeasure(measure)">
+				@click="emit('edit:measure', measure)">
 				<v-card-item>
 					<div class="d-flex justify-space-between align-start">
 						<div class="d-flex align-center">
 							<!-- Icona/Avatar N o S basata sul tipo di misura (Non-spatial/Spatial) -->
-							<v-avatar size="32" class="mr-3"
-								:color="isSpatial(measure) ? 'secondary' : 'primary'">
+							<v-avatar size="32" class="mr-3" :color="isSpatial(measure) ? 'secondary' : 'primary'">
 								<span class="white--text">{{ isSpatial(measure) ? 'S' : 'N' }}</span>
 							</v-avatar>
 							<div>
@@ -92,22 +96,43 @@ const editMeasure = (measure: DomainMeasure) => {
 								</div>
 							</div>
 						</div>
-						<v-btn icon variant="text" size="small" @click.stop="deleteMeasure(measure.id)">
-							<v-icon>mdi-delete</v-icon>
-						</v-btn>
+
+						<v-menu>
+							<template v-slot:activator="{ props: menuProps }">
+								<v-btn icon variant="text" size="small" v-bind="menuProps" @click.stop>
+									<v-icon>mdi-dots-vertical</v-icon>
+								</v-btn>
+							</template>
+
+							<v-list density="compact">
+								<v-list-item v-for="(item, index) in menuItems(measure)" :key="index"
+									@click="item.action(measure)">
+									<template v-slot:prepend>
+										<v-icon :icon="item.icon"></v-icon>
+									</template>
+									<v-list-item-title>{{ item.title }}</v-list-item-title>
+								</v-list-item>
+							</v-list>
+						</v-menu>
+
+
 					</div>
 				</v-card-item>
 
 				<!-- Parte centrale con immagine segnaposto (come da immagine) -->
-				<div class="image-placeholder bg-grey-lighten-3">
+				<div v-if="measure.type === 'Spatial'" class="image-placeholder bg-grey-lighten-3">
 					<v-icon size="64" color="grey-darken-1">mdi-image</v-icon>
 				</div>
 
 				<v-card-text>
-					<p class="font-weight-bold mb-1">Long name</p>
-					<p class="text-medium-emphasis mb-3">{{ measure.name + measure.id }}</p>
+					<p class=""></p>
+					<p class="font-weight-bold mb-1">{{ measure.longName || measure.id }}</p>
 
-					<p class="font-weight-bold mb-1">Description:</p>
+					<span v-for="(theme, index) in measure.referenceThemes" :key="index"
+						class="text-caption tw:mt-10 tw:mb-2">
+						{{ theme.name }}
+					</span>	
+					
 					<p class="text-medium-emphasis text-caption">
 						{{ measure.description || 'Nessuna descrizione disponibile.' }}</p>
 				</v-card-text>

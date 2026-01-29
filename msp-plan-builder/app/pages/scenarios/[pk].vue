@@ -95,13 +95,17 @@ const handleEditMeasure = (measure: DomainMeasure) => {
 const handleSaveAspect = (formData: Partial<DomainMeasure>) => {
 	if (!selectedScenario.value) return;
 	if (!selectedScenario.value.domainMeasures) selectedScenario.value.domainMeasures = [];
-
+	
 	if (selectedMeasure.value?.id) {
 		const index = selectedScenario.value.domainMeasures.findIndex(m => m.id === selectedMeasure.value!.id);
+		console.log("1")
 		if (index !== -1) {
+			console.log("2")
 			selectedScenario.value.domainMeasures[index] = { ...selectedMeasure.value, ...formData } as DomainMeasure;
+
 		}
 	} else {
+		console.log("3")
 		selectedScenario.value.domainMeasures.push({
 			...formData,
 			id: generateUUID(),
@@ -110,10 +114,15 @@ const handleSaveAspect = (formData: Partial<DomainMeasure>) => {
 	viewMode.value = 'tab-view';
 	selectedMeasure.value = null;
 };
-const handleDeleteMeasure = (measureId: string) => {
+const handleCloneMeasure = (measure: DomainMeasure) => {
+	const { id, ...clonedMeasureData } = measure;
+	selectedMeasure.value = { ...clonedMeasureData, id: '' }; // Reset id for new measure
+	viewMode.value = 'edit';	
+};
+const handleDeleteMeasure = (measure: DomainMeasure) => {
 	if (!selectedScenario.value?.domainMeasures) return;
 	selectedScenario.value.domainMeasures = selectedScenario.value.domainMeasures
-		.filter(m => m.id !== measureId);
+		.filter(m => m.id !== measure.id);
 };
 
 onMounted(async () => {
@@ -155,7 +164,8 @@ onMounted(async () => {
 						<scenario-domain-measures 
 							:domain-measures="selectedScenario.domainMeasures || []" 
 							@edit:measure="handleEditMeasure"
-							@delete:measure="handleDeleteMeasure" />
+							@delete:measure="handleDeleteMeasure"
+							@clone:measure="handleCloneMeasure" />
 					</v-window-item>
 
 					<v-window-item value="effects">

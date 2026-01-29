@@ -43,7 +43,11 @@ const cancelForm = () => {
 				<v-icon>mdi-arrow-left</v-icon>
 			</v-btn>
 			<v-toolbar-title class="font-weight-bold">
-				<v-chip size="small" color="primary" variant="flat" class="mr-2">N-S</v-chip>
+				<v-chip 
+					v-if="formData.type === 'Spatial'" size="small" color="primary" variant="flat" class="mr-2">Spaziale</v-chip>
+				<v-chip 
+					v-else			
+					size="small" color="primary" variant="flat" class="mr-2">N-S</v-chip>
 				Misura non spaziale
 			</v-toolbar-title>
 
@@ -75,7 +79,7 @@ const cancelForm = () => {
 				<v-expand-transition>
 					<v-row v-if="formData.type === 'Spatial'">
 						<v-col cols="12">
-							<v-text-field v-model="formData.impact" label="Impatto Spaziale" variant="outlined" />
+							<v-text-field v-model="formData.impact" label="Impatto" variant="outlined" />
 						</v-col>
 					</v-row><v-row v-if="formData.type === 'Spatial'">
 						<v-col cols="12">
@@ -87,7 +91,7 @@ const cancelForm = () => {
 
 				<v-row>
 					<v-col>
-						<v-textarea v-model="formData.description" label="description" variant="outlined" clearable
+						<v-textarea v-model="formData.description" label="Description" variant="outlined" clearable
 							rows="6" hint="Description of the measure" persistent-hint class="mb-4"></v-textarea>
 					</v-col>
 				</v-row>
