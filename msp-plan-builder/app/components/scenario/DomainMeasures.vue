@@ -129,12 +129,25 @@ const menuItems = (measure: DomainMeasure): MenuItem[] => [
 					<p class="font-weight-bold mb-1">{{ measure.longName || measure.id }}</p>
 
 					<span v-for="(theme, index) in measure.referenceThemes" :key="index"
-						class="text-caption tw:mt-10 tw:mb-2">
+						class="text-caption tw-mb tw-mb-2">
 						{{ theme.name }}
 					</span>	
 					
 					<p class="text-medium-emphasis text-caption">
 						{{ measure.description || 'Nessuna descrizione disponibile.' }}</p>
+					
+					<div class="tw-mt-12 tw-bg-alex">Test 1</div>
+					<div class="mt-12 bg-red-500">Test 2</div>
+					<div class="tw:mt-12">Test 3</div>
+					
+					<div class="tw-bg-ux1 tw-p-10">
+						<span class="">TEST FONT E COLORE</span>
+					</div>
+
+					<!-- Test Font Personalizzato -->
+					<p class="tw-font-killos ">
+						Questo testo dovrebbe avere il font Killos.
+					</p>
 				</v-card-text>
 			</v-card>
 		</div>

@@ -1,4 +1,5 @@
 import { resolve } from 'path';
+import tailwindcss from '@tailwindcss/vite'; 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
 export default defineNuxtConfig({
@@ -17,7 +18,8 @@ export default defineNuxtConfig({
 	modules: ["vuetify-nuxt-module", "@pinia/nuxt"],
 	css: [
 		"vuetify/styles",
-		//qui tailwind eventualmente
+		"~/assets/css/main-tailwind.css", //va
+		//gli scss vanno dopo tailwind per sovrascrivere variabili se serve
 	],
 	vite: {
 		server: {
@@ -27,13 +29,16 @@ export default defineNuxtConfig({
 				interval: 100,
 			},
 		},
-		css: {
-			preprocessorOptions: {
-				scss: {
-					additionalData: `@use "~/assets/scss/variables" as *;`,
-				},
-			},
-		},
+		plugins: [
+			tailwindcss(), // Inizializza Tailwind 4
+		],
+		// css: {
+		// 	preprocessorOptions: {
+		// 		scss: {
+		// 			additionalData: `@use "~/assets/scss/variables" as *;`,
+		// 		},
+		// 	},
+		// },
 	},
 	vuetify: {
 		moduleOptions: {
@@ -41,7 +46,7 @@ export default defineNuxtConfig({
 		},
 		vuetifyOptions: {
 			/* vuetify options */
-			treeShake: true,
+			//treeShake: true,
 			icons: {
 				defaultSet: "mdi",
 			},

@@ -10,4 +10,8 @@ const emit = defineEmits(['delete:effect', 'edit:effect']);
 
 </script>
 
-<template>effects</template>
+<template>
+	<div class="mt-8 twbg-red-500">TEST</div>
+	<div class="tw-mt-20 tw-bg-green-500">TEST2</div>
+
+effects</template>
