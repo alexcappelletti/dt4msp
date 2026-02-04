@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Scenario, Statement, Measure, Aspect, DomainMeasure } from '#/shared/types/msp-project';
+import type { DomainEffect, Effect } from "#/shared/types/msp-project";
 // import { useScenarioStore } from '@/stores/scenarioStore';
 // import {useThemesProvider} from '@/composables/useThemesProvider';
 import { generateUUID } from "#/shared/utils/generateUUID"; // Import mancante
@@ -67,7 +68,7 @@ const handleDeleteStatement = (statementId: string) => {
 	if (!selectedScenario.value?.statements) return;
 	selectedScenario.value.statements = selectedScenario.value.statements.filter(s => s.id !== statementId);
 };
-
+///logica Measures/Aspects
 const handleNewMeasure = (type: 'Spatial' | 'Contextual') => {
 	viewMode.value = 'edit';
 	// Logica di inizializzazione per Aspect o Measure
@@ -125,6 +126,80 @@ const handleDeleteMeasure = (measure: DomainMeasure) => {
 		.filter(m => m.id !== measure.id);
 };
 
+
+//logica Effects 
+const selectedEffect = ref<DomainEffect | null>(null);
+
+// helper: inferisce tipo effetto dal primo affected
+function effectType(effect: DomainEffect): "Spatial" | "Contextual" {
+	const first = effect.affected?.[0];
+	return first?.type === "Spatial" ? "Spatial" : "Contextual";
+}
+
+// NEW
+const handleNewEffect = (type: "Spatial" | "Contextual") => {
+	viewMode.value = "edit";
+
+	// inizializzo un effetto vuoto coerente con la union DomainEffect
+	selectedEffect.value =
+		type === "Spatial"
+			? ({
+				id: "",
+				name: "",
+				description: "",
+				affected: [] as Measure[],
+			} as DomainEffect)
+			: ({
+				id: "",
+				name: "",
+				description: "",
+				affected: [] as Aspect[],
+			} as DomainEffect);
+};
+
+const handleEditEffect = (effect: DomainEffect) => {
+	viewMode.value = "edit";
+	selectedEffect.value = effect;
+};
+
+const handleSaveEffect = (formData: Partial<DomainEffect>) => {
+	if (!selectedScenario.value) return;
+	if (!selectedScenario.value.domainEffects) selectedScenario.value.domainEffects = [];
+
+	if (selectedEffect.value?.id) {
+		const idx = selectedScenario.value.domainEffects.findIndex((e) => e.id === selectedEffect.value!.id);
+		if (idx !== -1) {
+			selectedScenario.value.domainEffects[idx] = {
+				...selectedEffect.value,
+				...formData,
+			} as DomainEffect;
+		}
+	} else {
+		selectedScenario.value.domainEffects.push({
+			...selectedEffect.value,
+			...formData,
+			id: generateUUID(),
+		} as DomainEffect);
+	}
+
+	viewMode.value = "tab-view";
+	selectedEffect.value = null;
+};
+
+const handleDeleteEffect = (effect: DomainEffect) => {
+	if (!selectedScenario.value?.domainEffects) return;
+	selectedScenario.value.domainEffects = selectedScenario.value.domainEffects.filter((e) => e.id !== effect.id);
+};
+const handleCloneEffect = (effect: DomainEffect) => {
+	const { id, ...rest } = effect;
+	selectedEffect.value = { ...rest, id: "" } as DomainEffect;
+	viewMode.value = "edit";
+};
+
+
+
+
+
 onMounted(async () => {
 	const scenarioId = route.params.id as string; // pk o id in base al tuo router
 	await scenarioStore.fetchScenarioMock(scenarioId);
@@ -169,7 +244,11 @@ onMounted(async () => {
 					</v-window-item>
 
 					<v-window-item value="effects">
-						<scenario-domain-effects :domain-effects="selectedScenario.domainEffects || []" />
+						<scenario-domain-effects 
+						:domain-effects="selectedScenario.domainEffects || []"
+						@edit:effect="handleEditEffect"
+						@delete:effect="handleDeleteEffect"	
+						@clone:effect="handleCloneEffect"/>
 					</v-window-item>
 				</v-window>
 			</div>
@@ -184,6 +263,10 @@ onMounted(async () => {
 		<scenario-aspect-form v-if="viewMode === 'edit' && tab === 'measures' && selectedMeasure"
 			:initial-data="selectedMeasure" 
 			@save="handleSaveAspect" 
+			@cancel="viewMode = 'tab-view'" />
+		<scenario-effect-form v-if="viewMode === 'edit' && tab === 'effects' && selectedEffect"
+			:initial-data="selectedEffect"
+			@save="handleSaveEffect"
 			@cancel="viewMode = 'tab-view'" />
 
 		<!-- FABs -->
@@ -203,6 +286,14 @@ onMounted(async () => {
 				</template>
 				<v-btn key="1" color="secondary" @click="handleNewMeasure('Contextual')">Non-spatial</v-btn>
 				<v-btn key="2" color="surface-variant" @click="handleNewMeasure('Spatial')">Spatial</v-btn>
+			</v-speed-dial>
+
+			<v-speed-dial v-if="tab === 'effects'" location="top right" transition="scale-transition">
+				<template v-slot:activator="{ props }">
+					<v-btn v-bind="props" color="primary" icon="mdi-plus" size="large"></v-btn>
+				</template>
+				<v-btn key="1" color="secondary" @click="handleNewEffect('Contextual')">Non-spatial</v-btn>
+				<v-btn key="2" color="surface-variant" @click="handleNewEffect('Spatial')">Spatial</v-btn>
 			</v-speed-dial>
 		</div>
 	</v-container>
