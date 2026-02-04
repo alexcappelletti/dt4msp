@@ -1,6 +1,6 @@
 import { ref, onMounted } from "vue";
 import type { Theme } from "#/shared/types/msp-project";
-import { useScenarioStore } from "@/stores/scenarioStore";
+// import { useScenarioStore } from "@/stores/scenarioStore";
 
 export function useThemesProvider() {
 	const scenarioStore = useScenarioStore();

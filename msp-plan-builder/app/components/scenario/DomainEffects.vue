@@ -1,17 +1,10 @@
-<script setup lang="ts">
-import type { DomainEffect } from '#/shared/types/msp-project';
-
-const props = defineProps<{
-	domainEffects: DomainEffect[];
-}>();
-// Eventi emessi dal componente per gestire edit, delete e l'apertura del form per nuova misura
-const emit = defineEmits(['delete:effect', 'edit:effect']);
-
-
-</script>
-
 <template>
-	<div class="mt-8 twbg-red-500">TEST</div>
-	<div class="tw-mt-20 tw-bg-green-500">TEST2</div>
-
-effects</template>
+	<v-btn class="tw:hover:scale-105 tw:transition-transform">
+		Esegui Test
+	</v-btn>
+	<div class="text-alex tw:font-bold tw:ml-20">TEST FONT E COLORE</div>
+	<div class="tw:text-ux1 tw:font-bold tw:ml-20">TEST 1</div>
+	<div class="tw:bg-red-500 tw:ml-28 tw:w-fit tw:text-white">
+		TEST3
+	</div>
+</template>

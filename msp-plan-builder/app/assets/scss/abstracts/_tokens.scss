@@ -1,0 +1,8 @@
+@use "sass:color";
+
+$main-rose-color: #fef7ff;
+$main-dark-rose-color: color.scale($main-rose-color, $lightness: -10%);
+$bt-color: #ffd8e4;
+
+// se vuoi usarlo come stringa CSS
+$primary-css: "var(--v-theme-primary)";

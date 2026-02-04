@@ -6,7 +6,7 @@ import type { AreaOfInterest, Statement } from '#/shared/types/msp-project';
 import { generateUUID } from '#/shared/utils/generateUUID';
 import { debounce } from 'lodash-es';
 import { computed, onMounted, ref, watch } from 'vue';
-import { useMspDataProvider } from '~/composables/useMspProvider';
+
 
 const mpsDataProvider = useMspDataProvider();
 const tab = ref('general');

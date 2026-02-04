@@ -21,6 +21,8 @@ const pageTitle = computed(() => route.meta.title || 'MSP-plan builder');
 </template>
 
 <style lang="scss" scoped>
+
+
 .app-header {
 	display: flex;
 	justify-content: space-between;
@@ -28,7 +30,7 @@ const pageTitle = computed(() => route.meta.title || 'MSP-plan builder');
 	padding: 0 20px;
 	height: 60px;
 	/* Altezza fissa per l'header */
-	background-color: $main-rose-color !important;;
+	background-color: $main-rose-color !important;
 	/* Sfondo bianco come nell'immagine */
 	border-bottom: 1px solid #e0e0e0;
 	//box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);

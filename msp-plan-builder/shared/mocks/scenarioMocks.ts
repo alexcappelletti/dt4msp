@@ -70,7 +70,10 @@ const mockStatements: Statement[] = [
 		sectorThemes: [availableThemesMock[0]!], // Esempio: Pesca
 	}),
 ];
-// Mock focalizzati sull'ambiente marino del Canale di Sicilia
+// helper: prende temi per indexName (più robusto degli indici)
+const theme = (indexName: Theme["indexName"]) =>
+	availableThemesMock.find(t => t.indexName === indexName)!;
+
 export const mockMarineMeasures: Measure[] = [
 	populateMeasure({
 		name: "Protezione",
@@ -79,6 +82,11 @@ export const mockMarineMeasures: Measure[] = [
 			"Installazione di sistemi di ormeggio ecologici (boe ecosostenibili) per evitare lo sradicamento causato dalle ancore nelle Egadi.",
 		impact: "Aumento della densità dei fasci di Posidonia del 12% in 3 anni",
 		geospatialResources: [new MapLayer()],
+		referenceThemes: [
+			theme("env_prot"),
+			theme("tourism"),       // ancoraggi/boe spesso legati anche a fruizione turistica
+			theme("transport"),     // traffico/ancoraggio
+		],
 	}),
 
 	populateMeasure({
@@ -88,6 +96,11 @@ export const mockMarineMeasures: Measure[] = [
 			"Rimozione di reti fantasma e attrezzature da pesca abbandonate dai banchi profondi del Canale di Sicilia.",
 		impact: "Riduzione dello stress meccanico sugli ecosistemi bentonici",
 		geospatialResources: [new MapLayer(), new MapLayer()],
+		referenceThemes: [
+			theme("env_prot"),
+			theme("fishing"),
+			theme("research"),
+		],
 	}),
 
 	populateMeasure({
@@ -97,6 +110,12 @@ export const mockMarineMeasures: Measure[] = [
 			"Implementazione di boe acustiche per il monitoraggio dei cetacei e la regolazione del traffico mercantile.",
 		impact: "Diminuzione del rischio di collisione con grandi vertebrati marini",
 		geospatialResources: [new MapLayer()],
+		referenceThemes: [
+			theme("research"),
+			theme("transport"),
+			theme("env_prot"),
+			theme("security"), // componente di safety/controllo rotte
+		],
 	}),
 
 	populateMeasure({
@@ -106,6 +125,11 @@ export const mockMarineMeasures: Measure[] = [
 			"Programma di monitoraggio e pesca selettiva del Pesce Coniglio e del Pesce Leone nel Canale di Sicilia sud-orientale.",
 		impact: "Salvaguardia della biodiversità ittica autoctona",
 		geospatialResources: [new MapLayer()],
+		referenceThemes: [
+			theme("env_prot"),
+			theme("fishing"),
+			theme("research"),
+		],
 	}),
 
 	populateMeasure({
@@ -115,6 +139,10 @@ export const mockMarineMeasures: Measure[] = [
 			"Istituzione di zone di restrizione della pesca (FRA - Fish Restricted Areas) sui banchi sommersi (es. Banco Avventura).",
 		impact: "Recupero degli stock ittici commerciali (Merluzzo e Gambero Rosa)",
 		geospatialResources: [new MapLayer(), new MapLayer(), new MapLayer()],
+		referenceThemes: [
+			theme("fishing"),
+			theme("env_prot"),
+		],
 	}),
 
 	populateMeasure({
@@ -124,6 +152,13 @@ export const mockMarineMeasures: Measure[] = [
 			"Sistema di telerilevamento satellitare per l'identificazione precoce di sversamenti illegali lungo le rotte petroliere.",
 		impact: "Intervento tempestivo entro 4 ore dalla segnalazione",
 		geospatialResources: [new MapLayer()],
+		referenceThemes: [
+			theme("oil_gas"),
+			theme("transport"),
+			theme("security"),
+			theme("env_prot"),
+			theme("research"),
+		],
 	}),
 
 	populateMeasure({
@@ -133,6 +168,11 @@ export const mockMarineMeasures: Measure[] = [
 			"Ampliamento della zona di protezione integrale intorno all'Isola dei Conigli (Lampedusa).",
 		impact: "Incremento della biomassa ittica (spillover effect) nelle zone limitrofe",
 		geospatialResources: [new MapLayer()],
+		referenceThemes: [
+			theme("env_prot"),
+			theme("tourism"),
+			theme("fishing"),
+		],
 	}),
 
 	populateMeasure({
@@ -142,6 +182,11 @@ export const mockMarineMeasures: Measure[] = [
 			"Rete di sensori termometrici a diverse profondità per monitorare il riscaldamento delle acque tra Sicilia e Tunisia.",
 		impact: "Previsione degli eventi di sbiancamento dei coralli mediterranei",
 		geospatialResources: [new MapLayer()],
+		referenceThemes: [
+			theme("research"),
+			theme("security"),
+			theme("env_prot"),
+		],
 	}),
 
 	populateMeasure({
@@ -151,6 +196,11 @@ export const mockMarineMeasures: Measure[] = [
 			"Installazione di barriere cattura-plastica alla foce dei fiumi siciliani che scaricano nel Canale.",
 		impact: "Riduzione del 40% delle microplastiche riversate in mare",
 		geospatialResources: [],
+		referenceThemes: [
+			theme("env_prot"),
+			theme("tourism"),
+			theme("fishing"),
+		],
 	}),
 
 	populateMeasure({
@@ -160,6 +210,12 @@ export const mockMarineMeasures: Measure[] = [
 			"Interventi di protezione delle coste basse del trapanese tramite barriere soffolte naturali.",
 		impact: "Stabilizzazione della linea di costa e protezione degli habitat dunali",
 		geospatialResources: [new MapLayer()],
+		referenceThemes: [
+			theme("landscape"),
+			theme("tourism"),
+			theme("env_prot"),
+			theme("transport"), // opere costiere/rotte/porti possono incrociarsi
+		],
 	}),
 ];
 
@@ -224,42 +280,42 @@ const spatialEffects: DomainEffect[] = [
 
 // 7 Effetti Non Spaziali (basati su Aspect)
 const nonSpatialEffects: DomainEffect[] = [
-    populateEffect<Aspect>("Contextual", {
-        name: "Semplificazione Amministrativa",
-        
-        description: "Impatto sulle procedure di autorizzazione.",
-        affected: [mockAspects[0]!]
-    }),
-    populateEffect<Aspect>("Contextual", {
-        name: "Consapevolezza Sociale",
-        description: "Risultato dei programmi educativi.",
-        affected: [mockAspects[2]!]
-    }),
-    populateEffect<Aspect>("Contextual", {
-        name: "Standardizzazione Dati",
-        description: "Effetto del protocollo di monitoraggio.",
-        affected: [mockAspects[1]!]
-    }),
-    populateEffect<Aspect>("Contextual", {
-        name: "Prestigio Internazionale",
-        description: "Impatto della certificazione Blue Economy.",
-        affected: [mockAspects[3]!]
-    }),
-    populateEffect<Aspect>("Contextual", {
-        name: "Cooperazione Transfrontaliera",
-        description: "Miglioramento relazioni Italia-Tunisia.",
-        affected: [mockAspects[0]!]
-    }),
-    populateEffect<Aspect>("Contextual", {
-        name: "Inclusione Pescatori",
-        description: "Coinvolgimento attivo nel processo decisionale.",
-        affected: [mockAspects[2]!, mockAspects[3]!]
-    }),
-    populateEffect<Aspect>("Contextual", {
-        name: "Rigore Scientifico",
-        description: "Validazione dei dati raccolti.",
-        affected: [mockAspects[1]!]
-    })
+	populateEffect<Aspect>("Contextual", {
+		name: "Semplificazione Amministrativa",
+
+		description: "Impatto sulle procedure di autorizzazione.",
+		affected: [mockAspects[0]!]
+	}),
+	populateEffect<Aspect>("Contextual", {
+		name: "Consapevolezza Sociale",
+		description: "Risultato dei programmi educativi.",
+		affected: [mockAspects[2]!]
+	}),
+	populateEffect<Aspect>("Contextual", {
+		name: "Standardizzazione Dati",
+		description: "Effetto del protocollo di monitoraggio.",
+		affected: [mockAspects[1]!]
+	}),
+	populateEffect<Aspect>("Contextual", {
+		name: "Prestigio Internazionale",
+		description: "Impatto della certificazione Blue Economy.",
+		affected: [mockAspects[3]!]
+	}),
+	populateEffect<Aspect>("Contextual", {
+		name: "Cooperazione Transfrontaliera",
+		description: "Miglioramento relazioni Italia-Tunisia.",
+		affected: [mockAspects[0]!]
+	}),
+	populateEffect<Aspect>("Contextual", {
+		name: "Inclusione Pescatori",
+		description: "Coinvolgimento attivo nel processo decisionale.",
+		affected: [mockAspects[2]!, mockAspects[3]!]
+	}),
+	populateEffect<Aspect>("Contextual", {
+		name: "Rigore Scientifico",
+		description: "Validazione dei dati raccolti.",
+		affected: [mockAspects[1]!]
+	})
 ];
 
 

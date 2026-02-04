@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch, onMounted } from 'vue';
 import type { Scenario, Theme } from '#/shared/types/msp-project';
-import { useScenarioStore } from '~/stores/scenarioStore';
 // Importa la funzione di popolamento e i temi disponibili (aggiustare il percorso se necessario)
 import { populateScenario } from '#/shared/types/msp-project';
 

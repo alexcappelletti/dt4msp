@@ -1,0 +1,16 @@
+@layer vuetify;
+
+/* Vuetify nei layer più bassi */
+@import "vuetify/styles" layer(vuetify);
+
+/* Tailwind Theme (definisce --tw-spacing e colori prefissati) */
+@import "tailwindcss" prefix(tw);
+
+
+@theme {
+	/* Mappa i colori di Vuetify per usarli con tw-bg-primary, tw-text-alex, ecc. */
+	/* Vuetify exports RGB triplets; wrap with rgb() for valid CSS colors */
+	--color-primary: rgb(var(--v-theme-primary));
+	--color-alex: rgb(var(--v-theme-alex));
+	--color-ux1: rgb(var(--v-theme-ux1));
+}

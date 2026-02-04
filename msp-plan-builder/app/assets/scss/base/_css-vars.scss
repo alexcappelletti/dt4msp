@@ -1,0 +1,11 @@
+@use "../abstracts/tokens" as t;
+
+//viene caricato una volta sola e crea in globale le variabili CSS
+
+
+
+:root {
+  --main-rose: #{t.$main-rose-color};
+  --main-rose-dark: #{t.$main-dark-rose-color};
+  --bt-bg-color: #{t.$bt-color};
+}

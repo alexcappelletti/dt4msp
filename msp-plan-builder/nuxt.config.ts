@@ -1,63 +1,64 @@
-import { resolve } from 'path';
-import tailwindcss from '@tailwindcss/vite'; 
-// https://nuxt.com/docs/api/configuration/nuxt-config
+import { resolve } from "path";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineNuxtConfig({
 	compatibilityDate: "2025-07-15",
 	devtools: { enabled: true },
-
+	srcDir: "app",
 	app: {
-		rootId: "nuxt-root", // opzionale, se vuoi personalizzare l'ID del root element
-		// Usa app/app.vue come root: Nuxt 4 lo rileva automaticamente se presente
+		rootId: "nuxt-root",
 	},
 
 	alias: {
 		"#": resolve(__dirname, "."),
+		"@": resolve(__dirname, "."),
+		"~": resolve(__dirname, "."),
 	},
 
 	modules: ["vuetify-nuxt-module", "@pinia/nuxt"],
+
+	// ✅ ORDINE: Vuetify → Tailwind → tuoi override (SCSS/CSS)
 	css: [
-		"vuetify/styles",
-		"~/assets/css/main-tailwind.css", //va
-		//gli scss vanno dopo tailwind per sovrascrivere variabili se serve
+		"~/app/assets/css/main-tailwind.css",
+		"~/app/assets/scss/app.scss", // se hai override finali, mettili qui
 	],
+
+	build: {
+		transpile: ["vuetify"],
+	},
+
 	vite: {
+		plugins: [tailwindcss()],
+
 		server: {
 			watch: {
-				// force polling on environments where native file watching is unreliable (Windows, Docker, WSL)
 				usePolling: true,
 				interval: 100,
 			},
 		},
-		plugins: [
-			tailwindcss(), // Inizializza Tailwind 4
-		],
-		// css: {
-		// 	preprocessorOptions: {
-		// 		scss: {
-		// 			additionalData: `@use "~/assets/scss/variables" as *;`,
-		// 		},
-		// 	},
-		// },
+
+		css: {
+			preprocessorOptions: {
+				scss: {
+					additionalData: `@use "@/app/assets/scss/abstracts" as *;`,
+				},
+			},
+		},
 	},
+
 	vuetify: {
 		moduleOptions: {
-			/* module specific options */
+			disableVuetifyStyles: true, // Disabilita gli stili predefiniti di Vuetify: li importo dentro
 		},
 		vuetifyOptions: {
-			/* vuetify options */
-			//treeShake: true,
-			icons: {
-				defaultSet: "mdi",
-			},
+			icons: { defaultSet: "mdi" },
+
 			theme: {
-				// Imposta il tema di default all'avvio
 				defaultTheme: "light",
 				themes: {
 					light: {
 						dark: false,
 						colors: {
-							// Colori predefiniti di Vuetify (light)
 							background: "#FFFFFF",
 							surface: "#FFFFFF",
 							primary: "#cb9aec",
@@ -66,29 +67,13 @@ export default defineNuxtConfig({
 							info: "#64f321ff",
 							success: "#8171ad",
 							warning: "#93ff07ff",
-							// Aggiungi qui i tuoi colori personalizzati per il tema chiaro
+
 							alex: "#AA77B6",
-							ux1: "#C6D0FF",
+							ux1: "#233794",
 							"main-rose": "#FEF7FF",
 							"main-rose-dark": "#F3EDF7",
 						},
 					},
-					// dark: {
-					// 	colors: {
-					// 		// Colori predefiniti di Vuetify (dark)
-					// 		background: "#121212",
-					// 		surface: "#1E1E1E",
-					// 		primary: "#2196F3",
-					// 		secondary: "#424242",
-					// 		error: "#FF5252",
-					// 		info: "#2196F3",
-					// 		success: "#4CAF50",
-					// 		warning: "#FFC107",
-					// 		// Aggiungi qui i tuoi colori personalizzati per il tema scuro
-					// 		alex: "#8C4D9A",
-					// 		ux1: "#A3B4FC",
-					// 	},
-					// },
 				},
 			},
 		},

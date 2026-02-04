@@ -65,7 +65,6 @@ const createNewScenario = () => {
 </template>
 
 <style lang="scss" scoped>
-
 .sidebar-nav {
 	// Sfondo della sidebar generale (leggermente rosa/viola chiaro)
 	background-color: #fef7ff !important;

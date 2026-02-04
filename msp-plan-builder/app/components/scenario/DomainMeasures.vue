@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import type { DomainMeasure, Theme } from '#/shared/types/msp-project';
-import { useScenarioStore } from '@/stores/scenarioStore';
+
 
 interface MenuItem {
 	title: string;
@@ -128,26 +128,22 @@ const menuItems = (measure: DomainMeasure): MenuItem[] => [
 					<p class=""></p>
 					<p class="font-weight-bold mb-1">{{ measure.longName || measure.id }}</p>
 
-					<span v-for="(theme, index) in measure.referenceThemes" :key="index"
-						class="text-caption tw-mb tw-mb-2">
-						{{ theme.name }}
-					</span>	
+					<div v-if="measure.referenceThemes?.length" class="d-flex flex-wrap ga-2 mb-2">
+						<v-chip
+							v-for="(theme, index) in measure.referenceThemes"
+							:key="theme.id ?? index"
+							size="x-small"
+							variant="tonal"
+							color="primary"
+							class="text-caption"
+						>
+							{{ theme.name }}
+						</v-chip>
+					</div>
 					
 					<p class="text-medium-emphasis text-caption">
 						{{ measure.description || 'Nessuna descrizione disponibile.' }}</p>
 					
-					<div class="tw-mt-12 tw-bg-alex">Test 1</div>
-					<div class="mt-12 bg-red-500">Test 2</div>
-					<div class="tw:mt-12">Test 3</div>
-					
-					<div class="tw-bg-ux1 tw-p-10">
-						<span class="">TEST FONT E COLORE</span>
-					</div>
-
-					<!-- Test Font Personalizzato -->
-					<p class="tw-font-killos ">
-						Questo testo dovrebbe avere il font Killos.
-					</p>
 				</v-card-text>
 			</v-card>
 		</div>
@@ -191,5 +187,12 @@ const menuItems = (measure: DomainMeasure): MenuItem[] => [
 	bottom: 20px;
 	right: 20px;
 	z-index: 1000;
+}
+.mytest {
+	margin-top: 12px;
+	background-color: var(--color-alex);
+	padding: 4px 8px;
+	border-radius: 4px;
+
 }
 </style>

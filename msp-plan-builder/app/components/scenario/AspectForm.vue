@@ -2,8 +2,8 @@
 import { ref } from 'vue';
 import type { Theme, Aspect, DomainMeasure } from '#/shared/types/msp-project';
 //import { useAspectStore } from '@/stores/aspectStore'; // Importa il tuo store Pinia
-import { useScenarioStore } from '@/stores/scenarioStore';
-import {useThemesProvider} from '@/composables/useThemesProvider';
+// import { useScenarioStore } from '@/stores/scenarioStore';
+// import {useThemesProvider} from '@/composables/useThemesProvider';
 
 const store = useScenarioStore();
 const themesProvider = useThemesProvider();

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Scenario, Statement, Measure, Aspect, DomainMeasure } from '#/shared/types/msp-project';
-import { useScenarioStore } from '@/stores/scenarioStore';
-import {useThemesProvider} from '@/composables/useThemesProvider';
+// import { useScenarioStore } from '@/stores/scenarioStore';
+// import {useThemesProvider} from '@/composables/useThemesProvider';
 import { generateUUID } from "#/shared/utils/generateUUID"; // Import mancante
 import { storeToRefs } from 'pinia';
 import { computed, onMounted, ref } from 'vue';
