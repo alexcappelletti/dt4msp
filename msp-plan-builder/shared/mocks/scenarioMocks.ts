@@ -7,6 +7,7 @@ import type {
 	DomainMeasure,
 	Scenario,
 	Statement,
+	Theme,
 } from "#/shared/types/msp-project";
 import {
 	MapLayer,

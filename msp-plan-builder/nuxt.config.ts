@@ -1,5 +1,5 @@
-import { resolve } from "path";
 import tailwindcss from "@tailwindcss/vite";
+import { resolve } from "path";
 
 export default defineNuxtConfig({
 	compatibilityDate: "2025-07-15",
@@ -10,17 +10,17 @@ export default defineNuxtConfig({
 	},
 
 	alias: {
-		"#": resolve(__dirname, "."),
-		"@": resolve(__dirname, "."),
-		"~": resolve(__dirname, "."),
+		"#": resolve(__dirname, "."), // project root (used like "#	/shared/...")
+		"@": resolve(__dirname, "app"), // source dir (used like "@/components/...")
+		"~": resolve(__dirname, "app"), // alternative source alias
 	},
 
 	modules: ["vuetify-nuxt-module", "@pinia/nuxt"],
 
 	// ✅ ORDINE: Vuetify → Tailwind → tuoi override (SCSS/CSS)
 	css: [
-		"~/app/assets/css/main-tailwind.css",
-		"~/app/assets/scss/app.scss", // se hai override finali, mettili qui
+		"~/assets/css/main-tailwind.css",
+		"~/assets/scss/app.scss", // se hai override finali, mettili qui
 	],
 
 	build: {
@@ -28,6 +28,13 @@ export default defineNuxtConfig({
 	},
 
 	vite: {
+		resolve: {
+			alias: {
+				"#": resolve(__dirname, "."),
+				"@": resolve(__dirname, "app"),
+				"~": resolve(__dirname, "app"),
+			},
+		},
 		plugins: [tailwindcss()],
 
 		server: {
@@ -40,7 +47,7 @@ export default defineNuxtConfig({
 		css: {
 			preprocessorOptions: {
 				scss: {
-					additionalData: `@use "@/app/assets/scss/abstracts" as *;`,
+					additionalData: `@use "@/assets/scss/abstracts" as *;`,
 				},
 			},
 		},
