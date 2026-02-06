@@ -236,4 +236,19 @@ export function populateStatement(statement: Partial<Statement>): Statement {
 	};
 }
 
+export function isSpatialMeasure(measure: DomainMeasure): boolean {
+	if (!measure) return false;
+	if (measure.type !== 'Spatial') return false;
+	return measure.geospatialResources !== undefined && Array.isArray(measure.geospatialResources);
+}
+export function isNonSpatialMeasure(measure: DomainMeasure): boolean {
+	if (!measure) return false;
+	return measure.type === 'Contextual'
+}
+
+export function isMeasureEffect(effect: DomainEffect): effect is Effect<Measure> {
+	if (effect.affected.length === 0) return false;
+	return effect.affected.every((item) => item.type === "Spatial");
+}
+
 export class MapLayer {}

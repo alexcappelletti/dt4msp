@@ -3,7 +3,7 @@ import type { Aspect, DomainEffect, DomainMeasure, Measure, Theme } from '#/shar
 import { useThemesProvider } from '@/composables/useThemesProvider';
 import { useScenarioStore } from '@/stores/scenarioStore';
 import { computed, ref } from 'vue';
-import EffectMeasurePicker from './EffectMeasurePicker.vue';
+import EffectMeasurePicker from './MeasurePicker.vue';
 
 const store = useScenarioStore();
 //const aspectStore = useAspectStore();
@@ -63,6 +63,13 @@ const availableAffected = computed(() =>
 	),
 );
 
+const selectedThemeIds = computed({
+	get: () => (formData.value.referenceThemes ?? []).map((t) => t.id),
+	set: (ids: string[]) => {
+		formData.value.referenceThemes = availableThemes.value.filter((t) => ids.includes(t.id));
+	},
+});
+
 const affectedModel = computed({
 	get: () => (formData.value.affected ?? []) as DomainMeasure[],
 	set: (val: DomainMeasure[]) => {
@@ -78,8 +85,8 @@ const affectedModel = computed({
 </script>
 
 <template>
-	<v-card class="pa-4" flat>
-		<v-toolbar color="background" flat>
+	<v-card class="pa-4 d-flex flex-column h-100" flat>
+		<v-toolbar color="background" flat class="tw:sticky tw:top-0 tw:z-10 tw:bg-white">
 			<v-btn icon @click="cancelForm">
 				<v-icon>mdi-arrow-left</v-icon>
 			</v-btn>
@@ -103,8 +110,8 @@ const affectedModel = computed({
 			</v-btn>
 		</v-toolbar>
 
-		<v-card-text>
-			<v-form>
+		<v-card-text class="d-flex flex-column flex-grow-1 tw:overflow-y-auto">
+			<v-form class="d-flex flex-column flex-grow-1">
 				<v-row>
 					<v-col cols="12" md="6">
 						<v-text-field v-model="formData.name" label="Short name" variant="outlined" clearable
@@ -125,7 +132,7 @@ const affectedModel = computed({
 					</v-col>
 				</v-row>
 
-				
+
 
 
 
@@ -134,9 +141,9 @@ const affectedModel = computed({
 						<v-col cols="12">
 							<v-label>Temi</v-label>
 							<v-progress-linear v-if="loading" indeterminate color="primary" class="mt-2" />
-							<v-chip-group v-else v-model="formData.referenceThemes" column multiple
+							<v-chip-group v-else v-model="selectedThemeIds" column multiple
 								selected-class="text-primary">
-								<v-chip v-for="theme in availableThemes" :key="theme.id" :value="theme"
+								<v-chip v-for="theme in availableThemes" :key="theme.id" :value="theme.id"
 									variant="outlined">
 									{{ theme.name }}
 								</v-chip>
@@ -146,10 +153,10 @@ const affectedModel = computed({
 				</v-expand-transition>
 
 				<v-expand-transition>
-					<v-row class="mt-4">
-						<v-col cols="12">
-							<EffectMeasurePicker :available="availableAffected" v-model="affectedModel"
-								label="Measure" />
+					<v-row class="mt-4 flex-grow-1">
+						<v-col cols="12" class="d-flex flex-column">
+							<EffectMeasurePicker class="flex-grow-1" :available="availableAffected"
+								v-model="affectedModel" label="Measure" />
 						</v-col>
 					</v-row>
 				</v-expand-transition>

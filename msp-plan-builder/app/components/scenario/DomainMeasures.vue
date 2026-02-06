@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import type { DomainMeasure, Theme } from '#/shared/types/msp-project';
+import type { DomainMeasure,  } from '#/shared/types/msp-project';
+import { isNonSpatialMeasure, isSpatialMeasure } from '#/shared/types/msp-project';
+import type { Domain } from 'node:domain';
+import type { R } from 'vue-router/dist/router-CWoNjPRp.mjs';
 
 
 interface MenuItem {
@@ -18,42 +21,57 @@ const props = defineProps<{
 	domainMeasures: DomainMeasure[];
 }>();
 // Eventi emessi dal componente per gestire edit, delete e l'apertura del form per nuova misura
-const emit = defineEmits(['delete:measure', 'edit:measure', 'clone:measure']);
+
+const emit = defineEmits<{
+	(e: "edit:measure", measure: DomainMeasure): void;
+	(e: "delete:measure", measure: DomainMeasure): void;
+	(e: "clone:measure", measure: DomainMeasure): void;
+}>();
 
 const store = useScenarioStore();
-
-// --- Gestione dei Temi Disponibili (Caricati da un'altra fonte/API) ---
-// Utilizziamo un ref locale o carichiamo questi dati all'avvio dell'app/pagina principale
 const availableThemes = computed(() => store.availableThemes);
 
-
-
-// Logica di filtro basata sull'immagine ("Spatial", "Non-spatial", "Theme")
-const currentFilter = ref('Tutti');
-const availableFilters = ['Tutti', 'Spatial', 'Non-spatial'];
-
-
-const filteredMeasures = computed(() => {
-	if (currentFilter.value === 'Tutti') return props.domainMeasures;
-	// Filtro basato sul tipo di misura (Spatial/Non-spatial)
-	if (currentFilter.value === 'Spatial') {
-		return props.domainMeasures.filter(m => isSpatial(m));
-	}
-	if (currentFilter.value === 'Non-spatial') {
-		return props.domainMeasures.filter(m => isNonSpatial(m));
-	}
-	return []
+type Filter = 'Tutti' | 'Spatial' | 'Non-spatial';
+const currentFilter = ref<Filter>('Tutti');
+const selectedThemeId = ref<string | null>(null);
+const selectedThemeLabel = computed(() => {
+	if (!selectedThemeId.value) return 'Tema';
+	const theme = availableThemes.value.find((t) => t.id === selectedThemeId.value);
+	return theme?.name ?? 'Tutti i temi';
 });
 
-function isSpatial(measure: DomainMeasure): boolean {
-	if (!measure) return false;
-	if (measure.type !== 'Spatial') return false;
-	return measure.geospatialResources !== undefined && Array.isArray(measure.geospatialResources);
+
+
+function measureType(measure: DomainMeasure): "Spatial" | "Non-spatial" {
+	if (measure.type === 'Spatial') { return 'Spatial'; }
+	return 'Non-spatial';
 }
-function isNonSpatial(measure: DomainMeasure): boolean {
-	if (!measure) return false;
-	return measure.type !== 'Contextual'
+
+function themesForMeasure(measure: DomainMeasure): Theme[] {
+	const all = (measure.referenceThemes ?? []);
+	const map = new Map<string, Theme>();
+	for (const th of all) map.set(th.id, th);
+	return [...map.values()];
 }
+
+const filteredMeasures = computed(() => {
+	let list = props.domainMeasures ?? [];
+
+	// Filtro basato sul tipo di misura (Spatial/Non-spatial)
+	if (currentFilter.value === 'Spatial') {
+		list = props.domainMeasures.filter(m => isSpatialMeasure(m));
+	}else if (currentFilter.value === 'Non-spatial') {
+		list = props.domainMeasures.filter(m => isNonSpatialMeasure(m));
+	}
+	// Filtro basato sul tema selezionato (se presente)
+	if (selectedThemeId.value) {
+		list = list.filter(m =>
+			themesForMeasure(m).some(t => t.id === selectedThemeId.value)
+		);
+	}
+	return list;
+});
+
 
 const menuItems = (measure: DomainMeasure): MenuItem[] => [
 	{ title: 'Duplicate', icon: 'mdi-content-copy', action: (measure) => emit('clone:measure', measure) },
@@ -65,16 +83,29 @@ const menuItems = (measure: DomainMeasure): MenuItem[] => [
 
 <template>
 	<div class="measures-list-container">
-		<!-- Area Filtri come da immagine -->
+		<!-- Area Filtri -->
 		<div class="filters-container mb-4 d-flex align-center">
 			<span class="text-caption mr-4">Filtri:</span>
 			<v-chip-group mandatory selected-class="text-primary" v-model="currentFilter">
-				<v-chip v-for="filter in availableFilters" :key="filter" :value="filter">
-					{{ filter }}
-				</v-chip>
-				<!-- Dropdown 'Theme' come da immagine -->
-				<v-chip append-icon="mdi-menu-down">Tema</v-chip>
+				<v-chip value="Tutti">Tutti</v-chip>
+				<v-chip value="Spatial">Spatial</v-chip>
+				<v-chip value="Non-spatial">Non-spatial</v-chip>
 			</v-chip-group>
+				<!-- Dropdown 'Theme'  -->
+				<v-menu class="ml-3">
+					<template #activator="{ props: menuProps }">
+						<v-chip v-bind="menuProps" append-icon="mdi-menu-down" variant="outlined">
+							{{ selectedThemeLabel }}
+						</v-chip>
+					</template>
+
+					<v-list density="compact" style="min-width: 240px">
+						<v-list-item title="Tutti i temi" @click="selectedThemeId = null" />
+						<v-divider />
+						<v-list-item v-for="t in availableThemes" :key="t.id" :title="t.name"
+							@click="selectedThemeId = t.id" />
+					</v-list>
+				</v-menu>
 		</div>
 
 		<!-- Lista di Card -->
@@ -85,14 +116,14 @@ const menuItems = (measure: DomainMeasure): MenuItem[] => [
 					<div class="d-flex justify-space-between align-start">
 						<div class="d-flex align-center">
 							<!-- Icona/Avatar N o S basata sul tipo di misura (Non-spatial/Spatial) -->
-							<v-avatar size="32" class="mr-3" :color="isSpatial(measure) ? 'secondary' : 'primary'">
-								<span class="white--text">{{ isSpatial(measure) ? 'S' : 'N' }}</span>
+							<v-avatar size="32" class="mr-3" :color="isSpatialMeasure(measure) ? 'secondary' : 'primary'">
+								<span class="white--text">{{ isSpatialMeasure(measure) ? 'S' : 'N' }}</span>
 							</v-avatar>
 							<div>
 								<div class="text-subtitle-1"><strong>{{ measure.name }}</strong></div>
 								<div class="text-caption text-medium-emphasis">
 									<!-- Mostra "Non-spatial measure" o "Spatial measure" -->
-									{{ isSpatial(measure) ? 'Spatial' : 'Non-spatial' }} measure
+									{{ isSpatialMeasure(measure) ? 'Spatial' : 'Non-spatial' }} measure
 								</div>
 							</div>
 						</div>
@@ -140,10 +171,10 @@ const menuItems = (measure: DomainMeasure): MenuItem[] => [
 							{{ theme.name }}
 						</v-chip>
 					</div>
-					
+<!-- 					
 					<p class="text-medium-emphasis text-caption">
 						{{ measure.description || 'Nessuna descrizione disponibile.' }}</p>
-					
+					 -->
 				</v-card-text>
 			</v-card>
 		</div>

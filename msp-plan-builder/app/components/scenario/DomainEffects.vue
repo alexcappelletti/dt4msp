@@ -24,9 +24,13 @@ const availableThemes = computed(() => store.availableThemes);
 // --- Filters (come Measures) ---
 type EffectFilter = "Tutti" | "Spatial" | "Non-spatial";
 const currentFilter = ref<EffectFilter>("Tutti");
-
-// Theme filter (opzionale, ma utile visto il mock UI)
 const selectedThemeId = ref<string | null>(null);
+const selectedThemeLabel = computed(() => {
+	if (!selectedThemeId.value) return 'Tutti i temi';
+	const theme = availableThemes.value.find((t) => t.id === selectedThemeId.value);
+	return theme?.name ?? 'Tutti i temi';
+});
+
 
 function effectType(effect: DomainEffect): "Spatial" | "Non-spatial" {
 	const first = effect.affected?.[0] as DomainMeasure | undefined;
@@ -86,7 +90,7 @@ const menuItems = (effect: DomainEffect): MenuItem[] => [
 			<v-menu class="ml-3">
 				<template #activator="{ props: menuProps }">
 					<v-chip v-bind="menuProps" append-icon="mdi-menu-down" variant="outlined">
-						Tema
+						{{selectedThemeLabel}}
 					</v-chip>
 				</template>
 
