@@ -155,7 +155,7 @@ const affectedModel = computed({
 				<v-expand-transition>
 					<v-row class="mt-4 flex-grow-1">
 						<v-col cols="12" class="d-flex flex-column">
-							<EffectMeasurePicker class="flex-grow-1" :available="availableAffected"
+							<MeasurePicker class="flex-grow-1" :available="availableAffected"
 								v-model="affectedModel" label="Measure" />
 						</v-col>
 					</v-row>
