@@ -3,7 +3,7 @@ import type { Aspect, DomainEffect, DomainMeasure, Measure, Theme } from '#/shar
 import { useThemesProvider } from '@/composables/useThemesProvider';
 import { useScenarioStore } from '@/stores/scenarioStore';
 import { computed, ref } from 'vue';
-import EffectMeasurePicker from './MeasurePicker.vue';
+import MeasurePicker from './MeasurePicker.vue';
 
 const store = useScenarioStore();
 //const aspectStore = useAspectStore();
