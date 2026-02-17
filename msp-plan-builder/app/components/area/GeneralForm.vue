@@ -208,7 +208,7 @@ watch(
 
 						<v-row>
 							<v-col cols="12">
-								<v-textarea v-model="areaData!.description" label="Orizzonte temporale (Time horizon)"
+								<v-textarea v-model="areaData!.description" label="Orizzonte temporale"
 									hint="La distanza temporale del progetto." variant="outlined" rows="3"
 									clearable></v-textarea>
 							</v-col>

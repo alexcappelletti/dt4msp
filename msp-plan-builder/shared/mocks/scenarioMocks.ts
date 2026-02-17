@@ -1,23 +1,21 @@
 // ~/shared/mocks/scenarioMocks.ts
 import type {
 	Aspect,
+	DomainEffect,
 	Feedback,
 	Measure,
-	DomainEffect,
-	DomainMeasure,
 	Scenario,
 	Statement,
-	Theme,
+	Theme
 } from "#/shared/types/msp-project";
 import {
 	MapLayer,
+	populateAspect,
+	populateEffect,
 	populateMeasure,
 	populateScenario,
 	populateStatement,
-	populateAspect,
-	populateEffect,
 } from "#/shared/types/msp-project";
-import { generateUUID } from "#/shared/utils/generateUUID";
 import { availableThemesMock } from "./mocked";
 
 /**
@@ -281,38 +279,38 @@ const spatialEffects: DomainEffect[] = [
 
 // 7 Effetti Non Spaziali (basati su Aspect)
 const nonSpatialEffects: DomainEffect[] = [
-	populateEffect<Aspect>("Contextual", {
+	populateEffect<Aspect>("Non spatial", {
 		name: "Semplificazione Amministrativa",
 
 		description: "Impatto sulle procedure di autorizzazione.",
 		affected: [mockAspects[0]!]
 	}),
-	populateEffect<Aspect>("Contextual", {
+	populateEffect<Aspect>("Non spatial", {
 		name: "Consapevolezza Sociale",
 		description: "Risultato dei programmi educativi.",
 		affected: [mockAspects[2]!]
 	}),
-	populateEffect<Aspect>("Contextual", {
+	populateEffect<Aspect>("Non spatial", {
 		name: "Standardizzazione Dati",
 		description: "Effetto del protocollo di monitoraggio.",
 		affected: [mockAspects[1]!]
 	}),
-	populateEffect<Aspect>("Contextual", {
+	populateEffect<Aspect>("Non spatial", {
 		name: "Prestigio Internazionale",
 		description: "Impatto della certificazione Blue Economy.",
 		affected: [mockAspects[3]!]
 	}),
-	populateEffect<Aspect>("Contextual", {
+	populateEffect<Aspect>("Non spatial", {
 		name: "Cooperazione Transfrontaliera",
 		description: "Miglioramento relazioni Italia-Tunisia.",
 		affected: [mockAspects[0]!]
 	}),
-	populateEffect<Aspect>("Contextual", {
+	populateEffect<Aspect>("Non spatial", {
 		name: "Inclusione Pescatori",
 		description: "Coinvolgimento attivo nel processo decisionale.",
 		affected: [mockAspects[2]!, mockAspects[3]!]
 	}),
-	populateEffect<Aspect>("Contextual", {
+	populateEffect<Aspect>("Non spatial", {
 		name: "Rigore Scientifico",
 		description: "Validazione dei dati raccolti.",
 		affected: [mockAspects[1]!]

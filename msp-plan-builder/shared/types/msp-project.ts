@@ -1,5 +1,4 @@
 import { generateUUID } from "#/shared/utils/generateUUID";
-import { extend } from "lodash-es";
 
 export interface Project {
 	readonly id: string;
@@ -80,7 +79,7 @@ export interface Feedback {
 }
 export type DomainMeasure = Measure | Aspect;
 export interface Aspect {
-	readonly type: "Contextual";
+	readonly type: "Non spatial";
 	name: string;
 	readonly id: string;
 	description: string;
@@ -159,7 +158,7 @@ export function populateTheme(theme: Partial<Theme>): Theme {
 export function populateAspect(aspect: Partial<Aspect> = {}): Aspect {
 	const defaultAspect: Aspect = {
 		id: generateUUID(),
-		type: "Contextual",
+		type: "Non spatial",
 		name: "",
 		description: "",
 		referenceThemes: [],
@@ -169,7 +168,7 @@ export function populateAspect(aspect: Partial<Aspect> = {}): Aspect {
 	return {
 		...defaultAspect,
 		...aspect,
-		type: "Contextual", 
+		type: "Non spatial", 
 	};
 }
 
@@ -243,7 +242,7 @@ export function isSpatialMeasure(measure: DomainMeasure): boolean {
 }
 export function isNonSpatialMeasure(measure: DomainMeasure): boolean {
 	if (!measure) return false;
-	return measure.type === 'Contextual'
+	return measure.type === 'Non spatial'
 }
 
 export function isMeasureEffect(effect: DomainEffect): effect is Effect<Measure> {

@@ -43,8 +43,7 @@ const editStatement = (statement: Statement) => {
 
 		<!-- Lista di Card -->
 		<div v-if="filteredStatements.length > 0" class="statements-grid">
-			<v-card v-for="statement in filteredStatements" 
-				:key="statement.id" class="statement-card hover-effect"
+			<v-card v-for="statement in filteredStatements" :key="statement.id" class="statement-card hover-effect"
 				@click="editStatement(statement)">
 				<v-card-item>
 					<div class="d-flex justify-space-between align-start">
@@ -59,7 +58,7 @@ const editStatement = (statement: Statement) => {
 								<div class="text-subtitle-1"><strong>{{ statement.shortName }}</strong></div>
 								<div class="text-caption text-medium-emphasis">
 									{{ statement.sectorThemes && statement.sectorThemes.length > 0 ? 'Sector-specific' :
-									'General' }}
+										'General' }}
 								</div>
 							</div>
 						</div>
@@ -75,11 +74,12 @@ const editStatement = (statement: Statement) => {
 				</div>
 
 				<v-card-text>
-					<p class="font-weight-bold mb-1">Long name</p>
+					<p class="font-weight-bold mb-1">Nome esteso</p>
 					<p class="text-medium-emphasis mb-3">{{ statement.longName }}</p>
 
 					<p class="font-weight-bold mb-1">Description:</p>
-					<p class="text-medium-emphasis text-caption">{{ statement.description || 'Nessuna descrizione disponibile.' }}</p>
+					<p class="text-medium-emphasis text-caption">
+						{{ statement.description || 'Nessuna descrizione disponibile.' }}</p>
 				</v-card-text>
 			</v-card>
 		</div>

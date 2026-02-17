@@ -89,7 +89,7 @@ const cancelForm = () => {
 							hint="Title of the statement" persistent-hint></v-text-field>
 					</v-col>
 					<v-col cols="12" md="6">
-						<v-text-field v-model="formData.longName" label="Long name" variant="outlined" clearable
+						<v-text-field v-model="formData.longName" label="Nome esteso" variant="outlined" clearable
 							hint="Supporting text of the statement" persistent-hint></v-text-field>
 					</v-col>
 				</v-row>

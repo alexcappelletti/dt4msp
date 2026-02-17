@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import type { Scenario, Statement, Measure, Aspect, DomainMeasure } from '#/shared/types/msp-project';
-import type { DomainEffect, Effect } from "#/shared/types/msp-project";
+import type { Aspect, DomainEffect, DomainMeasure, Measure, Statement } from '#/shared/types/msp-project';
 // import { useScenarioStore } from '@/stores/scenarioStore';
 // import {useThemesProvider} from '@/composables/useThemesProvider';
 import { generateUUID } from "#/shared/utils/generateUUID"; // Import mancante
 import { storeToRefs } from 'pinia';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
+import type {InitPropType} from '@/components/scenario/EffectForm'
+import type { Domain } from 'node:domain';
 
 type ViewModeType = 'tab-view' | 'edit';
 
@@ -69,7 +70,7 @@ const handleDeleteStatement = (statementId: string) => {
 	selectedScenario.value.statements = selectedScenario.value.statements.filter(s => s.id !== statementId);
 };
 ///logica Measures/Aspects
-const handleNewMeasure = (type: 'Spatial' | 'Contextual') => {
+const handleNewMeasure = (type: 'Spatial' | 'Non spatial') => {
 	viewMode.value = 'edit';
 	// Logica di inizializzazione per Aspect o Measure
 	selectedMeasure.value = type === 'Spatial'
@@ -82,7 +83,7 @@ const handleNewMeasure = (type: 'Spatial' | 'Contextual') => {
 			geospatialResources: []
 		} as DomainMeasure
 		: {
-			type: 'Contextual',
+			type: 'Non spatial',
 			id: '',
 			description: '',
 			name: '',
@@ -96,7 +97,7 @@ const handleEditMeasure = (measure: DomainMeasure) => {
 const handleSaveAspect = (formData: Partial<DomainMeasure>) => {
 	if (!selectedScenario.value) return;
 	if (!selectedScenario.value.domainMeasures) selectedScenario.value.domainMeasures = [];
-	
+
 	if (selectedMeasure.value?.id) {
 		const index = selectedScenario.value.domainMeasures.findIndex(m => m.id === selectedMeasure.value!.id);
 		console.log("1")
@@ -118,7 +119,7 @@ const handleSaveAspect = (formData: Partial<DomainMeasure>) => {
 const handleCloneMeasure = (measure: DomainMeasure) => {
 	const { id, ...clonedMeasureData } = measure;
 	selectedMeasure.value = { ...clonedMeasureData, id: '' }; // Reset id for new measure
-	viewMode.value = 'edit';	
+	viewMode.value = 'edit';
 };
 const handleDeleteMeasure = (measure: DomainMeasure) => {
 	if (!selectedScenario.value?.domainMeasures) return;
@@ -130,14 +131,21 @@ const handleDeleteMeasure = (measure: DomainMeasure) => {
 //logica Effects 
 const selectedEffect = ref<DomainEffect | null>(null);
 
-// helper: inferisce tipo effetto dal primo affected
-function effectType(effect: DomainEffect): "Spatial" | "Contextual" {
-	const first = effect.affected?.[0];
-	return first?.type === "Spatial" ? "Spatial" : "Contextual";
+function getEffectInitialData(): InitPropType {
+	return {
+		effect: selectedEffect.value,
+		type: effectType(selectedEffect.value ?? {} as DomainEffect)	
+	}
 }
 
-// NEW
-const handleNewEffect = (type: "Spatial" | "Contextual") => {
+// helper: inferisce tipo effetto dal primo affected
+function effectType(effect: DomainEffect): "Spatial" | "Non spatial" {
+	const first = effect.affected?.[0];
+	return first?.type === "Spatial" ? "Spatial" : "Non spatial";
+}
+
+
+const handleNewEffect = (type: "Spatial" | "Non spatial") => {
 	viewMode.value = "edit";
 
 	// inizializzo un effetto vuoto coerente con la union DomainEffect
@@ -219,8 +227,8 @@ onMounted(async () => {
 				<v-tab value="general">Generale</v-tab>
 				<v-tab value="statements">Statements</v-tab>
 				<v-tab value="measures">Misure</v-tab>
-				<v-tab value="effects">Effects</v-tab>
-				<v-tab value="feedback">Feedback</v-tab>
+				<v-tab value="effects">Effetti</v-tab>
+				<v-tab value="feedback">Commenti</v-tab>
 			</v-tabs>
 
 			<div class="scenario-window">
@@ -236,42 +244,32 @@ onMounted(async () => {
 					</v-window-item>
 
 					<v-window-item value="measures">
-						<scenario-domain-measures 
-							:domain-measures="selectedScenario.domainMeasures || []" 
-							@edit:measure="handleEditMeasure"
-							@delete:measure="handleDeleteMeasure"
+						<scenario-domain-measures :domain-measures="selectedScenario.domainMeasures || []"
+							@edit:measure="handleEditMeasure" @delete:measure="handleDeleteMeasure"
 							@clone:measure="handleCloneMeasure" />
 					</v-window-item>
 
 					<v-window-item value="effects">
-						<scenario-domain-effects 
-						:domain-effects="selectedScenario.domainEffects || []"
-						@edit:effect="handleEditEffect"
-						@delete:effect="handleDeleteEffect"	
-						@clone:effect="handleCloneEffect"/>
+						<scenario-domain-effects :domain-effects="selectedScenario.domainEffects || []"
+							@edit:effect="handleEditEffect" @delete:effect="handleDeleteEffect"
+							@clone:effect="handleCloneEffect" />
 					</v-window-item>
 				</v-window>
 			</div>
 		</div>
 
 		<!-- Forms di editing -->
-		<statement-form v-if="viewMode === 'edit' && tab === 'statements' && selectedStatement" 
-			:initial-data="selectedStatement"
-			@save="handleSaveStatement" @cancel="viewMode = 'tab-view'" />
+		<statement-form v-if="viewMode === 'edit' && tab === 'statements' && selectedStatement"
+			:initial-data="selectedStatement" @save="handleSaveStatement" @cancel="viewMode = 'tab-view'" />
 
 		<!-- Fix: Aggiunto controllo per selectedMeasure -->
 		<scenario-aspect-form v-if="viewMode === 'edit' && tab === 'measures' && selectedMeasure"
-			:initial-data="selectedMeasure" 
-			@save="handleSaveAspect" 
-			@cancel="viewMode = 'tab-view'" />
+			:initial-data="selectedMeasure" @save="handleSaveAspect" @cancel="viewMode = 'tab-view'" />
 		<scenario-effect-form v-if="viewMode === 'edit' && tab === 'effects' && selectedEffect"
-			:initial-data="selectedEffect"
-			@save="handleSaveEffect"
-			@cancel="viewMode = 'tab-view'" />
+			:initial-data="getEffectInitialData()" @save="handleSaveEffect" @cancel="viewMode = 'tab-view'" />
 
 		<!-- FABs -->
-		<div class="fab-speed-dial-container"
-			v-if="viewMode === 'tab-view' && tab !== 'general'">
+		<div class="fab-speed-dial-container" v-if="viewMode === 'tab-view' && tab !== 'general'">
 			<v-speed-dial v-if="tab === 'statements'" location="top right" transition="scale-transition">
 				<template v-slot:activator="{ props }">
 					<v-btn v-bind="props" color="primary" icon="mdi-plus" size="large"></v-btn>
@@ -284,7 +282,7 @@ onMounted(async () => {
 				<template v-slot:activator="{ props }">
 					<v-btn v-bind="props" color="primary" icon="mdi-plus" size="large"></v-btn>
 				</template>
-				<v-btn key="1" color="secondary" @click="handleNewMeasure('Contextual')">Non-spatial</v-btn>
+				<v-btn key="1" color="secondary" @click="handleNewMeasure('Non spatial')">Non-spatial</v-btn>
 				<v-btn key="2" color="surface-variant" @click="handleNewMeasure('Spatial')">Spatial</v-btn>
 			</v-speed-dial>
 
@@ -292,7 +290,7 @@ onMounted(async () => {
 				<template v-slot:activator="{ props }">
 					<v-btn v-bind="props" color="primary" icon="mdi-plus" size="large"></v-btn>
 				</template>
-				<v-btn key="1" color="secondary" @click="handleNewEffect('Contextual')">Non-spatial</v-btn>
+				<v-btn key="1" color="secondary" @click="handleNewEffect('Non spatial')">Non-spatial</v-btn>
 				<v-btn key="2" color="surface-variant" @click="handleNewEffect('Spatial')">Spatial</v-btn>
 			</v-speed-dial>
 		</div>

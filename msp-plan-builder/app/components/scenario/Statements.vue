@@ -60,7 +60,8 @@ const editStatement = (statement: Statement) => {
 							<div>
 								<div class="text-subtitle-1"><strong>{{ statement.shortName }}</strong></div>
 								<div class="text-caption text-medium-emphasis">
-									{{ statement.sectorThemes && statement.sectorThemes.length > 0 ? 'Sector-specific' :
+									{{ statement.sectorThemes && statement.sectorThemes.length > 0 ?
+										'Sector-specific' :
 										'General' }}
 								</div>
 							</div>
@@ -77,11 +78,12 @@ const editStatement = (statement: Statement) => {
 				</div>
 
 				<v-card-text>
-					<p class="font-weight-bold mb-1">Long name</p>
+					<p class="font-weight-bold mb-1">Nome esteso</p>
 					<p class="text-medium-emphasis mb-3">{{ statement.longName }}</p>
 
 					<p class="font-weight-bold mb-1">Description:</p>
-					<p class="text-medium-emphasis text-caption">{{ statement.description || 'Nessuna descrizione disponibile.' }}</p>
+					<p class="text-medium-emphasis text-caption">
+						{{ statement.description || 'Nessuna descrizione disponibile.' }}</p>
 				</v-card-text>
 			</v-card>
 		</div>
@@ -94,10 +96,11 @@ const editStatement = (statement: Statement) => {
 <style scoped>
 .statements-list-container {
 	/* background-color: aquamarine; */
-	min-width: 100%	;
+	min-width: 100%;
 	/* Aggiunge un po' di padding per non incollare ai bordi */
 	padding: 20px;
 }
+
 .statements-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));

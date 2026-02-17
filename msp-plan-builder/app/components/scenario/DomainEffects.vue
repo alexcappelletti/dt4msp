@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
 import type { DomainEffect, DomainMeasure, Theme } from "#/shared/types/msp-project";
+import { computed, ref } from "vue";
 
 interface MenuItem {
 	title: string;
@@ -82,15 +82,15 @@ const menuItems = (effect: DomainEffect): MenuItem[] => [
 
 			<v-chip-group mandatory selected-class="text-primary" v-model="currentFilter">
 				<v-chip value="Tutti">Tutti</v-chip>
-				<v-chip value="Spatial">Spatial</v-chip>
-				<v-chip value="Non-spatial">Non-spatial</v-chip>
+				<v-chip value="Spatial">Spaziale</v-chip>
+				<v-chip value="Non-spatial">Non-spaziale</v-chip>
 			</v-chip-group>
 
 			<!-- Dropdown Theme -->
 			<v-menu class="ml-3">
 				<template #activator="{ props: menuProps }">
 					<v-chip v-bind="menuProps" append-icon="mdi-menu-down" variant="outlined">
-						{{selectedThemeLabel}}
+						{{ selectedThemeLabel }}
 					</v-chip>
 				</template>
 
@@ -150,7 +150,7 @@ const menuItems = (effect: DomainEffect): MenuItem[] => [
 				</div>
 
 				<v-card-text>
-					<!-- long name (non esiste nel model Effect: metto id come fallback) -->
+					<!-- Nome esteso (non esiste nel model Effect: metto id come fallback) -->
 					<p class="font-weight-bold mb-1">{{ effect.id }}</p>
 
 					<!-- themes selected (unione dei referenceThemes degli affected) -->

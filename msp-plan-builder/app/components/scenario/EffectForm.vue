@@ -6,13 +6,17 @@ import { computed, ref } from 'vue';
 import MeasurePicker from './MeasurePicker.vue';
 
 const store = useScenarioStore();
+export type InitPropType = {
+	effect: Partial<DomainEffect>,
+	type: "Spatial" | "Non Spatial"
+}
 //const aspectStore = useAspectStore();
 const props = defineProps<{
-	initialData: Partial<DomainEffect>;
+	initialData: InitPropType
 }>();
-
-
-const emit = defineEmits(['save', 'cancel']);
+const emit = defineEmits([
+	'save',
+	'cancel']);
 
 const { availableThemes, loading } = useThemesProvider();
 function cloneArray<T>(items: T[] | undefined): T[] {
@@ -33,11 +37,13 @@ function cloneAffected(
 type EffectFormData = Partial<DomainEffect> & {
 	longName?: string;
 	referenceThemes?: Theme[];
+	effectType: "Spatial" | "Non Spatial";
 };
 
 const formData = ref<EffectFormData>({
-	...props.initialData,
-	affected: cloneAffected(props.initialData.affected),
+	...props.initialData.effect,
+	effectType: props.initialData.type,
+	affected: cloneAffected(props.initialData.effect.affected),
 } as EffectFormData);
 
 const canSave = computed(() => formData.value.name?.trim() && formData.value.description?.trim());
@@ -51,17 +57,16 @@ const cancelForm = () => {
 	emit('cancel');
 };
 
-const effectType = computed(() => {
-	const first = formData.value.affected?.[0] as DomainMeasure | undefined;
-	return first?.type === "Spatial" ? "Spatial" : "Non-spatial";
-});
-
-const availableMeasures = computed(() => store.selectedScenario?.domainMeasures ?? []);
-const availableAffected = computed(() =>
-	availableMeasures.value.filter((m) =>
-		effectType.value === "Spatial" ? m.type === "Spatial" : m.type === "Contextual",
-	),
+const effectType = computed(() =>
+	formData.value.effectType === "Spatial" ? "Spatial" : "Non-spatial",
 );
+
+const availableMeasures = computed(() => {
+	const list = store.selectedScenario?.domainMeasures ?? [];
+	const requiredType = effectType
+	const affectedIds = new Set((formData.value.affected ?? []).map((m) => m.id));
+	return list.filter((m) => m.type === requiredType && !affectedIds.has(m.id));
+});
 
 const selectedThemeIds = computed({
 	get: () => (formData.value.referenceThemes ?? []).map((t) => t.id),
@@ -97,7 +102,7 @@ const affectedModel = computed({
 				<v-chip v-else size="small" color="primary" variant="flat" class="mr-2">
 					N-S
 				</v-chip>
-				{{ effectType === "Spatial" ? "Spatial effect" : "Non-spatial effect" }}
+				{{ effectType === "Spatial" ? "Effetto spaziale" : "Non-Effetto spaziale" }}
 			</v-toolbar-title>
 
 			<v-spacer></v-spacer>
@@ -155,8 +160,8 @@ const affectedModel = computed({
 				<v-expand-transition>
 					<v-row class="mt-4 flex-grow-1">
 						<v-col cols="12" class="d-flex flex-column">
-							<measure-picker class="flex-grow-1" :available="availableAffected"
-								v-model="affectedModel" label="Measure" />
+							<measure-picker class="flex-grow-1" :available="availableMeasures" v-model="affectedModel"
+								label="Measure" />
 						</v-col>
 					</v-row>
 				</v-expand-transition>
