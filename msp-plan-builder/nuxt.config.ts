@@ -20,6 +20,7 @@ export default defineNuxtConfig({
 	// ✅ ORDINE: Vuetify → Tailwind → tuoi override (SCSS/CSS)
 	css: [
 		"@mdi/font/css/materialdesignicons.css",
+		"vuetify/styles",
 		"~/assets/css/main-tailwind.css",
 		"~/assets/scss/app.scss", // se hai override finali, mettili qui
 	],
@@ -56,7 +57,7 @@ export default defineNuxtConfig({
 
 	vuetify: {
 		moduleOptions: {
-			disableVuetifyStyles: true, // Disabilita gli stili predefiniti di Vuetify: li importo dentro
+			disableVuetifyStyles: false,
 		},
 		vuetifyOptions: {
 			icons: { defaultSet: "mdi" },

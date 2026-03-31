@@ -132,7 +132,7 @@ const handleDeleteMeasure = (measure: DomainMeasure) => {
 //logica Effects 
 const selectedEffect = ref<DomainEffect | null>(null);
 const initEffectData = ref<EffectInitProp>({
-	effect: null,
+	effect: {} as DomainEffect,
 	type: "Non-spatial"
 });
 
