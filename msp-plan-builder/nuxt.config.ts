@@ -19,6 +19,7 @@ export default defineNuxtConfig({
 
 	// ✅ ORDINE: Vuetify → Tailwind → tuoi override (SCSS/CSS)
 	css: [
+		"@mdi/font/css/materialdesignicons.css",
 		"~/assets/css/main-tailwind.css",
 		"~/assets/scss/app.scss", // se hai override finali, mettili qui
 	],
