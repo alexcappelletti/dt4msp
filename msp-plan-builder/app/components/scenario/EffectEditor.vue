@@ -4,15 +4,16 @@ import { useThemesProvider } from '@/composables/useThemesProvider';
 import { useScenarioStore } from '@/stores/scenarioStore';
 import { computed, ref } from 'vue';
 import MeasurePicker from './MeasurePicker.vue';
+import type { MeasureType } from './DomainMeasures.vue';
 
 const store = useScenarioStore();
-export type InitPropType = {
+export type EffectInitProp = {
 	effect: Partial<DomainEffect>,
-	type: "Spatial" | "Non Spatial"
+	type: MeasureType
 }
 //const aspectStore = useAspectStore();
 const props = defineProps<{
-	initialData: InitPropType
+	initialData: EffectInitProp
 }>();
 const emit = defineEmits([
 	'save',
@@ -34,17 +35,17 @@ function cloneAffected(
 		: cloneArray(affected as Aspect[]);
 }
 
-type EffectFormData = Partial<DomainEffect> & {
+type EffectEditorData = Partial<DomainEffect> & {
 	longName?: string;
 	referenceThemes?: Theme[];
-	effectType: "Spatial" | "Non Spatial";
+	effectType: MeasureType;
 };
 
-const formData = ref<EffectFormData>({
+const formData = ref<EffectEditorData>({
 	...props.initialData.effect,
 	effectType: props.initialData.type,
 	affected: cloneAffected(props.initialData.effect.affected),
-} as EffectFormData);
+} as EffectEditorData);
 
 const canSave = computed(() => formData.value.name?.trim() && formData.value.description?.trim());
 const saveForm = () => {
@@ -61,9 +62,13 @@ const effectType = computed(() =>
 	formData.value.effectType === "Spatial" ? "Spatial" : "Non-spatial",
 );
 
+const effectMeasureType = computed<DomainMeasure["type"]>(() =>
+	formData.value.effectType === "Spatial" ? "Spatial" : "Non-spatial",
+);
+
 const availableMeasures = computed(() => {
 	const list = store.selectedScenario?.domainMeasures ?? [];
-	const requiredType = effectType
+	const requiredType = effectMeasureType.value;
 	const affectedIds = new Set((formData.value.affected ?? []).map((m) => m.id));
 	return list.filter((m) => m.type === requiredType && !affectedIds.has(m.id));
 });
@@ -71,7 +76,17 @@ const availableMeasures = computed(() => {
 const selectedThemeIds = computed({
 	get: () => (formData.value.referenceThemes ?? []).map((t) => t.id),
 	set: (ids: string[]) => {
-		formData.value.referenceThemes = availableThemes.value.filter((t) => ids.includes(t.id));
+		const currentById = new Map(
+			(formData.value.referenceThemes ?? []).map((theme) => [theme.id, theme]),
+		);
+		for (const theme of availableThemes.value) {
+			if (ids.includes(theme.id)) {
+				currentById.set(theme.id, theme);
+			}
+		}
+		formData.value.referenceThemes = ids
+			.map((id) => currentById.get(id))
+			.filter((theme): theme is Theme => !!theme);
 	},
 });
 
@@ -79,6 +94,17 @@ const affectedModel = computed({
 	get: () => (formData.value.affected ?? []) as DomainMeasure[],
 	set: (val: DomainMeasure[]) => {
 		formData.value.affected = val as DomainEffect["affected"];
+
+		// Auto-seleziona i temi associati alle misure aggiunte
+		const mergedIds = new Set(
+			(formData.value.referenceThemes ?? []).map((theme) => theme.id),
+		);
+		for (const measure of val) {
+			for (const theme of measure.referenceThemes ?? []) {
+				mergedIds.add(theme.id);
+			}
+		}
+		selectedThemeIds.value = Array.from(mergedIds);
 	},
 });
 
@@ -96,13 +122,14 @@ const affectedModel = computed({
 				<v-icon>mdi-arrow-left</v-icon>
 			</v-btn>
 			<v-toolbar-title class="font-weight-bold">
+				
 				<v-chip v-if="effectType === 'Spatial'" size="small" color="primary" variant="flat" class="mr-2">
 					Spaziale
 				</v-chip>
 				<v-chip v-else size="small" color="primary" variant="flat" class="mr-2">
 					N-S
 				</v-chip>
-				{{ effectType === "Spatial" ? "Effetto spaziale" : "Non-Effetto spaziale" }}
+				{{ effectType === "Spatial" ? "Effetto spaziale" : "Effetto non spaziale" }}
 			</v-toolbar-title>
 
 			<v-spacer></v-spacer>

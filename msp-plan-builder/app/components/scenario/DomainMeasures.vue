@@ -2,8 +2,6 @@
 import { computed, ref } from 'vue';
 import type { DomainMeasure,  } from '#/shared/types/msp-project';
 import { isNonSpatialMeasure, isSpatialMeasure } from '#/shared/types/msp-project';
-import type { Domain } from 'node:domain';
-import type { R } from 'vue-router/dist/router-CWoNjPRp.mjs';
 
 
 interface MenuItem {
@@ -42,7 +40,7 @@ const selectedThemeLabel = computed(() => {
 
 
 
-function measureType(measure: DomainMeasure): "Spatial" | "Non-spatial" {
+function measureType(measure: DomainMeasure): MeasureType {
 	if (measure.type === 'Spatial') { return 'Spatial'; }
 	return 'Non-spatial';
 }

@@ -6,8 +6,9 @@ import { generateUUID } from "#/shared/utils/generateUUID"; // Import mancante
 import { storeToRefs } from 'pinia';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import type {InitPropType} from '@/components/scenario/EffectForm'
+import type { EffectInitProp } from '~/components/scenario/EffectEditor'
 import type { Domain } from 'node:domain';
+import type { MeasureType } from '~/components/scenario/DomainMeasures.vue';
 
 type ViewModeType = 'tab-view' | 'edit';
 
@@ -70,7 +71,7 @@ const handleDeleteStatement = (statementId: string) => {
 	selectedScenario.value.statements = selectedScenario.value.statements.filter(s => s.id !== statementId);
 };
 ///logica Measures/Aspects
-const handleNewMeasure = (type: 'Spatial' | 'Non spatial') => {
+const handleNewMeasure = (type: MeasureType) => {
 	viewMode.value = 'edit';
 	// Logica di inizializzazione per Aspect o Measure
 	selectedMeasure.value = type === 'Spatial'
@@ -83,7 +84,7 @@ const handleNewMeasure = (type: 'Spatial' | 'Non spatial') => {
 			geospatialResources: []
 		} as DomainMeasure
 		: {
-			type: 'Non spatial',
+			type: 'Non-spatial',
 			id: '',
 			description: '',
 			name: '',
@@ -130,49 +131,55 @@ const handleDeleteMeasure = (measure: DomainMeasure) => {
 
 //logica Effects 
 const selectedEffect = ref<DomainEffect | null>(null);
+const initEffectData = ref<EffectInitProp>({
+	effect: null,
+	type: "Non-spatial"
+});
 
-function getEffectInitialData(): InitPropType {
-	return {
-		effect: selectedEffect.value,
-		type: effectType(selectedEffect.value ?? {} as DomainEffect)	
-	}
-}
 
-// helper: inferisce tipo effetto dal primo affected
-function effectType(effect: DomainEffect): "Spatial" | "Non spatial" {
+
+// helper: inferisce tipo effetto dal primo affected, se non lo trova restituisce "Non-spatial" come fallback (scelta più sicura in caso di dati incompleti)	
+function effectType(effect: DomainEffect): MeasureType {
 	const first = effect.affected?.[0];
-	return first?.type === "Spatial" ? "Spatial" : "Non spatial";
+	return first?.type === "Spatial" ? "Spatial" : "Non-spatial";
 }
 
 
-const handleNewEffect = (type: "Spatial" | "Non spatial") => {
-	viewMode.value = "edit";
-
-	// inizializzo un effetto vuoto coerente con la union DomainEffect
-	selectedEffect.value =
-		type === "Spatial"
-			? ({
-				id: "",
-				name: "",
-				description: "",
-				affected: [] as Measure[],
-			} as DomainEffect)
-			: ({
+const handleNewEffect = (type: MeasureType) => {
+	viewMode.value = "edit";	
+	initEffectData.value = type === "Spatial" ? {
+		effect: {
+			id: "",
+			name: "",
+			description: "",
+			affected: [] as Measure[],
+		} as Effect<Measure>,
+		type: "Spatial"
+	} : {
+		effect: {
 				id: "",
 				name: "",
 				description: "",
 				affected: [] as Aspect[],
-			} as DomainEffect);
+			} as Effect<Aspect>,
+		type: "Non-spatial"
+	};
+	selectedEffect.value = initEffectData.value.effect as DomainEffect;
+
 };
 
 const handleEditEffect = (effect: DomainEffect) => {
 	viewMode.value = "edit";
+	initEffectData.value = {
+		effect,
+		type: effectType(effect)
+	};
 	selectedEffect.value = effect;
 };
 
 const handleSaveEffect = (formData: Partial<DomainEffect>) => {
 	if (!selectedScenario.value) return;
-	if (!selectedScenario.value.domainEffects) selectedScenario.value.domainEffects = [];
+	if (!selectedScenario.value.domainEffects) {selectedScenario.value.domainEffects = [];}
 
 	if (selectedEffect.value?.id) {
 		const idx = selectedScenario.value.domainEffects.findIndex((e) => e.id === selectedEffect.value!.id);
@@ -265,8 +272,8 @@ onMounted(async () => {
 		<!-- Fix: Aggiunto controllo per selectedMeasure -->
 		<scenario-aspect-form v-if="viewMode === 'edit' && tab === 'measures' && selectedMeasure"
 			:initial-data="selectedMeasure" @save="handleSaveAspect" @cancel="viewMode = 'tab-view'" />
-		<scenario-effect-form v-if="viewMode === 'edit' && tab === 'effects' && selectedEffect"
-			:initial-data="getEffectInitialData()" @save="handleSaveEffect" @cancel="viewMode = 'tab-view'" />
+		<scenario-effect-editor v-if="viewMode === 'edit' && tab === 'effects' && selectedEffect"
+			:initial-data="initEffectData" @save="handleSaveEffect" @cancel="viewMode = 'tab-view'" />
 
 		<!-- FABs -->
 		<div class="fab-speed-dial-container" v-if="viewMode === 'tab-view' && tab !== 'general'">
@@ -282,7 +289,7 @@ onMounted(async () => {
 				<template v-slot:activator="{ props }">
 					<v-btn v-bind="props" color="primary" icon="mdi-plus" size="large"></v-btn>
 				</template>
-				<v-btn key="1" color="secondary" @click="handleNewMeasure('Non spatial')">Non-spatial</v-btn>
+				<v-btn key="1" color="secondary" @click="handleNewMeasure('Non-spatial')">Non-spatial</v-btn>
 				<v-btn key="2" color="surface-variant" @click="handleNewMeasure('Spatial')">Spatial</v-btn>
 			</v-speed-dial>
 
@@ -290,7 +297,7 @@ onMounted(async () => {
 				<template v-slot:activator="{ props }">
 					<v-btn v-bind="props" color="primary" icon="mdi-plus" size="large"></v-btn>
 				</template>
-				<v-btn key="1" color="secondary" @click="handleNewEffect('Non spatial')">Non-spatial</v-btn>
+				<v-btn key="1" color="secondary" @click="handleNewEffect('Non-spatial')">Non-spatial</v-btn>
 				<v-btn key="2" color="surface-variant" @click="handleNewEffect('Spatial')">Spatial</v-btn>
 			</v-speed-dial>
 		</div>

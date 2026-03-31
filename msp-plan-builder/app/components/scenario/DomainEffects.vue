@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { DomainEffect, DomainMeasure, Theme } from "#/shared/types/msp-project";
 import { computed, ref } from "vue";
+import type { MeasureType } from "./DomainMeasures.vue";
 
 interface MenuItem {
 	title: string;
@@ -32,7 +33,7 @@ const selectedThemeLabel = computed(() => {
 });
 
 
-function effectType(effect: DomainEffect): "Spatial" | "Non-spatial" {
+function effectType(effect: DomainEffect): MeasureType {
 	const first = effect.affected?.[0] as DomainMeasure | undefined;
 	if (!first) return "Non-spatial"; // fallback sensato
 	return first.type === "Spatial" ? "Spatial" : "Non-spatial";

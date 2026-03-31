@@ -36,19 +36,20 @@ const cancelForm = () => {
 
 </script>
 <template>
-	<!-- Usiamo v-card per un look pulito e strutturato come nell'immagine -->
+	
 	<v-card class="pa-4 " flat>
 		<v-toolbar color="background" flat>
 			<v-btn icon @click="cancelForm">
 				<v-icon>mdi-arrow-left</v-icon>
 			</v-btn>
 			<v-toolbar-title class="font-weight-bold">
-				<v-chip 
-					v-if="formData.type === 'Spatial'" size="small" color="primary" variant="flat" class="mr-2">Spaziale</v-chip>
-				<v-chip 
-					v-else			
-					size="small" color="primary" variant="flat" class="mr-2">N-S</v-chip>
-				Misura non spaziale
+				<div v-if="formData.type==='Spatial'">
+					<v-chip size="small" color="primary" variant="flat" class="mr-2">Spaziale</v-chip>
+					Misura spaziale</div>
+				<div v-else>
+					<v-chip size="small" color="primary" variant="flat" class="mr-2">N-S</v-chip>
+					Misura non spaziale</div>
+				
 			</v-toolbar-title>
 
 			<v-spacer></v-spacer>

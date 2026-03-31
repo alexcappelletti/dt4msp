@@ -79,7 +79,7 @@ export interface Feedback {
 }
 export type DomainMeasure = Measure | Aspect;
 export interface Aspect {
-	readonly type: "Non spatial";
+	readonly type: "Non-spatial";
 	name: string;
 	readonly id: string;
 	description: string;
@@ -93,6 +93,7 @@ export interface Measure extends Omit<Aspect, "type"> {
 }
 export interface Effect <T extends DomainMeasure> {
 	name: string;
+	
 	description: string;
 	readonly id: string;
 	affected: Array<T>; 
