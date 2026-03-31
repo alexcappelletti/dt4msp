@@ -6,7 +6,7 @@ import { generateUUID } from "#/shared/utils/generateUUID"; // Import mancante
 import { storeToRefs } from 'pinia';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import type { EffectInitProp } from '~/components/scenario/EffectEditor'
+import type { EffectInitProp } from '~/components/scenario/EffectEditor.vue'
 import type { Domain } from 'node:domain';
 import type { MeasureType } from '~/components/scenario/DomainMeasures.vue';
 
