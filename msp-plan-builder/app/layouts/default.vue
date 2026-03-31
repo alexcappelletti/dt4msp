@@ -1,21 +1,19 @@
 <!-- layouts/default.vue -->
 <template>
-	<!-- Il layout principale ha un unico elemento radice -->
-	<v-app class="app-layout">
+	<ClientOnly>
+		<!-- Il layout principale ha un unico elemento radice -->
+		<v-app class="app-layout">
+			<!-- L'header della pagina, auto-importato da app/components/layout/AppHeader.vue -->
+			<LayoutAppHeader />
+			<!-- La sidebar di navigazione, auto-importata da app/components/layout/SidebarNav.vue -->
+			<LayoutSidebarNav />
 
-		<!-- L'header della pagina, auto-importato da app/components/layout/AppHeader.vue -->
-		<LayoutAppHeader />
-		<!-- La sidebar di navigazione, auto-importata da app/components/layout/SidebarNav.vue -->
-		<LayoutSidebarNav />
-		
-		
-			
-			<!-- Questa è l'area in cui Nuxt inietta il contenuto della pagina corrente (es. pages/areas/[id].vue) -->
+			<!-- Questa Š l'area in cui Nuxt inietta il contenuto della pagina corrente (es. pages/areas/[id].vue) -->
 			<v-main>
 				<slot />
 			</v-main>
-		
-	</v-app>
+		</v-app>
+	</ClientOnly>
 </template>
 
 <style lang="scss" scoped>
@@ -39,6 +37,6 @@
 
 .page-wrapper {
 	padding: 20px;
-	/* L'area bianca che contiene il form nell'immagine sarà gestita dal CSS della pagina stessa */
+	/* L'area bianca che contiene il form nell'immagine sar… gestita dal CSS della pagina stessa */
 }
 </style>
