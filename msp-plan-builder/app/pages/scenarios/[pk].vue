@@ -207,7 +207,12 @@ const handleDeleteEffect = (effect: DomainEffect) => {
 };
 const handleCloneEffect = (effect: DomainEffect) => {
 	const { id, ...rest } = effect;
-	selectedEffect.value = { ...rest, id: "" } as DomainEffect;
+	console.log("Clonazione effetto:", effect.name);
+	initEffectData.value = {
+		effect: { ...rest, id: "" } as DomainEffect,
+		type: effectType(effect)
+	};
+	selectedEffect.value = initEffectData.value.effect as DomainEffect;
 	viewMode.value = "edit";
 };
 
@@ -240,23 +245,23 @@ onMounted(async () => {
 
 			<div class="scenario-window">
 				<v-window v-model="tab">
-					<v-window-item value="general">
+					<v-window-item value="general" :transition="false" :reverse-transition="false">
 						<scenario-general-form />
 					</v-window-item>
 
-					<v-window-item value="statements">
+					<v-window-item value="statements" :transition="false" :reverse-transition="false">
 						<scenario-statements :statements="selectedScenario.statements || []" v-if="hasStatements"
 							@edit:statement="handleEditStatement" @delete:statement="handleDeleteStatement" />
 						<p v-else class="pa-4">Nessun statements disponibile.</p>
 					</v-window-item>
 
-					<v-window-item value="measures">
+					<v-window-item value="measures" :transition="false" :reverse-transition="false">
 						<scenario-domain-measures :domain-measures="selectedScenario.domainMeasures || []"
 							@edit:measure="handleEditMeasure" @delete:measure="handleDeleteMeasure"
 							@clone:measure="handleCloneMeasure" />
 					</v-window-item>
 
-					<v-window-item value="effects">
+					<v-window-item value="effects" :transition="false" :reverse-transition="false">
 						<scenario-domain-effects :domain-effects="selectedScenario.domainEffects || []"
 							@edit:effect="handleEditEffect" @delete:effect="handleDeleteEffect"
 							@clone:effect="handleCloneEffect" />

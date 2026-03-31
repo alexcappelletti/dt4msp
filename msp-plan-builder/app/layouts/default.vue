@@ -1,6 +1,6 @@
 <!-- layouts/default.vue -->
 <template>
-	<ClientOnly>
+	<!-- <ClientOnly> -->
 		<!-- Il layout principale ha un unico elemento radice -->
 		<v-app class="app-layout">
 			<!-- L'header della pagina, auto-importato da app/components/layout/AppHeader.vue -->
@@ -13,7 +13,7 @@
 				<slot />
 			</v-main>
 		</v-app>
-	</ClientOnly>
+	<!-- </ClientOnly> -->
 </template>
 
 <style lang="scss" scoped>
