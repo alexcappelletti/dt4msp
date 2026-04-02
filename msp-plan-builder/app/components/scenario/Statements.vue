@@ -78,7 +78,7 @@ const editStatement = (statement: Statement) => {
 				</div>
 
 				<v-card-text>
-					<p class="font-weight-bold mb-1">Nome esteso</p>
+					<p class="font-weight-bold mb-1">Nome esteso:</p>
 					<p class="text-medium-emphasis mb-3">{{ statement.longName }}</p>
 
 					<p class="font-weight-bold mb-1">Description:</p>

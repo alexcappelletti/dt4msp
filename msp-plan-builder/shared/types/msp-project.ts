@@ -75,6 +75,7 @@ export interface Feedback {
 	author: string;
 	createdAt: Date;
 	updatedAt?: Date;
+	title: string;
 	status: "new" | "reviewed" | "resolved";
 }
 export type DomainMeasure = Measure | Aspect;
@@ -159,7 +160,7 @@ export function populateTheme(theme: Partial<Theme>): Theme {
 export function populateAspect(aspect: Partial<Aspect> = {}): Aspect {
 	const defaultAspect: Aspect = {
 		id: generateUUID(),
-		type: "Non spatial",
+		type: "Non-spatial",
 		name: "",
 		description: "",
 		referenceThemes: [],
@@ -169,7 +170,7 @@ export function populateAspect(aspect: Partial<Aspect> = {}): Aspect {
 	return {
 		...defaultAspect,
 		...aspect,
-		type: "Non spatial", 
+		type: "Non-spatial",
 	};
 }
 
@@ -236,6 +237,24 @@ export function populateStatement(statement: Partial<Statement>): Statement {
 	};
 }
 
+export function populateFeedback(feedback: Partial<Feedback> = {}): Feedback {
+	const defaultFeedback: Feedback = {
+		id: generateUUID(),
+		rating: 3,
+		comment: "",
+		author: "",
+		title: "",
+		createdAt: new Date(),
+		updatedAt: undefined,
+		status: "new",
+	};
+
+	return {
+		...defaultFeedback,
+		...feedback,
+	};
+}
+
 export function isSpatialMeasure(measure: DomainMeasure): boolean {
 	if (!measure) return false;
 	if (measure.type !== 'Spatial') return false;
@@ -243,7 +262,7 @@ export function isSpatialMeasure(measure: DomainMeasure): boolean {
 }
 export function isNonSpatialMeasure(measure: DomainMeasure): boolean {
 	if (!measure) return false;
-	return measure.type === 'Non spatial'
+	return measure.type === "Non-spatial";
 }
 
 export function isMeasureEffect(effect: DomainEffect): effect is Effect<Measure> {

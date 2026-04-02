@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Aspect, DomainEffect, DomainMeasure, Measure, Statement } from '#/shared/types/msp-project';
+import type { Aspect, DomainEffect, DomainMeasure, Effect, Feedback, Measure, Statement } from '#/shared/types/msp-project';
 // import { useScenarioStore } from '@/stores/scenarioStore';
 // import {useThemesProvider} from '@/composables/useThemesProvider';
 import { generateUUID } from "#/shared/utils/generateUUID"; // Import mancante
@@ -7,7 +7,6 @@ import { storeToRefs } from 'pinia';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import type { EffectInitProp } from '~/components/scenario/EffectEditor.vue'
-import type { Domain } from 'node:domain';
 import type { MeasureType } from '~/components/scenario/DomainMeasures.vue';
 
 type ViewModeType = 'tab-view' | 'edit';
@@ -23,6 +22,7 @@ const isSaving = ref(false);
 const viewMode = ref<ViewModeType>('tab-view');
 const selectedStatement = ref<Statement | null>(null);
 const selectedMeasure = ref<DomainMeasure | null>(null); // Aggiunto ref mancante
+const selectedFeedback = ref<Feedback | null>(null);
 
 // Utilizziamo direttamente selectedScenario dallo store per evitare sfasamenti
 const hasStatements = computed(() => (selectedScenario.value?.statements?.length ?? 0) > 0);
@@ -216,12 +216,68 @@ const handleCloneEffect = (effect: DomainEffect) => {
 	viewMode.value = "edit";
 };
 
+// --- LOGICA FEEDBACK ---
+const handleNewFeedback = () => {
+	viewMode.value = 'edit';
+	selectedFeedback.value = {
+		id: '',
+		author: '',
+		comment: '',
+		rating: 3,
+		createdAt: new Date(),
+		status: 'new',
+	} as Feedback;
+};
+
+const handleEditFeedback = (feedback: Feedback) => {
+	viewMode.value = 'edit';
+	selectedFeedback.value = feedback;
+};
+
+const handleCloneFeedback = (feedback: Feedback) => {
+	viewMode.value = 'edit';
+	selectedFeedback.value = {
+		...feedback,
+		id: '',
+		createdAt: new Date(),
+		updatedAt: undefined,
+	} as Feedback;
+};
+
+const handleSaveFeedback = (formData: Partial<Feedback>) => {
+	if (!selectedScenario.value) return;
+	if (!selectedScenario.value.feedbacks) selectedScenario.value.feedbacks = [];
+
+	if (selectedFeedback.value?.id) {
+		const index = selectedScenario.value.feedbacks.findIndex((f) => f.id === selectedFeedback.value!.id);
+		if (index !== -1) {
+			selectedScenario.value.feedbacks[index] = {
+				...selectedScenario.value.feedbacks[index],
+				...formData,
+			} as Feedback;
+		}
+	} else {
+		selectedScenario.value.feedbacks.push({
+			...formData,
+			id: generateUUID(),
+		} as Feedback);
+	}
+
+	viewMode.value = 'tab-view';
+	selectedFeedback.value = null;
+};
+
+const handleDeleteFeedback = (feedback: Feedback) => {
+	if (!selectedScenario.value?.feedbacks) return;
+	selectedScenario.value.feedbacks = selectedScenario.value.feedbacks.filter((f) => f.id !== feedback.id);
+};
+
 
 
 
 
 onMounted(async () => {
-	const scenarioId = route.params.id as string; // pk o id in base al tuo router
+	const scenarioId = route.params.pk as string;
 	await scenarioStore.fetchScenarioMock(scenarioId);
 	isLoading.value = false;
 });
@@ -266,6 +322,12 @@ onMounted(async () => {
 							@edit:effect="handleEditEffect" @delete:effect="handleDeleteEffect"
 							@clone:effect="handleCloneEffect" />
 					</v-window-item>
+
+					<v-window-item value="feedback" :transition="false" :reverse-transition="false">
+						<scenario-feedbacks :feedbacks="selectedScenario.feedbacks || []"
+							@edit:feedback="handleEditFeedback" @clone:feedback="handleCloneFeedback"
+							@delete:feedback="handleDeleteFeedback" />
+					</v-window-item>
 				</v-window>
 			</div>
 		</div>
@@ -273,12 +335,12 @@ onMounted(async () => {
 		<!-- Forms di editing -->
 		<statement-form v-if="viewMode === 'edit' && tab === 'statements' && selectedStatement"
 			:initial-data="selectedStatement" @save="handleSaveStatement" @cancel="viewMode = 'tab-view'" />
-
-		<!-- Fix: Aggiunto controllo per selectedMeasure -->
 		<scenario-aspect-form v-if="viewMode === 'edit' && tab === 'measures' && selectedMeasure"
 			:initial-data="selectedMeasure" @save="handleSaveAspect" @cancel="viewMode = 'tab-view'" />
 		<scenario-effect-editor v-if="viewMode === 'edit' && tab === 'effects' && selectedEffect"
 			:initial-data="initEffectData" @save="handleSaveEffect" @cancel="viewMode = 'tab-view'" />
+		<scenario-feedback-editor v-if="viewMode === 'edit' && tab === 'feedback' && selectedFeedback"
+			:initial-data="selectedFeedback" @save="handleSaveFeedback" @cancel="viewMode = 'tab-view'" />
 
 		<!-- FABs -->
 		<div class="fab-speed-dial-container" v-if="viewMode === 'tab-view' && tab !== 'general'">
@@ -305,6 +367,8 @@ onMounted(async () => {
 				<v-btn key="1" color="secondary" @click="handleNewEffect('Non-spatial')">Non-spatial</v-btn>
 				<v-btn key="2" color="surface-variant" @click="handleNewEffect('Spatial')">Spatial</v-btn>
 			</v-speed-dial>
+
+			<v-btn v-if="tab === 'feedback'" color="primary" icon="mdi-plus" size="large" @click="handleNewFeedback" />
 		</div>
 	</v-container>
 </template>
