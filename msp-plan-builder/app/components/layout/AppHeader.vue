@@ -8,7 +8,7 @@ const pageTitle = computed(() => route.meta.title || 'MSP-plan builder');
 
 <template>
 	<v-app-bar app class="app-header" elevation="0">
-		<div class="header-title">
+		<div class="header-title tw:uppercase">
 			{{ pageTitle }}
 		</div>
 		<v-spacer></v-spacer>
@@ -39,7 +39,8 @@ const pageTitle = computed(() => route.meta.title || 'MSP-plan builder');
 .header-title {
 	font-size: 1rem;
 	font-weight: 500;
-	color: #333;
+	color: #333333;
+	
 }
 
 .user-profile {

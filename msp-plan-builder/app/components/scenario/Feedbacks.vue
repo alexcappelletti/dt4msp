@@ -17,7 +17,7 @@ const emit = defineEmits<{
 const currentFilter = ref<FeedbackFilter>('all');
 
 function feedbackLabel(feedback: Feedback): string {
-	return feedback.status === 'resolved' ? 'Closed' : 'Opened';
+	return feedback.status === 'resolved' ? 'Chiuso' : 'Aperto';
 }
 
 function isOpenedFeedback(feedback: Feedback): boolean {

@@ -1,5 +1,11 @@
-/* Tailwind Theme (definisce --tw-spacing e colori prefissati) */
-@import "tailwindcss" prefix(tw);
+/* Tailwind v4: importiamo theme + utilities, evitando preflight
+   per non sovrascrivere i reset/typography di Vuetify */
+@import "tailwindcss/theme" prefix(tw);
+@import "tailwindcss/utilities" prefix(tw);
+
+/* Source esplicito per build production (es. Vercel) */
+@source "../../**/*.{vue,js,ts}";
+@source "../../../shared/**/*.{js,ts}";
 
 @theme {
 	/* Mappa i colori di Vuetify per usarli con tw-bg-primary, tw-text-alex, ecc. */
