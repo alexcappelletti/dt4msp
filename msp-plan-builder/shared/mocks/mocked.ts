@@ -5,6 +5,7 @@ import {
 	type Theme,
 } from "#/shared/types/msp-project";
 import { generateUUID } from "#/shared/utils/generateUUID";
+export { mapRequestsMock } from "./mapRequestMocks";
 
 // --- Definizione dei Temi per i vari Settori ---
 export const availableThemesMock: Theme[] = [

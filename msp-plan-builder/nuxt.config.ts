@@ -5,6 +5,10 @@ export default defineNuxtConfig({
 	compatibilityDate: "2025-07-15",
 	devtools: { enabled: true },
 	srcDir: "app",
+	runtimeConfig: {
+		owsBaseUrl: process.env.OWS_BASE_URL ?? "",
+		owsTimeoutMs: Number(process.env.OWS_TIMEOUT_MS ?? 15000),
+	},
 	app: {
 		rootId: "nuxt-root",
 	},

@@ -73,3 +73,22 @@ bun run preview
 ```
 
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+
+## OWS Map API
+
+Il progetto espone un endpoint server-side per proxy OWS:
+
+- `GET /api/ows/map`
+
+Configura le variabili ambiente:
+
+- `OWS_BASE_URL` URL base del servizio OWS (es. WMS endpoint)
+- `OWS_TIMEOUT_MS` timeout richiesta upstream in millisecondi (default `15000`)
+
+Esempio:
+
+```bash
+/api/ows/map?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&LAYERS=workspace:layer&CRS=EPSG:3857&BBOX=1372100,5695000,1380000,5702000&WIDTH=1024&HEIGHT=768&FORMAT=image/png
+```
+
+L'endpoint inoltra i query params al servizio OWS configurato e restituisce la risposta originale (JSON/XML/immagine).

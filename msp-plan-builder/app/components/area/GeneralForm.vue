@@ -228,7 +228,7 @@ watch(
 				</v-window-item>
 				
 				<v-window-item value="map">
-					<p class="pa-4">Qui integrerai la mappa.</p>
+					<p class="pa-4">Servizio di accesso cartografia non disponibile</p>
 				</v-window-item>
 			</v-window>
 		</div>

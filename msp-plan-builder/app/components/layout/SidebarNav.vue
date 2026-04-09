@@ -36,6 +36,12 @@ const navItems = computed<NavItem[]>(() => [
 		icon: 'mdi-chart-line',
 		path: '/scenarios/3',
 		isActive: route.path.startsWith('/scenarios/3')
+	},
+	{
+		name: 'Mappa di esempio',
+		icon: 'mdi-chart-line',
+		path: '/map-page',
+		isActive: route.path.startsWith('/map-page')
 	}
 ]);
 

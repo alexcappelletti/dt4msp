@@ -2,3 +2,9 @@
 html, body {
   height: 100%;
 }
+
+/* Stabilizza lo stile delle tab tra ambienti (dev/prod, locale/Vercel):
+   i VTab devono mantenere il comportamento uppercase */
+.v-tab.v-btn {
+  text-transform: uppercase !important;
+}
