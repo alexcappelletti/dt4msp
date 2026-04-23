@@ -8,32 +8,43 @@ export default defineNuxtConfig({
 	runtimeConfig: {
 		owsBaseUrl: process.env.OWS_BASE_URL ?? "",
 		owsTimeoutMs: Number(process.env.OWS_TIMEOUT_MS ?? 15000),
+		public: {
+			esriApiKey: process.env.ESRI_APIKEY ?? "",
+		},
 	},
 	app: {
 		rootId: "nuxt-root",
 	},
 
 	alias: {
-		"#": resolve(__dirname, "."), // project root (used like "#	/shared/...")
-		"@": resolve(__dirname, "app"), // source dir (used like "@/components/...")
-		"~": resolve(__dirname, "app"), // alternative source alias
+		"#": resolve(__dirname, "."),
+		"@": resolve(__dirname, "app"),
+		"~": resolve(__dirname, "app"),
 	},
 
 	modules: ["vuetify-nuxt-module", "@pinia/nuxt"],
 
-	// ✅ ORDINE: Vuetify → Tailwind → tuoi override (SCSS/CSS)
 	css: [
 		"@mdi/font/css/materialdesignicons.css",
 		"vuetify/styles",
 		"~/assets/css/main-tailwind.css",
-		"~/assets/scss/app.scss", // se hai override finali, mettili qui
+		"~/assets/scss/app.scss",
 	],
 
 	build: {
-		transpile: ["vuetify"],
+		transpile: ["vuetify", "geostyler-mapbox-parser", "geostyler-sld-parser"],
+	},
+
+	nitro: {
+		externals: {
+			inline: ["geostyler-mapbox-parser", "geostyler-sld-parser"],
+		},
 	},
 
 	vite: {
+		ssr: {
+			noExternal: ["geostyler-mapbox-parser", "geostyler-sld-parser"],
+		},
 		resolve: {
 			alias: {
 				"#": resolve(__dirname, "."),
@@ -80,7 +91,6 @@ export default defineNuxtConfig({
 							info: "#64f321ff",
 							success: "#8171ad",
 							warning: "#93ff07ff",
-
 							alex: "#AA77B6",
 							ux1: "#233794",
 							"main-rose": "#FEF7FF",

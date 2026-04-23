@@ -14,7 +14,7 @@ interface NavItem {
 
 const navItems = computed<NavItem[]>(() => [
 	{
-		name: 'Areas',
+		name: 'Area',
 		icon: 'mdi-earth',
 		path: '/areas/1',
 		isActive: route.path.startsWith('/areas')

@@ -3,8 +3,6 @@ import GeoJSON from 'ol/format/GeoJSON';
 import type { Feature, GeoJsonProperties, Polygon } from 'geojson'; // Importa i tipi specifici per maggiore chiarezza
 
 
-import type { Layer } from '#/shared/types/gn-layer'
-import { useLayerHelper } from '@/composables/useLayerHelper'
 import * as turf from '@turf/turf';
 
 

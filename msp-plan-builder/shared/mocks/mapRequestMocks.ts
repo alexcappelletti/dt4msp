@@ -47,6 +47,34 @@ export const mapRequestsMock: MapRequest[] = [
 		layerParams: null,
 		owsFormat: "application/json",
 	},
+	{
+		serviceUrl:
+			"https://ahocevar.com/geoserver/wfs?SERVICE=WFS&VERSION=1.1.0&REQUEST=GetFeature&TYPENAME=topp:tasmania_roads&OUTPUTFORMAT=application/json&SRSNAME=EPSG:4326",
+		layerName: "topp:tasmania_roads",
+		standardType: "geojson",
+		serviceLabel: "WFS",
+		zoomLevel: 0,
+		opacity: 0.8,
+		visible: true,
+		layerParams: null,
+		owsFormat: "application/json",
+	},
+	{
+		serviceUrl:'https://geoplatform.tools4msp.eu/geoserver/ows?',
+		layerName: 'geonode:Dominio_SoS',
+		standardType: 'geojson',
+		serviceLabel: 'WFS',
+		zoomLevel: 0,
+		opacity: 0.8,
+		visible: true,
+		layerParams: null,
+		owsFormat: 'application/json',
+		viewStyle: {
+			'fill-color': '#1d530b',
+			'fill-opacity': 0.68,
+			'fill-outline-color': '#b0d2a2'},
+		
+	}
 ];
 
 export const defaultMapRequest: MapRequest[] = [...mapRequestsMock];
