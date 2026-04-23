@@ -28,7 +28,7 @@ const formatDate = (dateValue: string) => {
 </script>
 
 <template>
-	<div class="tw:bg-[#f2f2f2] tw:p-2 tw:rounded-md">
+	<div class="tw:p-2 tw:rounded-md">
 		<p v-if="props.loading && props.layers.length === 0" class="tw:text-sm tw:text-gray-500 tw:mb-3">
 			Caricamento lista in corso...
 		</p>

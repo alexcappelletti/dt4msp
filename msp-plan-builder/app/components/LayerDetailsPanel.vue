@@ -53,7 +53,7 @@ const featuresFound = computed(() => {
 </script>
 
 <template>
-	<div class="tw:flex-1 tw:p-4 tw:border tw:border-gray-300 tw:rounded-md tw:bg-white tw:flex tw:flex-col">
+	<div class="tw:flex-1 tw:p-4 tw:rounded-md tw:bg-white tw:flex tw:flex-col">
 		<!-- Stato caricamento -->
 		<div v-if="isLoading && !hasDetails" class="tw:text-gray-600 tw:p-4">
 			<p class="tw:mb-2">Caricamento dettagli...</p>
