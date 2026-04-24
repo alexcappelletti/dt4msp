@@ -1,9 +1,14 @@
 <!-- app/components/layout/SidebarNav.vue -->
 <script setup lang="ts">
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { computed } from 'vue';
+import { storeToRefs } from 'pinia';
+import { useScenarioStore } from '@/stores/scenarioStore';
 
+const router = useRouter();
 const route = useRoute();
+const scenarioStore = useScenarioStore();
+const { scenarios } = storeToRefs(scenarioStore);
 
 interface NavItem {
 	name: string;
@@ -19,24 +24,12 @@ const navItems = computed<NavItem[]>(() => [
 		path: '/areas/1',
 		isActive: route.path.startsWith('/areas')
 	},
-	{
-		name: 'Scenario 1',
-		icon: 'mdi-chart-bar',
-		path: '/scenarios/1',
-		isActive: route.path.startsWith('/scenarios/1')
-	},
-	{
-		name: 'Scenario 2',
-		icon: 'mdi-chart-line',
-		path: '/scenarios/2',
-		isActive: route.path.startsWith('/scenarios/2')
-	},
-	{
-		name: 'Scenario 3',
-		icon: 'mdi-chart-line',
-		path: '/scenarios/3',
-		isActive: route.path.startsWith('/scenarios/3')
-	},
+	...scenarios.value.map((scenario, index) => ({
+		name: scenario.name || `Scenario ${index + 1}`,
+		icon: index === 0 ? 'mdi-chart-bar' : 'mdi-chart-line',
+		path: `/scenarios/${scenario.id}`,
+		isActive: route.path.startsWith(`/scenarios/${scenario.id}`)
+	})),
 	{
 		name: 'Mappa di esempio',
 		icon: 'mdi-chart-line',
@@ -45,8 +38,9 @@ const navItems = computed<NavItem[]>(() => [
 	}
 ]);
 
-const createNewScenario = () => {
-	alert('Simulazione: creazione nuovo scenario');
+const createNewScenario = async () => {
+	const newScenario = scenarioStore.createNewScenario();
+	await router.push(`/scenarios/${newScenario.id}`);
 };
 </script>
 

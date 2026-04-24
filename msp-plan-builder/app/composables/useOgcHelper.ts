@@ -41,7 +41,7 @@ export const useOgcHelper = () => {
 		const defaultOptions = {
 			outputFormat: 'application/json',
 			srsName: 'EPSG:3857',
-			maxFeatures: 50,
+			maxFeatures: 150,
 		};
 		const merged = { ...defaultOptions, ...options }
 

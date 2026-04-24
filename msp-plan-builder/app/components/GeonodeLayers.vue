@@ -11,12 +11,18 @@ const gnLayerStore = useLayeredMapStore();
 const loading = ref(false);
 const error = ref<Error | null>(null);
 const selectedLayerDetails = ref<Layer | null>(null);
-const layerSummaries = computed(() => mapStore.availableLayers);
-const selectedLayerTitle = computed(() => {
-	if (selectedLayerDetails.value?.title) {
-		return selectedLayerDetails.value.title;
+const allLayerSummaries = computed(() => mapStore.availableLayers);
+const searchText = ref('');
+const layerSummaries = computed(() => {
+	const query = searchText.value.trim().toLowerCase();
+	if (!query) {
+		return allLayerSummaries.value;
 	}
-	return 'Nessun layer selezionato';
+	return allLayerSummaries.value.filter((layer) =>
+		layer.title.toLowerCase().includes(query) ||
+		layer.abstract.toLowerCase().includes(query) ||
+		layer.owner_username.toLowerCase().includes(query),
+	);
 });
 
 const saveSelectedLayerPk = (pk: string) => {
@@ -28,7 +34,7 @@ const restoreSelection = async () => {
 	if (!import.meta.client) return;
 	const savedPk = localStorage.getItem(LAYER_SELECTION_STORAGE_KEY);
 	if (!savedPk) return;
-	const existsInCurrentList = layerSummaries.value.some((layer) => layer.pk === savedPk);
+	const existsInCurrentList = allLayerSummaries.value.some((layer) => layer.pk === savedPk);
 	if (!existsInCurrentList) return;
 	await setLayerDetails(savedPk);
 };
@@ -46,12 +52,28 @@ const setLayerDetails = async (pk: string) => {
 	try {
 		selectedLayerDetails.value = await mapStore.getLayer(pk);
 		await gnLayerStore.selectGnLayer(selectedLayerDetails.value);
+		searchText.value = selectedLayerDetails.value.title || '';
 		saveSelectedLayerPk(pk);
 	} catch (err: any) {
 		error.value = err instanceof Error ? err : new Error(String(err));
 		selectedLayerDetails.value = null;
 	} finally {
 		loading.value = false;
+	}
+};
+
+const handleSearchTyping = (query: string) => {
+	searchText.value = query ?? '';
+	if (!searchText.value.trim()) {
+		selectedLayerDetails.value = null;
+		gnLayerStore.resetStore();
+	}
+};
+
+const onEnterSelect = async () => {
+	const firstMatch = layerSummaries.value[0];
+	if (firstMatch) {
+		await setLayerDetails(firstMatch.pk);
 	}
 };
 </script>
@@ -63,28 +85,28 @@ const setLayerDetails = async (pk: string) => {
 			{{ mapStore.busy ? 'Caricamento...' : 'Carica Tutti i Layer' }}
 		</v-btn> -->
 		<v-text-field
-			label="layer selezionato"
-			:model-value="selectedLayerTitle"
-			readonly
-			density="comfortable"
+			label="Mappa"
+			v-model="searchText"
 			variant="outlined"
-			class="tw:mb-3 tw:mt-3"
+			hide-details
+			clearable
+			:loading="mapStore.busy"
+			class="tw:my-3"
+			@update:model-value="handleSearchTyping"
+			@click:clear="handleSearchTyping('')"
+			@keydown.enter="onEnterSelect"
 		/>
-
 		<div v-if="mapStore.error" class="error">Errore: {{ mapStore.error.message }}</div>
 		<div v-if="error" class="error">Errore dettaglio layer: {{ error.message }}</div>
 
-		<div class="tw:grid tw:grid-cols-3 content-wrapper">
-			<div class="tw:full-h">
-				<h4>Lista ({{ layerSummaries.length }})</h4>
-				<GeonodeLayerList
+		<div class="tw:grid tw:grid-cols-3 content-wrapper ">
+			<GeonodeLayerList
 					:layers="layerSummaries"
 					:selected-pk="selectedLayerDetails?.pk"
 					:loading="mapStore.busy"
 					@select="setLayerDetails"
 				/>
-			</div>
-
+			
 			<LayerDetailsPanel
 				class="tw:col-span-2 details-panel tw:w-full tw:full-h"
 				:layer="selectedLayerDetails"
@@ -93,3 +115,4 @@ const setLayerDetails = async (pk: string) => {
 		</div>
 	</div>
 </template>	
+

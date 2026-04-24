@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
 	}
 
 	try {
-		console.log("wms url: ", url.toString())
+		//console.log("wms url: ", url.toString())
 		const response:any = await fetch(url.toString())
 		if (!response.ok) {
 			console.error(`Errore HTTP: ${response.status} ${response.statusText}`)

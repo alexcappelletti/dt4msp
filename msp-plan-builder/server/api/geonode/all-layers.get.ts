@@ -49,7 +49,7 @@ async function fetchWithConcurrencyLimit<T>(
 
 export default defineEventHandler(async (event) => {
 	const allLayers: Layer[] = [];
-	let totalPages = 10;
+	let totalPages = 20;
 
 	const query = getQuery(event);
 	const searchText = query.searchText ? String(query.searchText) : undefined;

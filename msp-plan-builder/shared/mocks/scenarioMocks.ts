@@ -9,7 +9,6 @@ import type {
 	Theme,
 } from "#/shared/types/msp-project";
 import {
-	MapLayer,
 	populateAspect,
 	populateEffect,
 	populateFeedback,
@@ -103,7 +102,7 @@ export const mockMarineMeasures: Measure[] = [
 		description:
 			"Installazione di sistemi di ormeggio ecologici per evitare lo sradicamento causato dalle ancore.",
 		impact: "Aumento della densita dei fasci di Posidonia",
-		geospatialResources: [new MapLayer()],
+		geospatialResources: [{}],
 		referenceThemes: [theme("env_prot"), theme("tourism"), theme("transport")],
 	}),
 	populateMeasure({
@@ -112,7 +111,7 @@ export const mockMarineMeasures: Measure[] = [
 		description:
 			"Implementazione di boe acustiche per il monitoraggio dei cetacei e la regolazione del traffico.",
 		impact: "Diminuzione del rischio di collisione con grandi vertebrati marini",
-		geospatialResources: [new MapLayer()],
+		geospatialResources: [{}],
 		referenceThemes: [theme("research"), theme("transport"), theme("env_prot")],
 	}),
 ];

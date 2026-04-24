@@ -28,21 +28,32 @@ const formatDate = (dateValue: string) => {
 </script>
 
 <template>
-	<div class="tw:p-2 tw:rounded-md">
+	<div class="">
 		<p v-if="props.loading && props.layers.length === 0" class="tw:text-sm tw:text-gray-500 tw:mb-3">
 			Caricamento lista in corso...
 		</p>
 
-		<div v-if="props.layers.length > 0" class="tw:flex tw:flex-col tw:max-h-[72vh] tw:overflow-y-auto tw:pr-1">
+		<div v-if="props.layers.length > 0" 
+			class="tw:flex tw:flex-col tw:max-h-[72vh] 
+			tw:overflow-y-auto tw:overflow-x-hidden tw:py-2 tw:px-2">
+	<p>
+		{{
+			props.layers.length === 0
+				? 'Nessun layer trovato'
+				: props.layers.length === 1
+					? '1 Layer trovato'
+					: `${props.layers.length} Layer trovati`
+		}}
+	</p>
 			<button
 				v-for="layer in props.layers"
 				:key="layer.pk"
 				type="button"
-				class="tw:w-full tw:text-left tw:p-0 tw:bg-transparent tw:transition"
-				:class="props.selectedPk === layer.pk ? 'tw:ring-1 tw:ring-blue-300 tw:rounded-md' : ''"
+				class="tw:w-full tw:text-left tw:p-2  tw:bg-transparent tw:transition"
+				:class="props.selectedPk === layer.pk ? 'tw:px-1 selected-item tw:rounded-md' : ''"
 				@click="onSelect(layer.pk)"
 			>
-				<div class="tw:flex tw:gap-2 tw:py-3 tw:border-b tw:border-slate-300 ">
+				<div class="tw:flex tw:gap-2  ">
 					<div class="tw:w-[136px] tw:min-w-[136px] tw:flex tw:justify-center">
 						<v-img
 							:src="layer.thumbnail_url"
@@ -103,6 +114,13 @@ const formatDate = (dateValue: string) => {
 	&:hover {
 		background-color: #e0e0e0;
 	}
+}
+.selected-item {
+	border: 1px solid $main-dark-rose-color !important;
+	background-color: rgba($main-dark-rose-color, 0.08) !important;
+}
+.selected-item:hover {
+	background-color: rgba($main-dark-rose-color, 0.14) !important;
 }
 .dark-rose-text {
 	color: $main-super-dark-rose-color !important;

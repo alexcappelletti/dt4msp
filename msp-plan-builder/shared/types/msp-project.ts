@@ -270,4 +270,8 @@ export function isMeasureEffect(effect: DomainEffect): effect is Effect<Measure>
 	return effect.affected.every((item) => item.type === "Spatial");
 }
 
-export class MapLayer {}
+export interface MapLayer {
+	id?: string;
+	name?: string;
+	[key: string]: unknown;
+}
