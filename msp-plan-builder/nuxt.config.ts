@@ -1,6 +1,24 @@
 import tailwindcss from "@tailwindcss/vite";
 import { resolve } from "path";
 
+const requiredEnvVars = [
+	"AUTH_SECRET",
+	"GOOGLE_CLIENT_ID",
+	"GOOGLE_CLIENT_SECRET",
+	"GOOGLE_REDIRECT_URI",
+] as const;
+
+const missingEnvVars = requiredEnvVars.filter((key) => {
+	const value = process.env[key];
+	return !value || value.trim().length === 0;
+});
+
+if (missingEnvVars.length > 0) {
+	throw new Error(
+		`Missing required environment variables: ${missingEnvVars.join(", ")}`,
+	);
+}
+
 export default defineNuxtConfig({
 	compatibilityDate: "2025-07-15",
 	devtools: { enabled: true },
@@ -8,6 +26,10 @@ export default defineNuxtConfig({
 	runtimeConfig: {
 		owsBaseUrl: process.env.OWS_BASE_URL ?? "",
 		owsTimeoutMs: Number(process.env.OWS_TIMEOUT_MS ?? 15000),
+		authSecret: process.env.AUTH_SECRET ?? "",
+		googleClientId: process.env.GOOGLE_CLIENT_ID ?? "",
+		googleClientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+		googleRedirectUri: process.env.GOOGLE_REDIRECT_URI ?? "",
 		public: {
 			esriApiKey: process.env.ESRI_APIKEY ?? "",
 		},

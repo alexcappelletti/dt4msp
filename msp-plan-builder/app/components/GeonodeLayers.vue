@@ -91,8 +91,10 @@ const onEnterSelect = async () => {
 			hide-details
 			clearable
 			:loading="mapStore.busy"
+			
 			class="tw:my-3"
 			@update:model-value="handleSearchTyping"
+
 			@click:clear="handleSearchTyping('')"
 			@keydown.enter="onEnterSelect"
 		/>
