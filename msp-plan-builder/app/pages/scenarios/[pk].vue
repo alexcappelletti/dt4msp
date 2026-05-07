@@ -462,7 +462,6 @@ watch(
 
 			<v-btn v-if="tab === 'feedback'" color="primary" icon="mdi-plus" size="large" @click="handleNewFeedback" />
 		</div>
-
 		<v-dialog v-model="deleteDialogOpen" max-width="520">
 			<v-card>
 				<v-card-title class="text-h6">Conferma cancellazione scenario</v-card-title>
