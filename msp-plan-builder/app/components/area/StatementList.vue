@@ -1,6 +1,5 @@
-<!-- components/areas/statements/StatementList.vue -->
 <script setup lang="ts">
-import type { Statement } from '#/shared/types/msp-project';
+import type { Statement, Theme } from '#/shared/types/msp-project';
 import { computed, ref } from 'vue';
 
 const props = defineProps<{
@@ -9,15 +8,50 @@ const props = defineProps<{
 
 const emit = defineEmits(['delete:statement', 'edit:statement']);
 
-// Logica di filtro semplificata (qui puoi espanderla)
-const currentFilter = ref('Tutti');
-const availableFilters = ['Tutti', 'Generale', 'Sector-specific'];
+type FilterType = 'Tutti' | 'Generale' | 'Sector-specific';
+const currentFilter = ref<FilterType>('Tutti');
+const availableFilters: FilterType[] = ['Tutti', 'Generale', 'Sector-specific'];
+const selectedThemeKey = ref<string | null>(null);
+
+const availableThemes = computed<Theme[]>(() => {
+	const all = (props.statements ?? []).flatMap((statement) => statement.sectorThemes ?? []);
+	const merged = new Map<string, Theme>();
+	for (const theme of all) {
+		const key = theme?.indexName || theme?.name || theme?.id;
+		if (!key) continue;
+		merged.set(key, theme);
+	}
+	return [...merged.values()];
+});
+
+const selectedThemeLabel = computed(() => {
+	if (!selectedThemeKey.value) return 'Tema';
+	const found = availableThemes.value.find(
+		(theme) => (theme.indexName || theme.name || theme.id) === selectedThemeKey.value,
+	);
+	return found?.name || 'Tema';
+});
 
 const filteredStatements = computed(() => {
-	if (currentFilter.value === 'Tutti') return props.statements;
-	// Aggiungi qui una logica di filtro reale basata sulle proprietà dello Statement
-	return props.statements;
+	let list = props.statements ?? [];
+
+	if (currentFilter.value === 'Generale') {
+		list = list.filter((statement) => !statement.sectorThemes || statement.sectorThemes.length === 0);
+	} else if (currentFilter.value === 'Sector-specific') {
+		list = list.filter((statement) => Array.isArray(statement.sectorThemes) && statement.sectorThemes.length > 0);
+	}
+
+	if (selectedThemeKey.value) {
+		list = list.filter((statement) =>
+			(statement.sectorThemes ?? []).some(
+				(theme) => (theme.indexName || theme.name || theme.id) === selectedThemeKey.value,
+			),
+		);
+	}
+
+	return list;
 });
+
 const deleteStatement = (id: string) => {
 	emit('delete:statement', id);
 };
@@ -29,36 +63,57 @@ const editStatement = (statement: Statement) => {
 
 <template>
 	<div class="statements-list-container">
-		<!-- Area Filtri -->
 		<div class="filters-container mb-4 d-flex align-center">
 			<span class="text-caption mr-4">Filtri:</span>
 			<v-chip-group mandatory selected-class="text-primary" v-model="currentFilter">
 				<v-chip v-for="filter in availableFilters" :key="filter" :value="filter">
 					{{ filter }}
 				</v-chip>
-				<!-- Simulazione del dropdown 'Theme' -->
-				<v-chip append-icon="mdi-menu-down">Tema</v-chip>
 			</v-chip-group>
+
+			<v-menu class="ml-3">
+				<template #activator="{ props: menuProps }">
+					<v-chip v-bind="menuProps" append-icon="mdi-menu-down" variant="outlined">
+						{{ selectedThemeLabel }}
+					</v-chip>
+				</template>
+
+				<v-list density="compact" style="min-width: 240px">
+					<v-list-item title="Tutti i temi" @click="selectedThemeKey = null" />
+					<v-divider />
+					<v-list-item
+						v-for="theme in availableThemes"
+						:key="theme.id"
+						:title="theme.name"
+						@click="selectedThemeKey = theme.indexName || theme.name || theme.id"
+					/>
+				</v-list>
+			</v-menu>
 		</div>
 
-		<!-- Lista di Card -->
 		<div v-if="filteredStatements.length > 0" class="statements-grid">
-			<v-card v-for="statement in filteredStatements" :key="statement.id" class="statement-card hover-effect"
-				@click="editStatement(statement)">
+			<v-card
+				v-for="statement in filteredStatements"
+				:key="statement.id"
+				class="statement-card hover-effect"
+				@click="editStatement(statement)"
+			>
 				<v-card-item>
 					<div class="d-flex justify-space-between align-start">
 						<div class="d-flex align-center">
-							<!-- Icona/Avatar con iniziale G o S -->
-							<v-avatar size="32" class="mr-3"
-								:color="statement.sectorThemes && statement.sectorThemes.length > 0 ? 'secondary' : 'primary'">
-								<span class="white--text">{{ statement.sectorThemes && statement.sectorThemes.length > 0
-									? 'S' : 'G' }}</span>
+							<v-avatar
+								size="32"
+								class="mr-3"
+								:color="statement.sectorThemes && statement.sectorThemes.length > 0 ? 'secondary' : 'primary'"
+							>
+								<span class="white--text">
+									{{ statement.sectorThemes && statement.sectorThemes.length > 0 ? 'S' : 'G' }}
+								</span>
 							</v-avatar>
 							<div>
 								<div class="text-subtitle-1"><strong>{{ statement.shortName }}</strong></div>
 								<div class="text-caption text-medium-emphasis">
-									{{ statement.sectorThemes && statement.sectorThemes.length > 0 ? 'Sector-specific' :
-										'General' }}
+									{{ statement.sectorThemes && statement.sectorThemes.length > 0 ? 'Sector-specific' : 'General' }}
 								</div>
 							</div>
 						</div>
@@ -68,7 +123,6 @@ const editStatement = (statement: Statement) => {
 					</div>
 				</v-card-item>
 
-				<!-- Parte centrale con immagine segnaposto -->
 				<div class="image-placeholder bg-grey-lighten-3">
 					<v-icon size="64" color="grey-darken-1">mdi-image</v-icon>
 				</div>
@@ -79,7 +133,8 @@ const editStatement = (statement: Statement) => {
 
 					<p class="font-weight-bold mb-1">Description:</p>
 					<p class="text-medium-emphasis text-caption">
-						{{ statement.description || 'Nessuna descrizione disponibile.' }}</p>
+						{{ statement.description || 'Nessuna descrizione disponibile.' }}
+					</p>
 				</v-card-text>
 			</v-card>
 		</div>
@@ -112,3 +167,4 @@ const editStatement = (statement: Statement) => {
 	border-radius: 4px;
 }
 </style>
+

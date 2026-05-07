@@ -1,28 +1,67 @@
 <script setup lang="ts">
 const router = useRouter();
 const { user, authenticated, refresh, loginWithGoogle, logout } = useAuth();
+const mspDataProvider = useMspDataProvider();
+const authError = ref<string | null>(null);
+const isReady = ref(false);
+const isEntering = ref(false);
 
 onMounted(async () => {
 	await refresh();
+	try {
+		const data = await $fetch<{ message: string | null }>('/api/auth/error');
+		authError.value = data.message;
+	} catch {
+		authError.value = null;
+	} finally {
+		isReady.value = true;
+	}
 });
 
 const enterApp = async () => {
-	await router.push('/areas/1');
+	isEntering.value = true;
+	try {
+		const project = await mspDataProvider.fetchProject('prj-2026-001');
+		const areaId = project?.areaOfInterest?.id;
+		if (!areaId) return;
+		await router.push(`/areas/${areaId}`);
+	} catch {
+		// Se il progetto non e caricato, non forziamo route fallback.
+	} finally {
+		isEntering.value = false;
+	}
 };
 
 useHead({ title: 'Accesso' });
 </script>
 
 <template>
-	<div class="login-page">
+	<div v-if="isReady" class="login-page">
 		<div class="login-card">
 			<h1 class="login-title">MSP Plan Builder</h1>
 			<p class="login-subtitle">Accedi con il tuo account Google per iniziare.</p>
+			<v-alert
+				v-if="authError"
+				type="error"
+				variant="tonal"
+				density="comfortable"
+				class="tw:mb-4"
+			>
+				{{ authError }}
+			</v-alert>
 
 			<div v-if="authenticated" class="auth-box">
-				<p class="welcome">Benvenuto, {{ user?.name || user?.email }}</p>
+				<p class="welcome">Ciao, {{ user?.name || user?.email }}</p>
 				<div class="actions">
-					<v-btn color="primary" variant="flat" @click="enterApp">Entra nell'app</v-btn>
+					<v-btn
+						color="primary"
+						variant="flat"
+						:loading="isEntering"
+						:disabled="isEntering"
+						@click="enterApp"
+					>
+						Entra nell'app
+					</v-btn>
 					<v-btn variant="tonal" @click="logout">Logout</v-btn>
 				</div>
 			</div>
@@ -34,6 +73,7 @@ useHead({ title: 'Accesso' });
 			</div>
 		</div>
 	</div>
+	<div v-else class="boot-placeholder"></div>
 </template>
 
 <style scoped>
@@ -83,5 +123,10 @@ useHead({ title: 'Accesso' });
 	display: flex;
 	gap: 10px;
 	flex-wrap: wrap;
+}
+
+.boot-placeholder {
+	min-height: 100vh;
+	background: #fef7ff;
 }
 </style>

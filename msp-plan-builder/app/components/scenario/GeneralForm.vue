@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch, onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import type { Scenario, Theme } from '#/shared/types/msp-project';
 // Importa la funzione di popolamento e i temi disponibili (aggiustare il percorso se necessario)
 import { populateScenario } from '#/shared/types/msp-project';
@@ -24,6 +24,34 @@ const formData = computed<Partial<Scenario>>({
 		}
 	}
 });
+
+const selectedPrimaryThemeIds = computed(() =>
+	(formData.value.primaryThemes ?? []).map((theme) => theme.id),
+);
+
+const selectedSecondaryThemeIds = computed(() =>
+	(formData.value.secondaryThemes ?? []).map((theme) => theme.id),
+);
+
+function mapIdsToThemes(ids: string[], existing: Theme[] | undefined): Theme[] {
+	const currentById = new Map((existing ?? []).map((theme) => [theme.id, theme]));
+	for (const theme of availableThemes.value) {
+		if (ids.includes(theme.id)) {
+			currentById.set(theme.id, theme);
+		}
+	}
+	return ids
+		.map((id) => currentById.get(id))
+		.filter((theme): theme is Theme => !!theme);
+}
+
+const updatePrimaryThemes = (ids: string[]) => {
+	formData.value.primaryThemes = mapIdsToThemes(ids, formData.value.primaryThemes);
+};
+
+const updateSecondaryThemes = (ids: string[]) => {
+	formData.value.secondaryThemes = mapIdsToThemes(ids, formData.value.secondaryThemes);
+};
 
 
 // Controlla se i campi obbligatori sono stati compilati
@@ -58,20 +86,6 @@ onMounted(async() => {
 
 <template>
 	<div class="form-container">
-		<!-- <v-toolbar color="background" flat>
-			<v-btn icon @click="cancelForm">
-				<v-icon>mdi-arrow-left</v-icon>
-			</v-btn>
-			<v-toolbar-title class="font-weight-bold">
-			
-				{{ formData.id ? 'Modifica Scenario' : 'Nuovo Scenario' }}
-			</v-toolbar-title>
-			<v-spacer></v-spacer>
-			<v-btn icon @click="saveForm" :disabled="!canSave">
-				<v-icon color="primary">mdi-content-save</v-icon>
-			</v-btn>
-		</v-toolbar> -->
-
 		<v-form>
 				<v-row>
 					<v-col cols="12" md="6">
@@ -106,8 +120,14 @@ onMounted(async() => {
 					<v-col cols="12">
 						<v-label class="mb-2">Primary Themes</v-label>
 						<!-- v-model="formData.primaryThemes" si aggiorna automaticamente con lo store -->
-						<v-chip-group v-model="formData.primaryThemes" column multiple selected-class="text-primary">
-							<v-chip v-for="theme in availableThemes" :key="theme.id" :value="theme" variant="outlined">
+						<v-chip-group
+							:model-value="selectedPrimaryThemeIds"
+							column
+							multiple
+							selected-class="text-primary"
+							@update:model-value="updatePrimaryThemes"
+						>
+							<v-chip v-for="theme in availableThemes" :key="theme.id" :value="theme.id" variant="outlined">
 								{{ theme.name }}
 							</v-chip>
 						</v-chip-group>
@@ -118,9 +138,14 @@ onMounted(async() => {
 					<v-col cols="12">
 						<v-label class="mb-2">Secondary Themes</v-label>
 						<!-- v-model="formData.secondaryThemes" si aggiorna automaticamente con lo store -->
-						<v-chip-group v-model="formData.secondaryThemes" column multiple
-							selected-class="text-secondary">
-							<v-chip v-for="theme in availableThemes" :key="theme.id" :value="theme" variant="outlined">
+						<v-chip-group
+							:model-value="selectedSecondaryThemeIds"
+							column
+							multiple
+							selected-class="text-secondary"
+							@update:model-value="updateSecondaryThemes"
+						>
+							<v-chip v-for="theme in availableThemes" :key="theme.id" :value="theme.id" variant="outlined">
 								{{ theme.name }}
 							</v-chip>
 						</v-chip-group>

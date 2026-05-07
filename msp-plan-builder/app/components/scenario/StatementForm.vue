@@ -1,21 +1,26 @@
 <!-- components/areas/StatementForm.vue -->
 <script setup lang="ts">
 import type { Statement } from '#/shared/types/msp-project';
-import { useMspDataProvider } from '#imports';
+import { useScenarioStore } from '#/app/stores/scenarioStore';
 import { ref } from 'vue';
 
 const props = defineProps<{
 	initialData: Partial<Statement>;
 }>();
 
-
-const mpsDataProvider = useMspDataProvider();
+const scenarioStore = useScenarioStore();
 const availableThemes = ref<Theme[]>([]);
-const themesLoading = ref(true);
+const themesLoading = ref(false);
 
 const fetchThemes = async () => {
 	try {
-		availableThemes.value = await mpsDataProvider.fetchAvailableThemes();
+		if (scenarioStore.availableThemes.length > 0) {
+			availableThemes.value = scenarioStore.availableThemes;
+			themesLoading.value = false;
+			return;
+		}
+		themesLoading.value = true;
+		availableThemes.value = await scenarioStore.fetchAvailableThemes();
 	} catch (e) {
 		console.error("Error fetching themes", e);
 	} finally {
@@ -27,7 +32,7 @@ const fetchThemes = async () => {
 const isSectorSpecific = computed(() => {
 	// Ritorna true se sectorThemes è un array (anche vuoto),
 	// false se è undefined o null
-	return !!props.initialData.sectorThemes
+	return Array.isArray(props.initialData.sectorThemes);
 });
 
 const formTitle = computed(() => {

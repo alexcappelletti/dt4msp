@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import type { DomainMeasure,  } from '#/shared/types/msp-project';
+import { computed, onMounted, ref } from 'vue';
+import type { DomainMeasure, Theme } from '#/shared/types/msp-project';
 import { isNonSpatialMeasure, isSpatialMeasure } from '#/shared/types/msp-project';
 
 
@@ -27,7 +27,18 @@ const emit = defineEmits<{
 }>();
 
 const store = useScenarioStore();
-const availableThemes = computed(() => store.availableThemes);
+const availableThemes = computed(() => {
+	const fromStore = store.availableThemes ?? [];
+	const fromMeasures = (props.domainMeasures ?? [])
+		.flatMap((measure) => measure.referenceThemes ?? []);
+	const merged = new Map<string, Theme>();
+	for (const theme of [...fromStore, ...fromMeasures]) {
+		const key = theme?.indexName || theme?.name || theme?.id;
+		if (!key) continue;
+		merged.set(key, theme);
+	}
+	return [...merged.values()];
+});
 
 type Filter = 'Tutti' | 'Spatial' | 'Non-spatial';
 const currentFilter = ref<Filter>('Tutti');
@@ -36,6 +47,12 @@ const selectedThemeLabel = computed(() => {
 	if (!selectedThemeId.value) return 'Tema';
 	const theme = availableThemes.value.find((t) => t.id === selectedThemeId.value);
 	return theme?.name ?? 'Tutti i temi';
+});
+
+onMounted(async () => {
+	if ((store.availableThemes ?? []).length === 0) {
+		await store.fetchAvailableThemes();
+	}
 });
 
 

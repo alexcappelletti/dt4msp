@@ -1,293 +1,288 @@
-<!-- app/pages/areas/[id].vue -->
 <script setup lang="ts">
 import StatementList from './StatementList.vue';
 import StatementForm from './StatementForm.vue';
 import type { AreaOfInterest, Statement } from '#/shared/types/msp-project';
 import { generateUUID } from '#/shared/utils/generateUUID';
 import { debounce } from 'lodash-es';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 
+const props = withDefaults(defineProps<{
+	initialArea?: AreaOfInterest | null;
+	projectId?: string;
+	loading?: boolean;
+}>(), {
+	initialArea: null,
+	projectId: '',
+	loading: false,
+});
 
-const mpsDataProvider = useMspDataProvider();
-const tab = ref('general');
+const mspDataProvider = useMspDataProvider();
+
+const activeTab = ref<'general' | 'statements' | 'map'>('general');
+const isHydrating = ref(true);
+const isSaving = ref(false);
+const area = ref<AreaOfInterest | null>(null);
+
+const statementView = ref<'list' | 'form'>('list');
+const editedStatement = ref<Statement | null>(null);
+
 const showToast = ref(false);
+const toastColor = ref<'success' | 'error'>('success');
 const toastMessage = ref('');
-const toastColor = ref('success');
-const currentStatementView = ref<'list' | 'statement-form'>('list');
-const isLoading = ref(true);
-const isSaving = ref(true); // Feedback visivo per l'utente
 
-const notify = (message: string, color = 'success') => {
+const hasArea = computed(() => Boolean(area.value));
+const isBusy = computed(() => props.loading || isHydrating.value);
+const canPersist = computed(() => Boolean(props.projectId) && hasArea.value);
+const missingDataMessage = computed(() => {
+	if (props.loading) return '';
+	if (!props.projectId) return 'Il progetto non è definito.';
+	return 'Non ci sono aree di interesse associate al progetto selezionato.';
+});
+
+const notify = (message: string, color: 'success' | 'error' = 'success') => {
 	toastMessage.value = message;
 	toastColor.value = color;
 	showToast.value = true;
 };
 
+const cloneArea = (value: AreaOfInterest | null): AreaOfInterest | null => {
+	if (!value) return null;
+	try {
+		return structuredClone(value);
+	} catch {
+		return {
+			...value,
+			statements: Array.isArray(value.statements) ? [...value.statements] : [],
+			scenarios: Array.isArray(value.scenarios) ? [...value.scenarios] : [],
+			others: value.others instanceof Map ? new Map(value.others) : new Map(),
+		};
+	}
+};
 
+watch(
+	() => props.initialArea,
+	async (value) => {
+		isHydrating.value = true;
+		area.value = cloneArea(value);
+		await nextTick();
+		isHydrating.value = false;
+	},
+	{ immediate: true },
+);
 
+const persistArea = async (payload: AreaOfInterest) => {
+	if (!props.projectId) return;
+	isSaving.value = true;
+	try {
+		await mspDataProvider.updateArea(payload, props.projectId);
+	} catch (error) {
+		console.error('Errore durante il salvataggio area:', error);
+		notify('Errore durante il salvataggio automatico', 'error');
+	} finally {
+		isSaving.value = false;
+	}
+};
 
+const debouncedPersist = debounce((payload: AreaOfInterest) => {
+	void persistArea(payload);
+}, 500);
 
-const areaData = ref<AreaOfInterest | null>(null);
-const selectedStatement = ref<Statement | null>(null);
+watch(
+	area,
+	(value) => {
+		if (!value || !canPersist.value || isHydrating.value || props.loading) return;
+		const safe = cloneArea(value);
+		if (!safe) return;
+		debouncedPersist(safe);
+	},
+	{ deep: true },
+);
 
-const openNewStatementForm = (type: 'General' | 'Sector-specific') => {
-	selectedStatement.value = {
-		id: '', // Sarà generato al salvataggio
+const openNewStatement = (type: 'General' | 'Sector-specific') => {
+	editedStatement.value = {
+		id: '',
 		shortName: '',
 		longName: '',
 		description: '',
-		// Se è sector-specific, inizializziamo l'array, altrimenti undefined
-		sectorThemes: type === 'Sector-specific' ? [] : undefined
-	};
-	currentStatementView.value = 'statement-form';
+		sectorThemes: type === 'Sector-specific' ? [] : undefined,
+	} as Statement;
+	statementView.value = 'form';
 };
 
-const handleSaveStatement = (formData: Partial<Statement>) => {
-	if (!areaData.value) return;
-	if (!areaData.value.statements) areaData.value.statements = [];
+const editStatement = (statement: Statement) => {
+	editedStatement.value = { ...statement };
+	statementView.value = 'form';
+};
 
-	if (selectedStatement.value?.id) {
-		// --- LOGICA EDIT ---
-		const index = areaData.value.statements.findIndex(s => s.id === selectedStatement.value!.id);
-		if (index !== -1) {
-			areaData.value.statements[index] = {
-				...selectedStatement.value,
-				...formData
-			} as Statement;
-			notify("Statement aggiornato con successo");
+const deleteStatement = (id: string) => {
+	if (!area.value) return;
+	const current = area.value.statements || [];
+	area.value.statements = current.filter((item) => item.id !== id);
+	notify('Statement eliminato');
+};
+
+const saveStatement = (payload: Partial<Statement>) => {
+	if (!area.value) return;
+	const statements = area.value.statements || [];
+
+	if (editedStatement.value?.id) {
+		const idx = statements.findIndex((item) => item.id === editedStatement.value!.id);
+		if (idx >= 0) {
+			statements[idx] = { ...statements[idx], ...payload } as Statement;
+			notify('Statement aggiornato');
 		}
 	} else {
-		// --- LOGICA NUOVO ---
-		const newStatement: Statement = {
-			...formData,
-			id: generateUUID(),
-		} as Statement;
-		areaData.value.statements.push(newStatement);
-		notify("Nuovo statement aggiunto");
+		statements.push({ ...payload, id: generateUUID() } as Statement);
+		notify('Statement aggiunto');
 	}
 
-	currentStatementView.value = 'list';
-	selectedStatement.value = null;
-};
-const handleCancelNewStatement = () => {
-	currentStatementView.value = 'list';
+	area.value.statements = statements;
+	editedStatement.value = null;
+	statementView.value = 'list';
 };
 
-
-const handleDeleteStatement = (id: string) => {
-	try {
-		if (!areaData.value?.statements) return;
-		//await api.statements.delete(id);
-		const index = areaData.value.statements.findIndex(s => s.id === id);
-		areaData.value.statements.splice(index, 1);
-		notify("Eliminato con successo");
-	}
-	catch (error) {
-		console.error("Errore durante l'eliminazione dello statement:", error);
-		notify("Errore durante l'eliminazione dello statement", "error");
-		return;
-	}
-	
-	
+const cancelStatement = () => {
+	editedStatement.value = null;
+	statementView.value = 'list';
 };
-
-const handleEditRequest = (statement: Statement) => {
-	selectedStatement.value = { ...statement }; // Copia per evitare modifiche reattive immediate
-	currentStatementView.value = 'statement-form';
-};
-
-
-onMounted(async () => {
-	const project = await mpsDataProvider.fetchProject('001');
-	areaData.value = project?.areaOfInterest || null;
-	isLoading.value = false;
-});
-
-const hasArea = computed(() => areaData.value !== null);
-
-const saveProjectData = async (updatedData: AreaOfInterest) => {
-	isSaving.value = true;
-	try {
-		console.log('Salvataggio automatico in corso...', updatedData);
-		// Assicurati che il tuo composable supporti un metodo di update
-		await mpsDataProvider.updateArea(updatedData);
-	} catch (error) {
-		console.error('Errore durante il salvataggio:', error);
-	} finally {
-		// Simuliamo un delay per il feedback visivo
-		setTimeout(() => { isSaving.value = false; }, 500);
-	}
-};
-
-const debouncedSave = debounce((newValue: AreaOfInterest) => {
-	saveProjectData(newValue);
-}, 500);
-
-
-watch(
-	areaData,
-	(newValue) => {
-		if (newValue && !isLoading.value) {
-			debouncedSave(JSON.parse(JSON.stringify(newValue)));
-		}
-	},
-	{ deep: true }
-);
-
-
-
-
-
-
-
 </script>
 
 <template>
 	<div class="container-panel">
-		<!-- Stato di caricamento iniziale -->
-		<v-progress-linear v-if="isLoading" indeterminate color="primary"></v-progress-linear>
+		<v-progress-linear v-if="isBusy" indeterminate color="primary" />
+
 		<v-snackbar v-model="showToast" :color="toastColor" timeout="3000">
 			{{ toastMessage }}
 		</v-snackbar>
 
-
-		<!-- Indicatore di salvataggio in corso -->
 		<v-fade-transition>
-			<div v-if="isSaving" class="text-caption text-primary d-flex align-center position-absolute"
-				style="top: 10px; right: 20px; z-index: 10;">
-				<v-progress-circular indeterminate size="16" width="2" class="mr-2"></v-progress-circular>
+			<div v-if="isSaving" class="saving-indicator">
+				<v-progress-circular indeterminate size="16" width="2" class="mr-2" />
 				Salvataggio in corso...
 			</div>
 		</v-fade-transition>
 
-		<!-- Messaggio di info se i dati non sono disponibili -->
-		<v-alert v-if="!isLoading && !hasArea" type="info" variant="tonal" icon="mdi-information-outline" prominent>
-			Occorre selezionare un'area all'interno di un progetto per visualizzare o modificare i dettagli.
+		<v-alert
+			v-if="!isBusy && !hasArea"
+			type="warning"
+			variant="tonal"
+			icon="mdi-alert-circle-outline"
+			prominent
+		>
+			{{ missingDataMessage }}
 		</v-alert>
-		<StatementForm v-if="currentStatementView === 'statement-form'" 
-			:initial-data="selectedStatement || {}" 
-			@save="handleSaveStatement"
-			@cancel="handleCancelNewStatement" />
 
+		<StatementForm
+			v-if="statementView === 'form'"
+			:initial-data="editedStatement || {}"
+			@save="saveStatement"
+			@cancel="cancelStatement"
+		/>
 
-
-		<div v-else-if="hasArea" elevation="2">
-			<v-tabs v-model="tab" color="primary" class="tab-style">
+		<div v-else-if="hasArea">
+			<v-tabs v-model="activeTab" color="primary" class="tab-style">
 				<v-tab value="general">Generale</v-tab>
 				<v-tab value="statements">Statements</v-tab>
 				<v-tab value="map">Mappa</v-tab>
 			</v-tabs>
-			<v-window v-model="tab" class="ma-2 mt-4 area-form-window">
-				<!-- Tab 1: Dettagli Generali -->
+
+			<v-window v-model="activeTab" class="ma-2 mt-4 area-form-window">
 				<v-window-item value="general">
-					<v-form>
+					<v-form class="pt-2">
 						<v-row>
-							<v-col cols="12" md="6" class="mt-2">
-								<v-text-field v-model="areaData!.name" label="Nome Progetto" variant="outlined"
-									clearable></v-text-field>
+							<v-col cols="12" md="6">
+								<v-text-field v-model="area!.name" label="Nome Area" variant="outlined" clearable />
+							</v-col>
+							<v-col cols="12" md="6">
+								<v-text-field v-model="area!.longName" label="Nome Completo Area" variant="outlined" clearable />
 							</v-col>
 						</v-row>
 
 						<v-row>
 							<v-col cols="12" md="6">
-								<v-text-field v-model="areaData!.name" label="Nome Corto Area" variant="outlined"
-									clearable></v-text-field>
+								<v-text-field v-model="area!.temporalScope" label="Orizzonte temporale" variant="outlined" clearable />
 							</v-col>
 							<v-col cols="12" md="6">
-								<v-text-field v-model="areaData!.description" label="Nome Completo Area"
-									variant="outlined" clearable></v-text-field>
+								<v-text-field v-model="area!.filterCQL" label="Filtro CQL" variant="outlined" clearable />
 							</v-col>
 						</v-row>
 
 						<v-row>
 							<v-col cols="12">
-								<v-textarea v-model="areaData!.description" label="Descrizione Generale dell'area"
-									variant="outlined" rows="4" clearable></v-textarea>
-							</v-col>
-						</v-row>
-
-						<v-row>
-							<v-col cols="12">
-								<v-textarea v-model="areaData!.description" label="Orizzonte temporale"
-									hint="La distanza temporale del progetto." variant="outlined" rows="3"
-									clearable></v-textarea>
+								<v-textarea v-model="area!.description" label="Descrizione" variant="outlined" rows="4" clearable />
 							</v-col>
 						</v-row>
 					</v-form>
 				</v-window-item>
 
 				<v-window-item value="statements">
-					<!-- Sostituisci il placeholder con il nuovo componente -->
-					<!-- areaData!.statements dovrebbe essere un array di Statement[] -->
-					<StatementList v-if="areaData?.statements" 
-						:statements="areaData.statements"
-						@edit:statement="handleEditRequest"
-						@delete:statement="handleDeleteStatement" 
-						class="pa-4" />
+					<StatementList
+						v-if="area?.statements?.length"
+						:statements="area.statements"
+						@edit:statement="editStatement"
+						@delete:statement="deleteStatement"
+						class="pa-4"
+					/>
 					<p v-else class="pa-4">Nessun statements disponibile.</p>
 				</v-window-item>
-				
+
 				<v-window-item value="map">
 					<geonode-layers />
 				</v-window-item>
 			</v-window>
 		</div>
-		<!-- FAB Button in basso a destra -->
-		<div v-if="tab === 'statements' && currentStatementView === 'list' && hasArea" class="fab-container">
+
+		<div v-if="activeTab === 'statements' && statementView === 'list' && hasArea" class="fab-container">
 			<v-speed-dial location="top left" transition="scale-transition">
-				<template v-slot:activator="{ props: activatorProps }">
-					<v-btn v-bind="activatorProps" color="primary" icon="mdi-plus" size="large" elevation="4"></v-btn>
+				<template #activator="{ props: activatorProps }">
+					<v-btn v-bind="activatorProps" color="primary" icon="mdi-plus" size="large" elevation="4" />
 				</template>
 
-				<!-- Opzione Sector-specific -->
-				<v-btn key="1" color="secondary" prepend-icon="mdi-tag-multiple"
-					@click="openNewStatementForm('Sector-specific')">
+				<v-btn key="1" color="secondary" prepend-icon="mdi-tag-multiple" @click="openNewStatement('Sector-specific')">
 					Sector-specific
-					
 				</v-btn>
 
-				<!-- Opzione General -->
-				<v-btn key="2" color="surface-variant" prepend-icon="mdi-earth"
-					@click="openNewStatementForm('General')">
+				<v-btn key="2" color="surface-variant" prepend-icon="mdi-earth" @click="openNewStatement('General')">
 					General
-					
 				</v-btn>
 			</v-speed-dial>
 		</div>
-
 	</div>
-	
 </template>
 
 <style scoped lang="scss">
 .container-panel {
 	position: relative;
-    background-color: #FFFF;
-    width: 100%;
-    min-height: 100%; /* Assicurati che il contenitore principale sia alto almeno quanto la viewport se necessario per il layout generale */
+	background-color: #fff;
+	width: 100%;
+	min-height: 100%;
+}
+
+.saving-indicator {
+	position: absolute;
+	top: 10px;
+	right: 20px;
+	z-index: 10;
+	display: flex;
+	align-items: center;
 }
 
 .area-form-window {
 	height: calc(100vh - 200px);
-	/* Regola in base alla tua toolbar/header */
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
 }
+
 :deep(.v-window-item) {
 	height: 100%;
 	overflow-y: auto;
-	/* Permette lo scroll verticale se le card eccedono */
 }
-.position-absolute {
-	position: absolute !important;
-}
-
 
 .tab-style {
-	background-color: #FEF7FF;
-
+	background-color: #fef7ff;
 }
+
 .fab-container {
 	position: absolute;
 	bottom: 30px;
@@ -298,9 +293,7 @@ watch(
 	align-items: center;
 }
 
-/* Spaziatura tra i bottoni dello speed dial quando aperto */
 :deep(.v-speed-dial__content) {
 	gap: 10px;
 }
- 
 </style>

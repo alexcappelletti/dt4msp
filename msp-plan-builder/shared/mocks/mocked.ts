@@ -10,7 +10,7 @@ export { mapRequestsMock } from "./mapRequestMocks";
 // --- Definizione dei Temi per i vari Settori ---
 export const availableThemesMock: Theme[] = [
 	populateTheme({
-		id: generateUUID(),
+		id: "theme-fishing",
 		name: "Pesca",
 		indexName: "fishing",
 		description: "Attività legate alla pesca professionale e ricreativa.",
@@ -18,7 +18,7 @@ export const availableThemesMock: Theme[] = [
 		geospatialResources: new Array<MapLayer>(),
 	}),
 	populateTheme({
-		id: generateUUID(),
+		id: "theme-oil-gas",
 		name: "Oil & Gas",
 		indexName: "oil_gas",
 		description:
@@ -27,7 +27,7 @@ export const availableThemesMock: Theme[] = [
 		geospatialResources: new Array<MapLayer>(),
 	}),
 	populateTheme({
-		id: generateUUID(),
+		id: "theme-renewables",
 		name: "Rinnovabili",
 		indexName: "renewables",
 		description:
@@ -36,7 +36,7 @@ export const availableThemesMock: Theme[] = [
 		geospatialResources: new Array<MapLayer>(),
 	}),
 	populateTheme({
-		id: generateUUID(),
+		id: "theme-tourism",
 		name: "Turismo",
 		indexName: "tourism",
 		description:
@@ -45,7 +45,7 @@ export const availableThemesMock: Theme[] = [
 		geospatialResources: new Array<MapLayer>(),
 	}),
 	populateTheme({
-		id: generateUUID(),
+		id: "theme-transport",
 		name: "Trasporti",
 		indexName: "transport",
 		description:
@@ -54,7 +54,7 @@ export const availableThemesMock: Theme[] = [
 		geospatialResources: new Array<MapLayer>(),
 	}),
 	populateTheme({
-		id: generateUUID(),
+		id: "theme-research",
 		name: "Ricerca",
 		indexName: "research",
 		description:
@@ -63,7 +63,7 @@ export const availableThemesMock: Theme[] = [
 		geospatialResources: new Array<MapLayer>(),
 	}),
 	populateTheme({
-		id: generateUUID(),
+		id: "theme-security",
 		name: "Sicurezza",
 		indexName: "security",
 		description:
@@ -72,7 +72,7 @@ export const availableThemesMock: Theme[] = [
 		geospatialResources: new Array<MapLayer>(),
 	}),
 	populateTheme({
-		id: generateUUID(),
+		id: "theme-defense",
 		name: "Difesa",
 		indexName: "defense",
 		description:
@@ -81,7 +81,7 @@ export const availableThemesMock: Theme[] = [
 		geospatialResources: new Array<MapLayer>(),
 	}),
 	populateTheme({
-		id: generateUUID(),
+		id: "theme-aquaculture",
 		name: "Acquacultur", // Mantenuto come nell'immagine/richiesta precedente
 		indexName: "aquaculture",
 		description: "Impianti di allevamento ittico, molluschi e maricoltura.",
@@ -89,7 +89,7 @@ export const availableThemesMock: Theme[] = [
 		geospatialResources: new Array<MapLayer>(),
 	}),
 	populateTheme({
-		id: generateUUID(),
+		id: "theme-energy",
 		name: "Energia",
 		indexName: "energy",
 		description:
@@ -98,7 +98,7 @@ export const availableThemesMock: Theme[] = [
 		geospatialResources: new Array<MapLayer>(),
 	}),
 	populateTheme({
-		id: generateUUID(),
+		id: "theme-landscape",
 		name: "Paesaggio",
 		indexName: "landscape",
 		description:
@@ -107,7 +107,7 @@ export const availableThemesMock: Theme[] = [
 		geospatialResources: new Array<MapLayer>(),
 	}),
 	populateTheme({
-		id: generateUUID(),
+		id: "theme-env-prot",
 		name: "Protezione Ambientale",
 		indexName: "env_prot",
 		description:

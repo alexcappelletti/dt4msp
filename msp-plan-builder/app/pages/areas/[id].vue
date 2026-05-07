@@ -1,14 +1,57 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router';
-import { onMounted } from 'vue';
-// Puoi recuperare l'ID dalla route se vuoi fetchare i dati reali
-const route = useRoute();
-const areaId = route.params.id; 
+import { useRoute, useRouter } from 'vue-router';
+import type { AreaOfInterest } from '#/shared/types/msp-project';
+import { computed, ref, watch } from 'vue';
+import { storeToRefs } from 'pinia';
 
-onMounted(async() => {
-	// Logica per fetchare i dati dell'area usando areaId
-	
-});
+const route = useRoute();
+const router = useRouter();
+const scenarioStore = useScenarioStore();
+const { currentProject } = storeToRefs(scenarioStore);
+const areaId = computed(() => String(route.params.id || ''));
+const areaData = ref<AreaOfInterest | null>(null);
+const isLoadingArea = ref(true);
+const projectMissing = ref(false);
+const resolvedProjectId = ref('');
+let loadSeq = 0;
+
+const loadArea = async () => {
+	const seq = ++loadSeq;
+	isLoadingArea.value = true;
+	try {
+		if (!currentProject.value) {
+			await scenarioStore.fetchProjectScenarios();
+		}
+		const project = currentProject.value;
+		projectMissing.value = !project;
+		resolvedProjectId.value = project?.id || '';
+		const projectArea = project?.areaOfInterest || null;
+		areaData.value = projectArea;
+
+		if (projectArea?.id && projectArea.id !== areaId.value) {
+			isLoadingArea.value = false;
+			await router.replace(`/areas/${projectArea.id}`);
+			return;
+		}
+	} catch (error) {
+		console.error('Errore caricamento area del progetto:', error);
+		projectMissing.value = true;
+		areaData.value = null;
+		resolvedProjectId.value = '';
+	} finally {
+		if (seq === loadSeq) {
+			isLoadingArea.value = false;
+		}
+	}
+};
+
+watch(
+	() => areaId.value,
+	async () => {
+		await loadArea();
+	},
+	{ immediate: true },
+);
 
 
 </script>
@@ -18,7 +61,7 @@ onMounted(async() => {
 	<div class="d-flex areaOI-panel">
 			
 			<!-- Contenuto Principale -->
-			<area-general-form />
+			<area-general-form :initial-area="areaData" :project-id="projectMissing ? '' : resolvedProjectId" :loading="isLoadingArea" />
 		</div>
 </template>
 

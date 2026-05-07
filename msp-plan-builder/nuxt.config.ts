@@ -19,6 +19,15 @@ if (missingEnvVars.length > 0) {
 	);
 }
 
+const hasRedisTcp = Boolean(
+	process.env.REDIS_URL?.trim(),
+);
+if (!hasRedisTcp) {
+	throw new Error(
+		"Missing Redis configuration: set REDIS_URL",
+	);
+}
+
 export default defineNuxtConfig({
 	compatibilityDate: "2025-07-15",
 	devtools: { enabled: true },
@@ -30,6 +39,9 @@ export default defineNuxtConfig({
 		googleClientId: process.env.GOOGLE_CLIENT_ID ?? "",
 		googleClientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
 		googleRedirectUri: process.env.GOOGLE_REDIRECT_URI ?? "",
+		redisUrl: process.env.REDIS_URL ?? "",
+		authzRedisPrefix: process.env.AUTHZ_REDIS_PREFIX ?? "msp:auth",
+		mspRedisPrefix: process.env.MSP_REDIS_PREFIX ?? "msp:project",
 		public: {
 			esriApiKey: process.env.ESRI_APIKEY ?? "",
 		},

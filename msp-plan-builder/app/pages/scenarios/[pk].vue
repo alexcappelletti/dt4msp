@@ -4,20 +4,26 @@ import type { Aspect, DomainEffect, DomainMeasure, Effect, Feedback, Measure, St
 // import {useThemesProvider} from '@/composables/useThemesProvider';
 import { generateUUID } from "#/shared/utils/generateUUID"; // Import mancante
 import { storeToRefs } from 'pinia';
-import { computed, onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { computed, onMounted, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import type { EffectInitProp } from '~/components/scenario/EffectEditor.vue'
 import type { MeasureType } from '~/components/scenario/DomainMeasures.vue';
+import { debounce } from 'lodash-es';
 
 type ViewModeType = 'tab-view' | 'edit';
 
 const route = useRoute();
+const router = useRouter();
 const scenarioStore = useScenarioStore();
-const { selectedScenario } = storeToRefs(scenarioStore); // Reattivo dallo store
+const { selectedScenario, scenarios } = storeToRefs(scenarioStore); // Reattivo dallo store
+const mspProvider = useMspDataProvider();
 
 const tab = ref('general');
 const isLoading = ref(true);
 const isSaving = ref(false);
+const deleteDialogOpen = ref(false);
+const deleteScenarioNameInput = ref('');
+const isDeletingScenario = ref(false);
 
 const viewMode = ref<ViewModeType>('tab-view');
 const selectedStatement = ref<Statement | null>(null);
@@ -278,9 +284,85 @@ const handleDeleteFeedback = (feedback: Feedback) => {
 
 onMounted(async () => {
 	const scenarioId = route.params.pk as string;
-	await scenarioStore.fetchScenarioMock(scenarioId);
-	isLoading.value = false;
+	try {
+		await scenarioStore.fetchScenarioMock(scenarioId);
+	} catch (error) {
+		console.warn('Scenario non trovato sul backend, uso fallback locale:', error);
+		const localScenario = scenarios.value.find((item) => item.id === scenarioId) || null;
+		if (localScenario) {
+			scenarioStore.setScenarioToEdit(localScenario);
+		}
+	} finally {
+		isLoading.value = false;
+	}
 });
+
+const persistScenario = debounce(async (scenarioSnapshot: any) => {
+	try {
+		isSaving.value = true;
+		await mspProvider.updateScenario(scenarioSnapshot);
+	} catch (error) {
+		console.error('Errore salvataggio scenario su layer persistente:', error);
+	} finally {
+		isSaving.value = false;
+	}
+}, 600);
+
+const expectedScenarioName = computed(() => selectedScenario.value?.name?.trim() ?? '');
+const canConfirmScenarioDeletion = computed(() => {
+	return expectedScenarioName.value.length > 0
+		&& deleteScenarioNameInput.value.trim() === expectedScenarioName.value;
+});
+
+const openDeleteScenarioDialog = () => {
+	deleteScenarioNameInput.value = '';
+	deleteDialogOpen.value = true;
+};
+
+const closeDeleteScenarioDialog = () => {
+	deleteDialogOpen.value = false;
+	deleteScenarioNameInput.value = '';
+};
+
+const handleDeleteScenario = async () => {
+	if (!selectedScenario.value) return;
+	const scenarioId = selectedScenario.value.id;
+	if (!canConfirmScenarioDeletion.value) return;
+
+	try {
+		isDeletingScenario.value = true;
+		await mspProvider.deleteScenario(scenarioId);
+		scenarios.value = scenarios.value.filter((item) => item.id !== scenarioId);
+		scenarioStore.clearSelectedScenario();
+		closeDeleteScenarioDialog();
+
+		const nextScenario = scenarios.value[0];
+		if (nextScenario) {
+			await router.push(`/scenarios/${nextScenario.id}`);
+			return;
+		}
+
+		const areaId = scenarioStore.currentProject?.areaOfInterest?.id;
+		if (areaId) {
+			await router.push(`/areas/${areaId}`);
+			return;
+		}
+		await router.push('/');
+	} catch (error) {
+		console.error('Errore durante la cancellazione dello scenario:', error);
+	} finally {
+		isDeletingScenario.value = false;
+	}
+};
+
+watch(
+	selectedScenario,
+	(newScenario) => {
+		if (!newScenario || isLoading.value) return;
+		persistScenario(JSON.parse(JSON.stringify(newScenario)));
+	},
+	{ deep: true },
+);
 
 
 </script>
@@ -291,13 +373,23 @@ onMounted(async () => {
 
 		<!-- Utilizziamo selectedScenario dallo store -->
 		<div v-if="viewMode === 'tab-view' && selectedScenario">
-			<v-tabs v-model="tab" color="primary">
-				<v-tab value="general">Generale</v-tab>
-				<v-tab value="statements">Statements</v-tab>
-				<v-tab value="measures">Misure</v-tab>
-				<v-tab value="effects">Effetti</v-tab>
-				<v-tab value="feedback">Commenti</v-tab>
-			</v-tabs>
+			<div class="scenario-tabs-header">
+				<v-tabs v-model="tab" color="primary" class="scenario-tabs">
+					<v-tab value="general">Generale</v-tab>
+					<v-tab value="statements">Statements</v-tab>
+					<v-tab value="measures">Misure</v-tab>
+					<v-tab value="effects">Effetti</v-tab>
+					<v-tab value="feedback">Commenti</v-tab>
+				</v-tabs>
+				<v-btn
+					icon="mdi-trash-can-outline"
+					variant="text"
+					color="error"
+					size="large"
+					aria-label="Cancella scenario"
+					@click="openDeleteScenarioDialog"
+				/>
+			</div>
 
 			<div class="scenario-window">
 				<v-window v-model="tab">
@@ -333,7 +425,7 @@ onMounted(async () => {
 		</div>
 
 		<!-- Forms di editing -->
-		<statement-form v-if="viewMode === 'edit' && tab === 'statements' && selectedStatement"
+		<scenario-statement-form v-if="viewMode === 'edit' && tab === 'statements' && selectedStatement"
 			:initial-data="selectedStatement" @save="handleSaveStatement" @cancel="viewMode = 'tab-view'" />
 		<scenario-aspect-form v-if="viewMode === 'edit' && tab === 'measures' && selectedMeasure"
 			:initial-data="selectedMeasure" @save="handleSaveAspect" @cancel="viewMode = 'tab-view'" />
@@ -370,6 +462,38 @@ onMounted(async () => {
 
 			<v-btn v-if="tab === 'feedback'" color="primary" icon="mdi-plus" size="large" @click="handleNewFeedback" />
 		</div>
+
+		<v-dialog v-model="deleteDialogOpen" max-width="520">
+			<v-card>
+				<v-card-title class="text-h6">Conferma cancellazione scenario</v-card-title>
+				<v-card-text>
+					<div class="mb-3">
+						Per confermare, digita il nome dello scenario:
+						<strong>{{ expectedScenarioName }}</strong>
+					</div>
+					<v-text-field
+						v-model="deleteScenarioNameInput"
+						label="Nome scenario"
+						variant="outlined"
+						hide-details="auto"
+						:disabled="isDeletingScenario"
+					/>
+				</v-card-text>
+				<v-card-actions>
+					<v-spacer />
+					<v-btn variant="text" :disabled="isDeletingScenario" @click="closeDeleteScenarioDialog">Annulla</v-btn>
+					<v-btn
+						color="error"
+						variant="flat"
+						:disabled="!canConfirmScenarioDeletion || isDeletingScenario"
+						:loading="isDeletingScenario"
+						@click="handleDeleteScenario"
+					>
+						Cancella
+					</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-dialog>
 	</v-container>
 </template>
 
@@ -390,6 +514,17 @@ onMounted(async () => {
 	display: flex;
 	flex-direction: column;
 
+}
+
+.scenario-tabs-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+}
+
+.scenario-tabs {
+	flex: 1;
 }
 
 /* Applica altezza massima e scrolling solo al contenuto delle tab */

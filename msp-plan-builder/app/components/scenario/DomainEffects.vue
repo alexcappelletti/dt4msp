@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DomainEffect, DomainMeasure, Theme } from "#/shared/types/msp-project";
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import type { MeasureType } from "./DomainMeasures.vue";
 
 interface MenuItem {
@@ -20,7 +20,18 @@ const emit = defineEmits<{
 }>();
 
 const store = useScenarioStore();
-const availableThemes = computed(() => store.availableThemes);
+const availableThemes = computed(() => {
+	const fromStore = store.availableThemes ?? [];
+	const fromEffects = (props.domainEffects ?? [])
+		.flatMap((effect) => themesForEffect(effect));
+	const merged = new Map<string, Theme>();
+	for (const theme of [...fromStore, ...fromEffects]) {
+		const key = theme?.indexName || theme?.name || theme?.id;
+		if (!key) continue;
+		merged.set(key, theme);
+	}
+	return [...merged.values()];
+});
 
 // --- Filters (come Measures) ---
 type EffectFilter = "Tutti" | "Spatial" | "Non-spatial";
@@ -28,8 +39,16 @@ const currentFilter = ref<EffectFilter>("Tutti");
 const selectedThemeId = ref<string | null>(null);
 const selectedThemeLabel = computed(() => {
 	if (!selectedThemeId.value) return 'Tutti i temi';
-	const theme = availableThemes.value.find((t) => t.id === selectedThemeId.value);
+	const theme = availableThemes.value.find(
+		(t) => (t.indexName || t.name || t.id) === selectedThemeId.value,
+	);
 	return theme?.name ?? 'Tutti i temi';
+});
+
+onMounted(async () => {
+	if ((store.availableThemes ?? []).length === 0) {
+		await store.fetchAvailableThemes();
+	}
 });
 
 
@@ -47,7 +66,11 @@ function isSpatialEffect(effect: DomainEffect) {
 function themesForEffect(effect: DomainEffect): Theme[] {
 	const all = (effect.affected ?? []).flatMap((m) => m.referenceThemes ?? []);
 	const map = new Map<string, Theme>();
-	for (const th of all) map.set(th.id, th);
+	for (const th of all) {
+		const key = th?.indexName || th?.name || th?.id;
+		if (!key) continue;
+		map.set(key, th);
+	}
 	return [...map.values()];
 }
 
@@ -62,7 +85,9 @@ const filteredEffects = computed(() => {
 
 	if (selectedThemeId.value) {
 		list = list.filter((e) =>
-			themesForEffect(e).some((t) => t.id === selectedThemeId.value),
+			themesForEffect(e).some(
+				(t) => (t.indexName || t.name || t.id) === selectedThemeId.value,
+			),
 		);
 	}
 
@@ -98,8 +123,12 @@ const menuItems = (effect: DomainEffect): MenuItem[] => [
 				<v-list density="compact" style="min-width: 240px">
 					<v-list-item title="Tutti i temi" @click="selectedThemeId = null" />
 					<v-divider />
-					<v-list-item v-for="t in availableThemes" :key="t.id" :title="t.name"
-						@click="selectedThemeId = t.id" />
+					<v-list-item
+						v-for="t in availableThemes"
+						:key="t.id"
+						:title="t.name"
+						@click="selectedThemeId = t.indexName || t.name || t.id"
+					/>
 				</v-list>
 			</v-menu>
 		</div>

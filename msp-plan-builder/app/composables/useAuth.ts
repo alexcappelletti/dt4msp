@@ -1,6 +1,7 @@
 interface AuthUser {
 	sub: string;
 	email: string;
+	role?: 'admin' | 'editor' | 'viewer';
 	name?: string;
 	picture?: string;
 }
