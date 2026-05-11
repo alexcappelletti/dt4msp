@@ -5,7 +5,7 @@ import {
 } from "#/shared/types/msp-project";
 import { createScenarioMock } from "./scenarioMocks";
 import { statementMocks } from "./statementMocks";
-
+import { predefinedThemesMock } from "./themeMocks";
 
 
 export const aoiMock: AreaOfInterest = {
@@ -18,5 +18,6 @@ export const aoiMock: AreaOfInterest = {
 	scenarios: [createScenarioMock('1'), createScenarioMock('2'), createScenarioMock('3')],
 	statements: [...statementMocks] as Statement[],
 	others: new Map<string, any>(),
+	definedThemes: predefinedThemesMock,
 	
 };

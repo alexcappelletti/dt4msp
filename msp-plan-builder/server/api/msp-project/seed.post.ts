@@ -32,6 +32,7 @@ export default defineEventHandler(async (event) => {
 		projectSeededKey: `${projectId}:project`,
 		areaEmbedded: project.areaOfInterest.id,
 		scenariosSeeded: project.areaOfInterest.scenarios.length,
+		predefinedThemesSeeded: project.areaOfInterest.definedThemes?.length ?? 0,
 		message: 'Seed completato',
 	};
 });

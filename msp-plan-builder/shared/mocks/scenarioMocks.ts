@@ -1,22 +1,22 @@
 // ~/shared/mocks/scenarioMocks.ts
 import type {
-	Aspect,
-	DomainEffect,
-	Feedback,
-	Measure,
-	Scenario,
-	Statement,
-	Theme,
+    Aspect,
+    DomainEffect,
+    Feedback,
+    Measure,
+    Scenario,
+    Statement,
+    Theme,
 } from "#/shared/types/msp-project";
 import {
-	populateAspect,
-	populateEffect,
-	populateFeedback,
-	populateMeasure,
-	populateScenario,
-	populateStatement,
+    populateAspect,
+    populateEffect,
+    populateFeedback,
+    populateMeasure,
+    populateScenario,
+    populateStatement,
 } from "#/shared/types/msp-project";
-import { availableThemesMock } from "./mocked";
+import { predefinedThemesMock } from "./themeMocks";
 
 /**
  * Mocks di Feedback per gli esempi.
@@ -80,7 +80,7 @@ const mockStatements: Statement[] = [
 		longName: "Sviluppo di un parco eolico nella zona A.",
 		description:
 			"Valutazione di impatto ambientale per 15 turbine eoliche, con focus su impatto visivo e avifauna.",
-		sectorThemes: [availableThemesMock[1]!],
+		sectorThemes: [predefinedThemesMock[1]!],
 	}),
 	populateStatement({
 		id: "s3",
@@ -88,12 +88,12 @@ const mockStatements: Statement[] = [
 		longName: "Chiusura temporanea della pesca a strascico in area B.",
 		description:
 			"Regolamento per la conservazione degli stock ittici critici durante la stagione riproduttiva.",
-		sectorThemes: [availableThemesMock[0]!],
+		sectorThemes: [predefinedThemesMock[0]!],
 	}),
 ];
 
 const theme = (indexName: Theme["indexName"]) =>
-	availableThemesMock.find((t) => t.indexName === indexName)!;
+	predefinedThemesMock.find((t) => t.indexName === indexName)!;
 
 export const mockMarineMeasures: Measure[] = [
 	populateMeasure({
@@ -166,15 +166,15 @@ export function createScenarioMock(id: string): Scenario {
 		temporalScope: "2020-2040",
 		objectives: "Testare il funzionamento dello store Pinia.",
 		availableThemes: [
-			availableThemesMock[0]!,
-			availableThemesMock[1]!,
-			availableThemesMock[2]!,
+			predefinedThemesMock[0]!,
+			predefinedThemesMock[1]!,
+			predefinedThemesMock[2]!,
 		],
 		statements: mockStatements,
 		feedbacks: mockFeedbacks,
 		domainMeasures: [...mockMarineMeasures, ...mockAspects],
 		domainEffects: [...spatialEffects, ...nonSpatialEffects],
-		primaryThemes: [availableThemesMock[0]!],
-		secondaryThemes: [availableThemesMock[1]!],
+		primaryThemes: [predefinedThemesMock[0]!],
+		secondaryThemes: [predefinedThemesMock[1]!],
 	});
 }

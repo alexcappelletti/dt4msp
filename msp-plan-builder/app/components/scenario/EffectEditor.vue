@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import type { Aspect, DomainEffect, DomainMeasure, Measure, Theme } from '#/shared/types/msp-project';
-import { useThemesProvider } from '@/composables/useThemesProvider';
 import { useScenarioStore } from '@/stores/scenarioStore';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import MeasurePicker from './MeasurePicker.vue';
 import type { MeasureType } from './DomainMeasures.vue';
+import { useThemesStore } from '@/stores/themesStore';
 
 const store = useScenarioStore();
+const themesStore = useThemesStore();
 export type EffectInitProp = {
 	effect: Partial<DomainEffect>,
 	type: MeasureType
@@ -19,7 +20,13 @@ const emit = defineEmits([
 	'save',
 	'cancel']);
 
-const { availableThemes, loading } = useThemesProvider();
+const availableThemes = computed(() => themesStore.predefinedThemes);
+const loading = computed(() => themesStore.isThemesLoading);
+onMounted(async () => {
+	if (themesStore.predefinedThemes.length === 0) {
+		await themesStore.fetchPredefinedThemes(store.currentProject?.id);
+	}
+});
 function cloneArray<T>(items: T[] | undefined): T[] {
 	if (!items || items.length === 0) return [];
 	return items.map((item) => ({ ...item }));

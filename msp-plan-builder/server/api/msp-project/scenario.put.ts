@@ -5,6 +5,7 @@ import { populateScenario } from '#/shared/types/msp-project';
 export default defineEventHandler(async (event) => {
 	const body = await readBody<Partial<Scenario>>(event);
 	const query = getQuery(event);
+	const expectedUpdatedAt = getHeader(event, 'x-project-updated-at') || null;
 	const projectId = typeof query.projectId === 'string' && query.projectId.trim()
 		? query.projectId.trim()
 		: 'prj-2026-001';
@@ -33,5 +34,5 @@ export default defineEventHandler(async (event) => {
 		id: scenarioId,
 	};
 
-	return saveScenarioToRedis(event, projectId, next);
+	return saveScenarioToRedis(event, projectId, next, { expectedUpdatedAt });
 });

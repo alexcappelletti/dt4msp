@@ -2,6 +2,7 @@ import { deleteScenarioFromRedis } from '#/server/utils/mspProjectRedis';
 
 export default defineEventHandler(async (event) => {
 	const query = getQuery(event);
+	const expectedUpdatedAt = getHeader(event, 'x-project-updated-at') || null;
 	const scenarioId = typeof query.id === 'string' ? query.id.trim() : '';
 	const projectId = typeof query.projectId === 'string' && query.projectId.trim()
 		? query.projectId.trim()
@@ -14,7 +15,7 @@ export default defineEventHandler(async (event) => {
 		});
 	}
 
-	const result = await deleteScenarioFromRedis(event, projectId, scenarioId);
+	const result = await deleteScenarioFromRedis(event, projectId, scenarioId, { expectedUpdatedAt });
 	if (!result.deleted) {
 		throw createError({
 			statusCode: 404,

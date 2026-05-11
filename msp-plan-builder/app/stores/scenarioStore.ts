@@ -1,23 +1,26 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import type {
-	Project,
 	Scenario,
 	Theme,
 } from "#/shared/types/msp-project";
 import { populateScenario } from "#/shared/types/msp-project";
 import { generateUUID } from "#/shared/utils/generateUUID";
+import { useProjectStore } from "#/app/stores/projectStore";
+import { useThemesStore } from "#/app/stores/themesStore";
 import { useMspDataProvider } from "#/app/composables/useMspProvider";
 
 export const useScenarioStore = defineStore("scenario", () => {
-	const { fetchAvailableThemes: fetchAvailableThemesFromApi } = useMspDataProvider();
+	const projectStore = useProjectStore();
+	const themesStore = useThemesStore();
+	const mspProvider = useMspDataProvider();
+	projectStore.startProjectSync();
 	const availableThemes = ref<Theme[]>([]);
 	const scenarios = ref<Scenario[]>([]);
 	const selectedScenario = ref<Scenario | null>(null);
-	const currentProject = ref<Project | null>(null);
-	const isProjectLoading = ref(false);
-	const hasLoadedProject = ref(false);
-	let projectLoadPromise: Promise<Project | null> | null = null;
+	const currentProject = computed(() => projectStore.currentProject);
+	const isProjectLoading = computed(() => projectStore.isProjectLoading);
+	const hasLoadedProject = computed(() => projectStore.hasLoadedProject);
 
 	function ensureBaseScenarios() {
 		if (scenarios.value.length > 0) return;
@@ -43,17 +46,14 @@ export const useScenarioStore = defineStore("scenario", () => {
 		});
 		scenarios.value.unshift(scenario);
 		selectedScenario.value = scenario;
-		await $fetch<Scenario>('/api/msp-project/scenario', {
-			method: 'PUT',
-			query: { projectId },
-			body: scenario,
-		});
+		await mspProvider.updateScenario(scenario, projectId, currentProject.value?.updatedAt);
+		await projectStore.refreshProject(projectId);
 		return scenario;
 	}
 
 	async function fetchAvailableThemes() {
 		try {
-			const themes = await fetchAvailableThemesFromApi();
+			const themes = await themesStore.fetchPredefinedThemes(currentProject.value?.id);
 			availableThemes.value = themes;
 			return themes;
 		} catch (error) {
@@ -91,29 +91,12 @@ export const useScenarioStore = defineStore("scenario", () => {
 	}
 
 	async function fetchProjectScenarios(projectId = 'prj-2026-001') {
-		if (projectLoadPromise) {
-			return projectLoadPromise;
-		}
-		isProjectLoading.value = true;
-		projectLoadPromise = (async () => {
-			try {
-				const project = await $fetch<Project>('/api/msp-project/project', {
-					method: 'GET',
-					query: { projectId },
-				});
-				currentProject.value = project;
-				const areaScenarios = project.areaOfInterest?.scenarios;
-				scenarios.value = Array.isArray(areaScenarios)
-					? areaScenarios
-					: (Array.isArray(project.scenarios) ? project.scenarios : []);
-				hasLoadedProject.value = true;
-				return project;
-			} finally {
-				isProjectLoading.value = false;
-				projectLoadPromise = null;
-			}
-		})();
-		return projectLoadPromise;
+		const project = await projectStore.fetchProject(projectId);
+		const areaScenarios = project.areaOfInterest?.scenarios;
+		scenarios.value = Array.isArray(areaScenarios)
+			? areaScenarios
+			: (Array.isArray(project.scenarios) ? project.scenarios : []);
+		return project;
 	}
 
 	ensureBaseScenarios();

@@ -90,7 +90,7 @@ onMounted(async() => {
 				<v-row>
 					<v-col cols="12" md="6">
 						<!-- I v-model ora scrivono direttamente tramite la computed property nel formData -->
-						<v-text-field v-model="formData.name" label="Nome Scenario" variant="outlined" clearable
+						<v-text-field v-model="formData.name" data-testid="scenario-name-input" label="Nome Scenario" variant="outlined" clearable
 							hint="Nome breve e identificativo dello scenario" persistent-hint></v-text-field>
 					</v-col>
 					<v-col cols="12" md="6">

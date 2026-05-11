@@ -8,9 +8,11 @@
 		"generate": "nuxt generate",
 		"preview": "nuxt preview",
 		"postinstall": "nuxt prepare",
-		"test:unit": "vitest --config vitest.unit.config.ts",
-		"test:e2e": "nuxt test --watch --config vitest.config.ts",
-		"test:e2e:dev": "nuxt test --watch --config vitest.config.ts"
+		"test:unit": "npm run test:unit:node && npm run test:unit:ui",
+		"test:unit:node": "vitest --config vitest.node.config.ts",
+		"test:unit:ui": "vitest --config vitest.ui.config.ts",
+		"test:e2e": "vitest --config vitest.e2e.config.ts",
+		"test:e2e:dev": "vitest --watch --config vitest.e2e.config.ts"
 	},
 	"dependencies": {
 		"@mapbox/tilebelt": "^2.0.3",
@@ -34,10 +36,15 @@
 		"xmldom": "^0.6.0"
 	},
 	"devDependencies": {
+		"@nuxt/test-utils": "^3.17.2",
 		"@tailwindcss/vite": "^4.1.18",
 		"@types/node": "^25.0.3",
+		"@vue/test-utils": "^2.4.10",
+		"jsdom": "^26.1.0",
+		"playwright-core": "^1.55.1",
 		"sass": "^1.97.2",
 		"tailwindcss": "^4.1.18",
+		"vitest": "^3.2.4",
 		"vuetify-nuxt-module": "^0.19.5"
 	}
 }

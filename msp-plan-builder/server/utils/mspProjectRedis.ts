@@ -1,6 +1,8 @@
 import type { Project, Scenario, AreaOfInterest, OptionalData, Feedback } from '#/shared/types/msp-project';
 import type { H3Event } from 'h3';
 import { withRedisClient } from '#/server/utils/redisClient';
+import { randomUUID } from 'node:crypto';
+import { isProjectVersionMatch, normalizeUpdatedAt } from '#/server/utils/projectVersioning';
 
 function getPrefix(event: H3Event): string {
 	const config = useRuntimeConfig(event);
@@ -14,6 +16,14 @@ function getProjectKey(prefix: string, projectId: string): string {
 function getProjectPattern(prefix: string): string {
 	return `${prefix}:*:project`;
 }
+
+function getProjectLockKey(prefix: string, projectId: string): string {
+	return `${prefix}:${projectId}:lock`;
+}
+
+const PROJECT_LOCK_TTL_MS = 5000;
+const PROJECT_LOCK_WAIT_MS = 3000;
+const PROJECT_LOCK_RETRY_MS = 120;
 
 function safeJsonParse<T>(raw: string | null, key: string): T {
 	if (!raw) {
@@ -121,75 +131,160 @@ export async function saveProjectToRedis(event: H3Event, project: Project): Prom
 	});
 }
 
+async function sleep(ms: number): Promise<void> {
+	await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function withProjectWriteLock<T>(
+	event: H3Event,
+	projectId: string,
+	run: (ctx: { client: any; prefix: string; projectKey: string }) => Promise<T>,
+): Promise<T> {
+	const prefix = getPrefix(event);
+	const projectKey = getProjectKey(prefix, projectId);
+	const lockKey = getProjectLockKey(prefix, projectId);
+	const lockToken = randomUUID();
+
+	return withRedisClient(event, async (client) => {
+		const deadline = Date.now() + PROJECT_LOCK_WAIT_MS;
+		let acquired = false;
+
+		while (Date.now() < deadline) {
+			const result = await client.set(lockKey, lockToken, { NX: true, PX: PROJECT_LOCK_TTL_MS });
+			if (result === 'OK') {
+				acquired = true;
+				break;
+			}
+			await sleep(PROJECT_LOCK_RETRY_MS);
+		}
+
+		if (!acquired) {
+			throw createError({
+				statusCode: 409,
+				statusMessage: `Project ${projectId} is busy, retry later`,
+			});
+		}
+
+		try {
+			return await run({ client, prefix, projectKey });
+		} finally {
+			try {
+				const currentToken = await client.get(lockKey);
+				if (currentToken === lockToken) {
+					await client.del(lockKey);
+				}
+			} catch {}
+		}
+	});
+}
+
+async function getProjectFromClient(client: any, projectKey: string): Promise<Project> {
+	const raw = await client.get(projectKey);
+	const project = safeJsonParse<Project>(raw, projectKey);
+	return hydrateProject(project);
+}
+
+export async function updateProjectWithLock(
+	event: H3Event,
+	projectId: string,
+	options: { expectedUpdatedAt?: string | null } | undefined,
+	mutate: (current: Project) => Promise<Project> | Project,
+): Promise<Project> {
+	return withProjectWriteLock(event, projectId, async ({ client, projectKey }) => {
+		const current = await getProjectFromClient(client, projectKey);
+		const expectedUpdatedAt = options?.expectedUpdatedAt?.trim();
+		if (expectedUpdatedAt) {
+			const currentUpdatedAt = normalizeUpdatedAt(toDate(current.updatedAt));
+			if (!isProjectVersionMatch(expectedUpdatedAt, currentUpdatedAt)) {
+				throw createError({
+					statusCode: 409,
+					statusMessage: "Project conflict: stale version",
+					data: {
+						expectedUpdatedAt,
+						currentUpdatedAt,
+						projectId,
+					},
+				});
+			}
+		}
+		const next = await mutate(current);
+		await client.set(projectKey, JSON.stringify(next));
+		return hydrateProject(next);
+	});
+}
+
 export async function saveAreaToRedis(
 	event: H3Event,
 	projectId: string,
 	area: AreaOfInterest,
+	options?: { expectedUpdatedAt?: string | null },
 ): Promise<AreaOfInterest> {
-	const project = await getProjectFromRedis(event, projectId);
-	const nextProject: Project = {
+	await updateProjectWithLock(event, projectId, options, async (project) => ({
 		...project,
 		areaOfInterest: area,
 		updatedAt: new Date(),
-	};
-	await saveProjectToRedis(event, nextProject);
+	}));
 	return hydrateAreaOfInterest(area);
 }
 
-export async function saveScenarioToRedis(event: H3Event, projectId: string, scenario: Scenario): Promise<Scenario> {
-	const project = await getProjectFromRedis(event, projectId);
-	const areaScenarios = Array.isArray(project.areaOfInterest?.scenarios)
-		? [...project.areaOfInterest.scenarios]
-		: [];
+export async function saveScenarioToRedis(
+	event: H3Event,
+	projectId: string,
+	scenario: Scenario,
+	options?: { expectedUpdatedAt?: string | null },
+): Promise<Scenario> {
+	await updateProjectWithLock(event, projectId, options, async (project) => {
+		const areaScenarios = Array.isArray(project.areaOfInterest?.scenarios)
+			? [...project.areaOfInterest.scenarios]
+			: [];
 
-	const upsertById = (items: Scenario[]): Scenario[] => {
-		const index = items.findIndex((item) => item.id === scenario.id);
+		const index = areaScenarios.findIndex((item) => item.id === scenario.id);
 		if (index >= 0) {
-			items[index] = scenario;
+			areaScenarios[index] = scenario;
 		} else {
-			items.push(scenario);
+			areaScenarios.push(scenario);
 		}
-		return items;
-	};
 
-	const nextAreaScenarios = upsertById(areaScenarios);
-
-	const nextProject: Project = {
-		...project,
-		scenarios: [],
-		areaOfInterest: {
-			...project.areaOfInterest,
-			scenarios: nextAreaScenarios,
-		},
-		updatedAt: new Date(),
-	};
-	await saveProjectToRedis(event, nextProject);
+		return {
+			...project,
+			scenarios: [],
+			areaOfInterest: {
+				...project.areaOfInterest,
+				scenarios: areaScenarios,
+			},
+			updatedAt: new Date(),
+		};
+	});
 	return hydrateScenario(scenario);
 }
 
-export async function deleteScenarioFromRedis(event: H3Event, projectId: string, scenarioId: string): Promise<{ deleted: boolean }> {
-	const project = await getProjectFromRedis(event, projectId);
-	const areaScenarios = Array.isArray(project.areaOfInterest?.scenarios)
-		? project.areaOfInterest.scenarios
-		: [];
-	const nextAreaScenarios = areaScenarios.filter((scenario) => scenario.id !== scenarioId);
-	const deleted = nextAreaScenarios.length !== areaScenarios.length;
-
-	if (!deleted) {
-		return { deleted: false };
-	}
-
-	const nextProject: Project = {
-		...project,
-		scenarios: [],
-		areaOfInterest: {
-			...project.areaOfInterest,
-			scenarios: nextAreaScenarios,
-		},
-		updatedAt: new Date(),
-	};
-	await saveProjectToRedis(event, nextProject);
-	return { deleted: true };
+export async function deleteScenarioFromRedis(
+	event: H3Event,
+	projectId: string,
+	scenarioId: string,
+	options?: { expectedUpdatedAt?: string | null },
+): Promise<{ deleted: boolean }> {
+	let deleted = false;
+	await updateProjectWithLock(event, projectId, options, async (project) => {
+		const areaScenarios = Array.isArray(project.areaOfInterest?.scenarios)
+			? project.areaOfInterest.scenarios
+			: [];
+		const nextAreaScenarios = areaScenarios.filter((scenario) => scenario.id !== scenarioId);
+		deleted = nextAreaScenarios.length !== areaScenarios.length;
+		if (!deleted) {
+			return project;
+		}
+		return {
+			...project,
+			scenarios: [],
+			areaOfInterest: {
+				...project.areaOfInterest,
+				scenarios: nextAreaScenarios,
+			},
+			updatedAt: new Date(),
+		};
+	});
+	return { deleted };
 }
 
 export async function clearAllProjectsFromRedis(event: H3Event): Promise<{ deletedCount: number; deletedKeys: string[] }> {

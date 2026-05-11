@@ -17,6 +17,7 @@ const props = withDefaults(defineProps<{
 });
 
 const mspDataProvider = useMspDataProvider();
+const projectStore = useProjectStore();
 
 const activeTab = ref<'general' | 'statements' | 'map'>('general');
 const isHydrating = ref(true);
@@ -74,8 +75,17 @@ const persistArea = async (payload: AreaOfInterest) => {
 	if (!props.projectId) return;
 	isSaving.value = true;
 	try {
-		await mspDataProvider.updateArea(payload, props.projectId);
+		const updatedProject = await mspDataProvider.updateArea(
+			payload,
+			props.projectId,
+			projectStore.currentProject?.updatedAt,
+		);
+		projectStore.setCurrentProject(updatedProject);
 	} catch (error) {
+		if (projectStore.registerConflict(error)) {
+			notify(projectStore.conflictMessage || 'Conflitto di aggiornamento rilevato. Ricarica il progetto.', 'error');
+			return;
+		}
 		console.error('Errore durante il salvataggio area:', error);
 		notify('Errore durante il salvataggio automatico', 'error');
 	} finally {

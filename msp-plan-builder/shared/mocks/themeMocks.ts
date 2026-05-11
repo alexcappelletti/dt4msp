@@ -8,7 +8,7 @@ import { generateUUID } from "#/shared/utils/generateUUID";
 export { mapRequestsMock } from "./mapRequestMocks";
 
 // --- Definizione dei Temi per i vari Settori ---
-export const availableThemesMock: Theme[] = [
+export const predefinedThemesMock: Theme[] = [
 	populateTheme({
 		id: "theme-fishing",
 		name: "Pesca",
@@ -117,27 +117,36 @@ export const availableThemesMock: Theme[] = [
 	}),
 ];
 
-export const mockThemeTourism = availableThemesMock.find(
+export const mockThemeTourism = predefinedThemesMock.find(
 	(t) => t.name === "Turismo",
 )!;
-export const mockThemeEnergy = availableThemesMock.find(
+export const mockThemeEnergy = predefinedThemesMock.find(
 	(t) => t.name === "Energia",
 )!;
 
-const mockThemeTransport = availableThemesMock.find(
+export const mockThemeTransport = predefinedThemesMock.find(
 	(t) => t.name === "Trasporti",
 )!;
 
-const mockThemeIndustry = availableThemesMock.find(
+export const mockThemeOilGas = predefinedThemesMock.find(
 	(t) => t.name === "Oil & Gas",
 )!;
 
-const mockThemeFood = availableThemesMock.find((t) => t.name === "Pesca")!;
+export const mockThemeFishing = predefinedThemesMock.find((t) => t.name === "Pesca")!;
 
-const mockThemeTelecom = availableThemesMock.find((t) => t.name === "Ricerca")!;
+export const mockThemeResearch = predefinedThemesMock.find((t) => t.name === "Ricerca")!;
 
-const mockThemeClimate = availableThemesMock.find(
+export const mockThemeEnvProt = predefinedThemesMock.find(
 	(t) => t.name === "Protezione Ambientale",
+)!;
+export const mockThemeRenewables = predefinedThemesMock.find(
+	(t) => t.name === "Rinnovabili",
+)!;
+export const mockThemeLandscape = predefinedThemesMock.find(
+	(t) => t.name === "Paesaggio",
+)!;
+export const mockThemeSecurity = predefinedThemesMock.find(
+	(t) => t.name === "Sicurezza",
 )!;
 
 // --- Lista degli Statement ---
@@ -177,7 +186,7 @@ export const furtherExampleStatements: Statement[] = [
 		description:
 			"Valutazione dell'impatto dello scarico di salamoia sugli ecosistemi bentonici locali.",
 		imageUrl: "https://picsum.photos",
-		sectorThemes: [mockThemeIndustry as Theme],
+		sectorThemes: [mockThemeOilGas as Theme],
 	},
 	{
 		id: generateUUID(),
@@ -186,7 +195,7 @@ export const furtherExampleStatements: Statement[] = [
 		description:
 			"Creazione di zone di esclusiva per la pesca a basso impatto per favorire le comunità locali rispetto alla flotta industriale.",
 		imageUrl: "https://picsum.photos",
-		sectorThemes: [mockThemeFood as Theme],
+		sectorThemes: [mockThemeFishing as Theme],
 	},
 	{
 		id: generateUUID(),
@@ -203,7 +212,7 @@ export const furtherExampleStatements: Statement[] = [
 		description:
 			"Definizione di fasce di rispetto intorno alle dorsali in fibra ottica per prevenire danni da ancore o reti a strascico.",
 		imageUrl: "https://picsum.photos",
-		sectorThemes: [mockThemeTelecom as Theme],
+		sectorThemes: [mockThemeResearch as Theme],
 	},
 	{
 		id: generateUUID(),
@@ -229,6 +238,6 @@ export const furtherExampleStatements: Statement[] = [
 		description:
 			"Progetto pilota per l'iniezione di CO2 catturata in ex pozzi di gas naturale nel sottosuolo marino.",
 		imageUrl: "https://picsum.photos",
-		sectorThemes: [mockThemeClimate as Theme],
+		sectorThemes: [mockThemeEnvProt as Theme],
 	},
 ];

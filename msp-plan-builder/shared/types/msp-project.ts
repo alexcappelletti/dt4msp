@@ -27,6 +27,7 @@ export interface AreaOfInterest {
 	statements?: Array<Statement>;
 	temporalScope: string;
 	others: Map<string, OptionalData>;
+	definedThemes?: Array<Theme>; //tutti i temi disponibili per l'area di interesse, usati per popolare i temi degli scenari
 }
 
 export interface Scenario {

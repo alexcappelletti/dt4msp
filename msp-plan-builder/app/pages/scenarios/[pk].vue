@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { Aspect, DomainEffect, DomainMeasure, Effect, Feedback, Measure, Statement } from '#/shared/types/msp-project';
 // import { useScenarioStore } from '@/stores/scenarioStore';
-// import {useThemesProvider} from '@/composables/useThemesProvider';
 import { generateUUID } from "#/shared/utils/generateUUID"; // Import mancante
 import { storeToRefs } from 'pinia';
 import { computed, onMounted, ref, watch } from 'vue';
@@ -15,8 +14,14 @@ type ViewModeType = 'tab-view' | 'edit';
 const route = useRoute();
 const router = useRouter();
 const scenarioStore = useScenarioStore();
+const projectStore = useProjectStore();
 const { selectedScenario, scenarios } = storeToRefs(scenarioStore); // Reattivo dallo store
 const mspProvider = useMspDataProvider();
+const routeProjectId = computed(() => {
+	const value = route.query.projectId;
+	return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+});
+const resolvedProjectId = computed(() => projectStore.currentProject?.id ?? routeProjectId.value);
 
 const tab = ref('general');
 const isLoading = ref(true);
@@ -24,6 +29,7 @@ const isSaving = ref(false);
 const deleteDialogOpen = ref(false);
 const deleteScenarioNameInput = ref('');
 const isDeletingScenario = ref(false);
+const showConflictToast = ref(false);
 
 const viewMode = ref<ViewModeType>('tab-view');
 const selectedStatement = ref<Statement | null>(null);
@@ -285,6 +291,11 @@ const handleDeleteFeedback = (feedback: Feedback) => {
 onMounted(async () => {
 	const scenarioId = route.params.pk as string;
 	try {
+		if (routeProjectId.value) {
+			await scenarioStore.fetchProjectScenarios(routeProjectId.value);
+		} else {
+			await scenarioStore.fetchProjectScenarios();
+		}
 		await scenarioStore.fetchScenarioMock(scenarioId);
 	} catch (error) {
 		console.warn('Scenario non trovato sul backend, uso fallback locale:', error);
@@ -299,9 +310,22 @@ onMounted(async () => {
 
 const persistScenario = debounce(async (scenarioSnapshot: any) => {
 	try {
+		if (!resolvedProjectId.value) {
+			console.error('Impossibile salvare lo scenario: projectId mancante.');
+			return;
+		}
 		isSaving.value = true;
-		await mspProvider.updateScenario(scenarioSnapshot);
+		await mspProvider.updateScenario(
+			scenarioSnapshot,
+			resolvedProjectId.value,
+			projectStore.currentProject?.updatedAt,
+		);
+		await projectStore.refreshProject(resolvedProjectId.value);
 	} catch (error) {
+		if (projectStore.registerConflict(error)) {
+			showConflictToast.value = true;
+			return;
+		}
 		console.error('Errore salvataggio scenario su layer persistente:', error);
 	} finally {
 		isSaving.value = false;
@@ -326,12 +350,20 @@ const closeDeleteScenarioDialog = () => {
 
 const handleDeleteScenario = async () => {
 	if (!selectedScenario.value) return;
+	if (!resolvedProjectId.value) {
+		console.error('Impossibile cancellare lo scenario: projectId mancante.');
+		return;
+	}
 	const scenarioId = selectedScenario.value.id;
 	if (!canConfirmScenarioDeletion.value) return;
 
 	try {
 		isDeletingScenario.value = true;
-		await mspProvider.deleteScenario(scenarioId);
+		await mspProvider.deleteScenario(
+			scenarioId,
+			resolvedProjectId.value,
+			projectStore.currentProject?.updatedAt,
+		);
 		scenarios.value = scenarios.value.filter((item) => item.id !== scenarioId);
 		scenarioStore.clearSelectedScenario();
 		closeDeleteScenarioDialog();
@@ -349,9 +381,28 @@ const handleDeleteScenario = async () => {
 		}
 		await router.push('/');
 	} catch (error) {
+		if (projectStore.registerConflict(error)) {
+			showConflictToast.value = true;
+			return;
+		}
 		console.error('Errore durante la cancellazione dello scenario:', error);
 	} finally {
 		isDeletingScenario.value = false;
+	}
+};
+
+const reloadProjectAfterConflict = async () => {
+	try {
+		if (!resolvedProjectId.value) {
+			console.error('Impossibile ricaricare il progetto: projectId mancante.');
+			return;
+		}
+		await projectStore.refreshProject(resolvedProjectId.value);
+		await scenarioStore.fetchProjectScenarios(resolvedProjectId.value);
+		projectStore.clearConflict();
+		showConflictToast.value = false;
+	} catch (error) {
+		console.error('Errore durante il refresh dopo conflitto:', error);
 	}
 };
 
@@ -369,6 +420,16 @@ watch(
 
 <template>
 	<v-container fluid class="main-scenario-container">
+		<project-remote-update-toast />
+
+		<v-snackbar v-model="showConflictToast" color="warning" timeout="-1">
+			{{ projectStore.conflictMessage || 'Conflitto di aggiornamento rilevato.' }}
+			<template #actions>
+				<v-btn variant="text" @click="reloadProjectAfterConflict">Ricarica</v-btn>
+				<v-btn variant="text" @click="showConflictToast = false">Chiudi</v-btn>
+			</template>
+		</v-snackbar>
+
 		<v-progress-linear v-if="isLoading" indeterminate color="primary"></v-progress-linear>
 
 		<!-- Utilizziamo selectedScenario dallo store -->

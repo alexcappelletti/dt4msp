@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import type { Theme, Aspect, DomainMeasure } from '#/shared/types/msp-project';
+import { computed, onMounted, ref } from 'vue';
+import type { DomainMeasure } from '#/shared/types/msp-project';
 //import { useAspectStore } from '@/stores/aspectStore'; // Importa il tuo store Pinia
 // import { useScenarioStore } from '@/stores/scenarioStore';
-// import {useThemesProvider} from '@/composables/useThemesProvider';
 
 const store = useScenarioStore();
-const themesProvider = useThemesProvider();
+const themesStore = useThemesStore();
 //const aspectStore = useAspectStore();
 
 
@@ -17,7 +16,13 @@ const props = defineProps<{
 
 const emit = defineEmits(['save', 'cancel']);
 
-const { availableThemes, loading } = useThemesProvider();
+const availableThemes = computed(() => themesStore.predefinedThemes);
+const loading = computed(() => themesStore.isThemesLoading);
+onMounted(async () => {
+	if (themesStore.predefinedThemes.length === 0) {
+		await themesStore.fetchPredefinedThemes(store.currentProject?.id);
+	}
+});
 const formData = ref<Partial<DomainMeasure>>({
 	...props.initialData,
 	referenceThemes: props.initialData.referenceThemes ? [...props.initialData.referenceThemes] : []
