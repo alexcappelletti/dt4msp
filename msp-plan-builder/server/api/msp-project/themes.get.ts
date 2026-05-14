@@ -1,5 +1,5 @@
 import type { Theme } from '#/shared/types/msp-project';
-import { getProjectFromRedis } from '#/server/utils/mspProjectRedis';
+import { getProjectFromMongo } from '#/server/utils/mspProjectMongo';
 
 export default defineEventHandler(async (event) => {
 	const query = getQuery(event);
@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
 		? query.projectId.trim()
 		: 'prj-2026-001';
 
-	const project = await getProjectFromRedis(event, projectId) 
+	const project = await getProjectFromMongo(event, projectId) 
 	const uniqueById = new Map<string, Theme>();
 	if (!project?.areaOfInterest?.definedThemes) return [];
 	project.areaOfInterest.definedThemes.forEach(theme => uniqueById.set(theme.id, theme));

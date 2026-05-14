@@ -1,12 +1,20 @@
 import { defineEventHandler } from 'h3';
 import { DOMParser } from 'xmldom';
 
-const GEOSERVER_BASE_URL = "https://geoplatform.tools4msp.eu/geoserver/wfs/get";
+
 
 export default defineEventHandler(async (event) => {
 
+	const wfsBaseUrl = useRuntimeConfig(event).wfsBaseUrl;
+	const capabilitiesUrl = `${wfsBaseUrl}?SERVICE=WFS&version=1.3.0&request=GetCapabilities`;
 
-	const capabilitiesUrl = `${GEOSERVER_BASE_URL}?SERVICE=WFS&version=1.3.0&request=GetCapabilities`;
+	if (!wfsBaseUrl) {
+		throw createError({
+			statusCode: 500,
+			statusMessage: "WFS_BASE_URL non configurato",
+		});
+	}
+
 
 	try {
 		// 1. Richiedi il documento XML GetCapabilities direttamente da GeoServer (server-to-server)
@@ -22,7 +30,7 @@ export default defineEventHandler(async (event) => {
 
 		// 3. Restituisci i dati come JSON pulito al client Nuxt
 		return {
-			serverUrl: GEOSERVER_BASE_URL,
+			serverUrl: wfsBaseUrl,
 			count: featureTypes.length,
 			layers: featureTypes,
 			service: 'WFS'

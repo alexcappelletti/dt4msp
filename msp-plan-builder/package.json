@@ -27,6 +27,7 @@
 		"geostyler-sld-parser": "^8.4.2",
 		"lodash-es": "^4.17.22",
 		"maplibre-gl": "^5.22.0",
+		"mongoose": "^8.19.3",
 		"nuxt": "^4.2.2",
 		"ol": "^10.9.0",
 		"pinia": "^3.0.4",

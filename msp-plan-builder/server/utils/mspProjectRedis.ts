@@ -310,3 +310,32 @@ export async function clearAllProjectsFromRedis(event: H3Event): Promise<{ delet
 		deletedKeys,
 	};
 }
+
+export async function clearProjectFromRedis(
+	event: H3Event,
+	projectId: string,
+): Promise<{ deletedCount: number; deletedKeys: string[] }> {
+	const prefix = getPrefix(event);
+	const projectKey = getProjectKey(prefix, projectId);
+	const lockKey = getProjectLockKey(prefix, projectId);
+
+	return withRedisClient(event, async (client) => {
+		const deletedKeys: string[] = [];
+		const existsProject = await client.exists(projectKey);
+		if (existsProject) {
+			await client.del(projectKey);
+			deletedKeys.push(projectKey);
+		}
+
+		const existsLock = await client.exists(lockKey);
+		if (existsLock) {
+			await client.del(lockKey);
+			deletedKeys.push(lockKey);
+		}
+
+		return {
+			deletedCount: deletedKeys.length,
+			deletedKeys,
+		};
+	});
+}

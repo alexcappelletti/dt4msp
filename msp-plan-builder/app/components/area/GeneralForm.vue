@@ -4,7 +4,7 @@ import StatementForm from './StatementForm.vue';
 import type { AreaOfInterest, Statement } from '#/shared/types/msp-project';
 import { generateUUID } from '#/shared/utils/generateUUID';
 import { debounce } from 'lodash-es';
-import { computed, nextTick, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 
 const props = withDefaults(defineProps<{
 	initialArea?: AreaOfInterest | null;
@@ -34,6 +34,8 @@ const toastMessage = ref('');
 const hasArea = computed(() => Boolean(area.value));
 const isBusy = computed(() => props.loading || isHydrating.value);
 const canPersist = computed(() => Boolean(props.projectId) && hasArea.value);
+const latestQueuedPayload = ref<AreaOfInterest | null>(null);
+let isPersisting = false;
 const missingDataMessage = computed(() => {
 	if (props.loading) return '';
 	if (!props.projectId) return 'Il progetto non è definito.';
@@ -74,6 +76,7 @@ watch(
 const persistArea = async (payload: AreaOfInterest) => {
 	if (!props.projectId) return;
 	isSaving.value = true;
+	isPersisting = true;
 	try {
 		const updatedProject = await mspDataProvider.updateArea(
 			payload,
@@ -89,13 +92,30 @@ const persistArea = async (payload: AreaOfInterest) => {
 		console.error('Errore durante il salvataggio area:', error);
 		notify('Errore durante il salvataggio automatico', 'error');
 	} finally {
+		isPersisting = false;
 		isSaving.value = false;
 	}
 };
 
-const debouncedPersist = debounce((payload: AreaOfInterest) => {
-	void persistArea(payload);
-}, 500);
+const flushPersistQueue = async () => {
+	if (isPersisting) return;
+	if (!latestQueuedPayload.value || !canPersist.value) return;
+	const payload = latestQueuedPayload.value;
+	latestQueuedPayload.value = null;
+	await persistArea(payload);
+	if (latestQueuedPayload.value) {
+		await flushPersistQueue();
+	}
+};
+
+const schedulePersist = debounce(() => {
+	void flushPersistQueue();
+}, 1000);
+
+const queuePersist = (payload: AreaOfInterest) => {
+	latestQueuedPayload.value = payload;
+	schedulePersist();
+};
 
 watch(
 	area,
@@ -103,10 +123,15 @@ watch(
 		if (!value || !canPersist.value || isHydrating.value || props.loading) return;
 		const safe = cloneArea(value);
 		if (!safe) return;
-		debouncedPersist(safe);
+		queuePersist(safe);
 	},
 	{ deep: true },
 );
+
+onBeforeUnmount(() => {
+	schedulePersist.cancel();
+	void flushPersistQueue();
+});
 
 const openNewStatement = (type: 'General' | 'Sector-specific') => {
 	editedStatement.value = {

@@ -1,4 +1,4 @@
-import { listScenariosFromRedis } from '#/server/utils/mspProjectRedis';
+import { listScenariosFromMongo } from '#/server/utils/mspProjectMongo';
 
 export default defineEventHandler(async (event) => {
 	const query = getQuery(event);
@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
 	const projectId = typeof query.projectId === 'string' && query.projectId.trim()
 		? query.projectId.trim()
 		: 'prj-2026-001';
-	const scenarios = await listScenariosFromRedis(event, projectId);
+	const scenarios = await listScenariosFromMongo(event, projectId);
 
 	if (includeFull) {
 		return scenarios;

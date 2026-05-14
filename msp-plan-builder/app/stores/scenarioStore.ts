@@ -14,7 +14,6 @@ export const useScenarioStore = defineStore("scenario", () => {
 	const projectStore = useProjectStore();
 	const themesStore = useThemesStore();
 	const mspProvider = useMspDataProvider();
-	projectStore.startProjectSync();
 	const availableThemes = ref<Theme[]>([]);
 	const scenarios = ref<Scenario[]>([]);
 	const selectedScenario = ref<Scenario | null>(null);

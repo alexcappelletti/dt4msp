@@ -6,6 +6,10 @@ const requiredEnvVars = [
 	"GOOGLE_CLIENT_ID",
 	"GOOGLE_CLIENT_SECRET",
 	"GOOGLE_REDIRECT_URI",
+	"PERSISTENT_DB_URI",
+	"REDIS_URL",
+	"OWS_BASE_URL"
+
 ] as const;
 
 const missingEnvVars = requiredEnvVars.filter((key) => {
@@ -33,12 +37,15 @@ export default defineNuxtConfig({
 	devtools: { enabled: true },
 	srcDir: "app",
 	runtimeConfig: {
+		wfsBaseUrl: process.env.WFS_BASE_URL ?? "https://geoplatform.tools4msp.eu/geoserver/wfs/get",
 		owsBaseUrl: process.env.OWS_BASE_URL ?? "",
 		owsTimeoutMs: Number(process.env.OWS_TIMEOUT_MS ?? 15000),
 		authSecret: process.env.AUTH_SECRET ?? "",
 		googleClientId: process.env.GOOGLE_CLIENT_ID ?? "",
 		googleClientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
 		googleRedirectUri: process.env.GOOGLE_REDIRECT_URI ?? "",
+		mongoUrl: process.env.PERSISTENT_DB_URI ?? "",
+		mongoDbName: process.env.MONGO_DB_NAME ?? "db_4msp",
 		redisUrl: process.env.REDIS_URL ?? "",
 		authzRedisPrefix: process.env.AUTHZ_REDIS_PREFIX ?? "msp:auth",
 		mspRedisPrefix: process.env.MSP_REDIS_PREFIX ?? "msp:project",

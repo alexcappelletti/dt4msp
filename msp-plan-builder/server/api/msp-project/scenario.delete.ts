@@ -1,4 +1,4 @@
-import { deleteScenarioFromRedis } from '#/server/utils/mspProjectRedis';
+import { deleteScenarioFromMongo } from '#/server/utils/mspProjectMongo';
 
 export default defineEventHandler(async (event) => {
 	const query = getQuery(event);
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
 		});
 	}
 
-	const result = await deleteScenarioFromRedis(event, projectId, scenarioId, { expectedUpdatedAt });
+	const result = await deleteScenarioFromMongo(event, projectId, scenarioId, { expectedUpdatedAt });
 	if (!result.deleted) {
 		throw createError({
 			statusCode: 404,

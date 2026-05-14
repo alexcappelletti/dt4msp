@@ -1,4 +1,4 @@
-import { getScenarioFromRedis } from '#/server/utils/mspProjectRedis';
+import { getScenarioFromMongo } from '#/server/utils/mspProjectMongo';
 
 export default defineEventHandler(async (event) => {
 	const query = getQuery(event);
@@ -14,5 +14,5 @@ export default defineEventHandler(async (event) => {
 		});
 	}
 
-	return getScenarioFromRedis(event, projectId, scenarioId);
+	return getScenarioFromMongo(event, projectId, scenarioId);
 });

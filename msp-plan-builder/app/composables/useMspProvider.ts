@@ -1,7 +1,5 @@
 import type { AreaOfInterest, Project, Scenario, Theme } from '#/shared/types/msp-project';
 
-const PROJECT_SYNC_CHANNEL = "msp-project-sync";
-const PROJECT_SYNC_STORAGE_KEY = "msp:project-sync";
 const PROJECT_VERSION_HEADER = "x-project-updated-at";
 
 export const useMspDataProvider = () => {
@@ -15,24 +13,6 @@ export const useMspDataProvider = () => {
 			...context,
 		});
 	};
-
-	const notifyProjectMutation = (projectId: string) => {
-		if (!import.meta.client) return;
-		const payload = JSON.stringify({
-			type: "project-mutated",
-			projectId,
-			at: Date.now(),
-		});
-		try {
-			const channel = new BroadcastChannel(PROJECT_SYNC_CHANNEL);
-			channel.postMessage({ type: "project-mutated", projectId, at: Date.now() });
-			channel.close();
-		} catch {}
-		try {
-			localStorage.setItem(PROJECT_SYNC_STORAGE_KEY, payload);
-		} catch {}
-	};
-
 
 	const getVersionHeaders = (expectedUpdatedAt?: string | Date | null) => {
 		if (!expectedUpdatedAt) return undefined;
@@ -78,7 +58,6 @@ export const useMspDataProvider = () => {
 				headers: getVersionHeaders(expectedUpdatedAt),
 				body: scenario,
 			});
-			notifyProjectMutation(projectId);
 			return updated;
 		} catch (error) {
 			logApiError('updateScenario', error, { endpoint: '/api/msp-project/scenario', method: 'PUT', projectId, scenarioId: scenario?.id });
@@ -97,7 +76,6 @@ export const useMspDataProvider = () => {
 				query: { id, projectId },
 				headers: getVersionHeaders(expectedUpdatedAt),
 			});
-			notifyProjectMutation(projectId);
 			return result;
 		} catch (error) {
 			logApiError('deleteScenario', error, { endpoint: '/api/msp-project/scenario', method: 'DELETE', projectId, scenarioId: id });
@@ -119,7 +97,6 @@ export const useMspDataProvider = () => {
 					areaOfInterest: area,
 				},
 			});
-			notifyProjectMutation(projectId);
 			return updated;
 		} catch (error) {
 			logApiError('updateArea', error, { endpoint: '/api/msp-project/project', method: 'PUT', projectId, areaId: area?.id });

@@ -1,4 +1,4 @@
-import { getProjectFromRedis } from '#/server/utils/mspProjectRedis';
+import { getProjectFromMongo } from '#/server/utils/mspProjectMongo';
 
 export default defineEventHandler(async (event) => {
 	const query = getQuery(event);
@@ -6,5 +6,5 @@ export default defineEventHandler(async (event) => {
 		? query.projectId.trim()
 		: 'prj-2026-001';
 
-	return getProjectFromRedis(event, projectId);
+	return getProjectFromMongo(event, projectId);
 });

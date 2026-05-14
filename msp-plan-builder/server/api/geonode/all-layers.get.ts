@@ -1,6 +1,5 @@
 import type { Layer, LayerListItem } from '#/shared/types/geonodeTypes';
 
-const GEONODE_BASE_URL = process.env.GEONODE_API_URL || 'https://geoplatform.tools4msp.eu';
 const PAGE_SIZE = 5;
 const CONCURRENCY_LIMIT = 5;
 
@@ -48,6 +47,7 @@ async function fetchWithConcurrencyLimit<T>(
 }
 
 export default defineEventHandler(async (event) => {
+	const GEONODE_BASE_URL = useRuntimeConfig(event).geonodeApiUrl || "https://geoplatform.tools4msp.eu";
 	const allLayers: Layer[] = [];
 	let totalPages = 20;
 

@@ -1,5 +1,5 @@
 import type { Scenario } from '#/shared/types/msp-project';
-import { getScenarioFromRedis, saveScenarioToRedis } from '#/server/utils/mspProjectRedis';
+import { getScenarioFromMongo, saveScenarioToMongo } from '#/server/utils/mspProjectMongo';
 import { populateScenario } from '#/shared/types/msp-project';
 
 export default defineEventHandler(async (event) => {
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
 
 	let current: Scenario | null = null;
 	try {
-		current = await getScenarioFromRedis(event, projectId, scenarioId);
+		current = await getScenarioFromMongo(event, projectId, scenarioId);
 	} catch (error: any) {
 		if (error?.statusCode !== 404) {
 			throw error;
@@ -34,5 +34,5 @@ export default defineEventHandler(async (event) => {
 		id: scenarioId,
 	};
 
-	return saveScenarioToRedis(event, projectId, next, { expectedUpdatedAt });
+	return saveScenarioToMongo(event, projectId, next, { expectedUpdatedAt });
 });

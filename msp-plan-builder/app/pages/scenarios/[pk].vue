@@ -3,8 +3,8 @@ import type { Aspect, DomainEffect, DomainMeasure, Effect, Feedback, Measure, St
 // import { useScenarioStore } from '@/stores/scenarioStore';
 import { generateUUID } from "#/shared/utils/generateUUID"; // Import mancante
 import { storeToRefs } from 'pinia';
-import { computed, onMounted, ref, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router';
 import type { EffectInitProp } from '~/components/scenario/EffectEditor.vue'
 import type { MeasureType } from '~/components/scenario/DomainMeasures.vue';
 import { debounce } from 'lodash-es';
@@ -30,6 +30,8 @@ const deleteDialogOpen = ref(false);
 const deleteScenarioNameInput = ref('');
 const isDeletingScenario = ref(false);
 const showConflictToast = ref(false);
+const latestScenarioSnapshot = ref<any | null>(null);
+let isPersistingScenario = false;
 
 const viewMode = ref<ViewModeType>('tab-view');
 const selectedStatement = ref<Statement | null>(null);
@@ -308,13 +310,14 @@ onMounted(async () => {
 	}
 });
 
-const persistScenario = debounce(async (scenarioSnapshot: any) => {
+const persistScenario = async (scenarioSnapshot: any) => {
 	try {
 		if (!resolvedProjectId.value) {
 			console.error('Impossibile salvare lo scenario: projectId mancante.');
 			return;
 		}
 		isSaving.value = true;
+		isPersistingScenario = true;
 		await mspProvider.updateScenario(
 			scenarioSnapshot,
 			resolvedProjectId.value,
@@ -328,9 +331,30 @@ const persistScenario = debounce(async (scenarioSnapshot: any) => {
 		}
 		console.error('Errore salvataggio scenario su layer persistente:', error);
 	} finally {
+		isPersistingScenario = false;
 		isSaving.value = false;
 	}
-}, 600);
+};
+
+const flushScenarioPersistQueue = async () => {
+	if (isPersistingScenario) return;
+	if (!latestScenarioSnapshot.value) return;
+	const snapshot = latestScenarioSnapshot.value;
+	latestScenarioSnapshot.value = null;
+	await persistScenario(snapshot);
+	if (latestScenarioSnapshot.value) {
+		await flushScenarioPersistQueue();
+	}
+};
+
+const scheduleScenarioPersist = debounce(() => {
+	void flushScenarioPersistQueue();
+}, 1000);
+
+const queueScenarioPersist = (scenarioSnapshot: any) => {
+	latestScenarioSnapshot.value = scenarioSnapshot;
+	scheduleScenarioPersist();
+};
 
 const expectedScenarioName = computed(() => selectedScenario.value?.name?.trim() ?? '');
 const canConfirmScenarioDeletion = computed(() => {
@@ -359,6 +383,8 @@ const handleDeleteScenario = async () => {
 
 	try {
 		isDeletingScenario.value = true;
+		scheduleScenarioPersist.cancel();
+		latestScenarioSnapshot.value = null;
 		await mspProvider.deleteScenario(
 			scenarioId,
 			resolvedProjectId.value,
@@ -410,18 +436,26 @@ watch(
 	selectedScenario,
 	(newScenario) => {
 		if (!newScenario || isLoading.value) return;
-		persistScenario(JSON.parse(JSON.stringify(newScenario)));
+		queueScenarioPersist(JSON.parse(JSON.stringify(newScenario)));
 	},
 	{ deep: true },
 );
+
+onBeforeUnmount(() => {
+	scheduleScenarioPersist.cancel();
+	void flushScenarioPersistQueue();
+});
+
+onBeforeRouteLeave(async () => {
+	scheduleScenarioPersist.cancel();
+	await flushScenarioPersistQueue();
+});
 
 
 </script>
 
 <template>
 	<v-container fluid class="main-scenario-container">
-		<project-remote-update-toast />
-
 		<v-snackbar v-model="showConflictToast" color="warning" timeout="-1">
 			{{ projectStore.conflictMessage || 'Conflitto di aggiornamento rilevato.' }}
 			<template #actions>

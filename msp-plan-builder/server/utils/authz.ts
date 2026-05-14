@@ -28,7 +28,7 @@ export async function authorizeGoogleUser(event: H3Event, email: string): Promis
 		return {
 			allowed: false,
 			role: policy.defaultRole,
-			reason: 'Email non inclusa nelle regole di accesso ',
+			reason: 'Il tuo account non é abititato ad accedere a questa applicazione',
 		};
 	}
 
@@ -36,7 +36,7 @@ export async function authorizeGoogleUser(event: H3Event, email: string): Promis
 		return {
 			allowed: false,
 			role: policy.defaultRole,
-			reason: 'Email non inclusa nelle regole configurate su',
+			reason: 'Il tuo account non é autorizzato ad accedere a questa applicazione',
 		};
 	}
 
