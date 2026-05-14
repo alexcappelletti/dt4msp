@@ -196,8 +196,102 @@ export interface LayerListItem {
 }
 
 /**
+ * Interfaccia leggera per la lista mappe (catalogo GeoNode maps).
+ */
+export interface GeonodeMapListItem {
+	pk: string;
+	title: string;
+	thumbnail_url: string;
+	abstract: string;
+	owner_username: string;
+	created: string;
+	popular_count: string;
+	share_count: string;
+	rating: string;
+	detail_url: string;
+}
+
+/**
  * Interfaccia per la risposta JSON completa che contiene l'oggetto Layer
  */
 export interface LayerDetailsResponse {
 	layer: Layer;
+}
+
+/**
+ * Interfaccia per l'oggetto Map principale di GeoNode (/api/v2/maps)
+ */
+export interface GeonodeMap {
+	pk: string;
+	uuid: string;
+	zoom: number;
+	projection: string;
+	center_x: number;
+	center_y: number;
+	urlsuffix: string;
+	featuredurl: string;
+	resource_type: "map";
+	polymorphic_ctype_id: string;
+	owner: User;
+	poc: User;
+	metadata_author: User;
+	title: string;
+	abstract: string;
+	attribution: string | null;
+	doi: string | null;
+	alternate: string | null;
+	date: string;
+	date_type: string;
+	temporal_extent_start: string | null;
+	temporal_extent_end: string | null;
+	edition: string | null;
+	purpose: string | null;
+	maintenance_frequency: string | null;
+	constraints_other: string | null;
+	language: string;
+	supplemental_information: string;
+	data_quality_statement: string | null;
+	bbox_polygon: BoundingBoxPolygon;
+	ll_bbox_polygon: BoundingBoxPolygon;
+	srid: string;
+	group: string | null;
+	popular_count: string;
+	share_count: string;
+	rating: string;
+	featured: boolean;
+	is_published: boolean;
+	is_approved: boolean;
+	detail_url: string;
+	created: string;
+	last_updated: string;
+	raw_abstract: string;
+	raw_purpose: string | null;
+	raw_constraints_other: string | null;
+	raw_supplemental_information: string;
+	raw_data_quality_statement: string | null;
+	metadata_only: boolean;
+	processed: boolean;
+	embed_url: string;
+	thumbnail_url: string;
+	keywords: Keyword[];
+	tkeywords: TaxonomicalKeyword[];
+	regions: Region[];
+	category: { identifier: string } | null;
+	restriction_code_type: { identifier: string } | null;
+	license: { identifier: string } | null;
+	spatial_representation_type: string | null;
+	link: string;
+	perms: string[];
+	links: ResourceLink[];
+}
+
+/**
+ * Interfaccia per la response paginata di GeoNode Maps
+ */
+export interface GeonodeMapsResponse {
+	links: { next: string | null; previous: string | null };
+	total: number;
+	page: number;
+	page_size: number;
+	maps: GeonodeMap[];
 }

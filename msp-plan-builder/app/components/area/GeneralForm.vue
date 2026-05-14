@@ -5,6 +5,7 @@ import type { AreaOfInterest, Statement } from '#/shared/types/msp-project';
 import { generateUUID } from '#/shared/utils/generateUUID';
 import { debounce } from 'lodash-es';
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
+import GeonodeMapList from './GeonodeMapList.vue';
 
 const props = withDefaults(defineProps<{
 	initialArea?: AreaOfInterest | null;
@@ -262,7 +263,7 @@ const cancelStatement = () => {
 				</v-window-item>
 
 				<v-window-item value="map">
-					<geonode-layers />
+					<GeonodeMapList />
 				</v-window-item>
 			</v-window>
 		</div>
