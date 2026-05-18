@@ -27,7 +27,15 @@ export interface AreaOfInterest {
 	statements?: Array<Statement>;
 	temporalScope: string;
 	others: Map<string, OptionalData>;
+	associatedMap?: AssociatedMapRef;
 	definedThemes?: Array<Theme>; //tutti i temi disponibili per l'area di interesse, usati per popolare i temi degli scenari
+}
+
+export interface AssociatedMapRef {
+	pk: string;
+	title: string;
+	detailUrl?: string;
+	thumbnailUrl?: string;
 }
 
 export interface Scenario {

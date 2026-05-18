@@ -266,7 +266,7 @@ const cancelStatement = () => {
 				</v-window-item>
 
 				<v-window-item value="map">
-					<GeonodeMapList />
+					<GeonodeMapList v-model="area!.associatedMap" />
 				</v-window-item>
 			</v-window>
 		</div>
