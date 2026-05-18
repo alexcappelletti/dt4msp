@@ -1,4 +1,4 @@
-<!-- app/components/layout/SidebarNav.vue -->
+
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
 import { computed, onMounted } from 'vue';

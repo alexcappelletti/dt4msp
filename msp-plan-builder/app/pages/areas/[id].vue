@@ -70,8 +70,10 @@ watch(
 
 .areaOI-panel {
 	background-color: rgb(var(--v-theme-main-rose)) !important;
-	
-
+	width: 100%;
+	height: 100%;
+	min-height: 0;
+	overflow: hidden;
 }
 
 

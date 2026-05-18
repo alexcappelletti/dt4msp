@@ -7,10 +7,10 @@ const isLoginPage = computed(() => route.path === '/');
 <template>
 		<!-- Il layout principale ha un unico elemento radice -->
 		<v-app class="app-layout">
-			<!-- L'header della pagina, auto-importato da app/components/layout/AppHeader.vue -->
-			<LayoutAppHeader v-if="!isLoginPage" />
-			<!-- La sidebar di navigazione, auto-importata da app/components/layout/SidebarNav.vue -->
-			<LayoutSidebarNav v-if="!isLoginPage" />
+			<!-- L'header della pagina, auto-importato da app/components/shell/AppHeader.vue -->
+			<shell-app-header v-if="!isLoginPage" />
+			<!-- La sidebar di navigazione, auto-importata da app/components/shell/SidebarNav.vue -->
+			<shell-sidebar-nav v-if="!isLoginPage" />
 
 			<!-- Questa Š l'area in cui Nuxt inietta il contenuto della pagina corrente (es. pages/areas/[id].vue) -->
 			<v-main class="main-shell">
@@ -36,13 +36,24 @@ const isLoginPage = computed(() => route.path === '/');
 .main-shell {
 	min-width: 0;
 	min-height: 0;
+	height: 100%;
 	overflow: hidden;
 }
 
 .page-slot {
+	flex: 1 1 auto;
+	display: flex;
 	height: 100%;
 	min-width: 0;
 	min-height: 0;
+	overflow: hidden;
+}
+
+:deep(.v-main__wrap) {
+	display: flex;
+	flex: 1 1 auto;
+	min-height: 0;
+	height: 100%;
 	overflow: hidden;
 }
 

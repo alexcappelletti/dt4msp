@@ -6,6 +6,7 @@ import { generateUUID } from '#/shared/utils/generateUUID';
 import { debounce } from 'lodash-es';
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import GeonodeMapList from './GeonodeMapList.vue';
+import FormLayout from '#/app/components/layouts/FormLayout.vue';
 
 const props = withDefaults(defineProps<{
 	initialArea?: AreaOfInterest | null;
@@ -215,40 +216,42 @@ const cancelStatement = () => {
 			@cancel="cancelStatement"
 		/>
 
-		<div v-else-if="hasArea">
+		<div v-else-if="hasArea" class="content-shell">
 			<v-tabs v-model="activeTab" color="primary" class="tab-style">
 				<v-tab value="general">Generale</v-tab>
 				<v-tab value="statements">Statements</v-tab>
 				<v-tab value="map">Mappa</v-tab>
 			</v-tabs>
 
-			<v-window v-model="activeTab" class="ma-2 mt-4 area-form-window">
+			<v-window v-model="activeTab" class="area-form-window">
 				<v-window-item value="general">
-					<v-form class="pt-2">
-						<v-row>
-							<v-col cols="12" md="6">
-								<v-text-field v-model="area!.name" label="Nome Area" variant="outlined" clearable />
-							</v-col>
-							<v-col cols="12" md="6">
-								<v-text-field v-model="area!.longName" label="Nome Completo Area" variant="outlined" clearable />
-							</v-col>
-						</v-row>
+					<FormLayout :loading="isSaving" >
+						<v-form class="pt-1">
+							<v-row>
+								<v-col cols="12" md="6">
+									<v-text-field v-model="area!.name" label="Nome Area" variant="outlined" clearable />
+								</v-col>
+								<v-col cols="12" md="6">
+									<v-text-field v-model="area!.longName" label="Nome Completo Area" variant="outlined" clearable />
+								</v-col>
+							</v-row>
 
-						<v-row>
-							<v-col cols="12" md="6">
-								<v-text-field v-model="area!.temporalScope" label="Orizzonte temporale" variant="outlined" clearable />
-							</v-col>
-							<v-col cols="12" md="6">
-								<v-text-field v-model="area!.filterCQL" label="Filtro CQL" variant="outlined" clearable />
-							</v-col>
-						</v-row>
+							<v-row>
+								<v-col cols="12" md="6">
+									<v-text-field v-model="area!.temporalScope" label="Orizzonte temporale" variant="outlined" clearable />
+								</v-col>
+								<v-col cols="12" md="6">
+									<v-text-field v-model="area!.filterCQL" label="Filtro CQL" variant="outlined" clearable />
+								</v-col>
+							</v-row>
 
-						<v-row>
-							<v-col cols="12">
-								<v-textarea v-model="area!.description" label="Descrizione" variant="outlined" rows="4" clearable />
-							</v-col>
-						</v-row>
-					</v-form>
+							<v-row>
+								<v-col cols="12">
+									<v-textarea v-model="area!.description" label="Descrizione" variant="outlined" rows="4" clearable />
+								</v-col>
+							</v-row>
+						</v-form>
+					</FormLayout>
 				</v-window-item>
 
 				<v-window-item value="statements">
@@ -289,13 +292,23 @@ const cancelStatement = () => {
 <style scoped lang="scss">
 .container-panel {
 	position: relative;
-	background-color: #fff;
+	background-color: transparent;
 	width: 100%;
-	min-height: 100%;
+	height: 100%;
+	max-height: 100%;
 	min-width: 0;
+	min-height: 0;
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
+}
+
+.content-shell {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+	min-height: 0;
+	min-width: 0;
 }
 
 .saving-indicator {
@@ -313,9 +326,11 @@ const cancelStatement = () => {
 	min-width: 0;
 	flex: 1 1 auto;
 	min-height: 0;
+	margin-top: 12px;
+	padding: 0;
+	box-sizing: border-box;
 	/* Ridimensionamento responsivo in base alla larghezza disponibile */
 	//max-height: clamp(340px, 62vw, 72dvh);
-	overflow: hidden;
 	display: flex;
 	flex-direction: column;
 }
@@ -330,10 +345,12 @@ const cancelStatement = () => {
 	max-height: 100%;
 	overflow-y: auto;
 	overflow-x: hidden;
+	//scrollbar-gutter: stable;
 }
 
 .tab-style {
 	background-color: #fef7ff;
+	flex: 0 0 auto;
 }
 
 .fab-container {
