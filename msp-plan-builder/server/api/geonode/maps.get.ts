@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
 
 	const query = getQuery(event);
 	const searchText = query.searchText ? String(query.searchText) : undefined;
-
+	console.log(`Fetching maps from GeoNode`);
 	while (nextPage && pageCount < MAX_PAGES) {
 		let pageUrl = `${GEONODE_BASE_URL}/api/v2/maps?page_size=${PAGE_SIZE}&page=${nextPage}`;
 		if (searchText) {
@@ -54,7 +54,7 @@ export default defineEventHandler(async (event) => {
 			break;
 		}
 	}
-
+	console.log(`found ${allMaps.length} maps from GeoNode in ${pageCount} pages`);
 	return allMaps.map((mapItem): GeonodeMapListItem => ({
 		pk: String(mapItem.pk ?? mapItem.id ?? ''),
 		title: String(mapItem.title || 'Mappa senza titolo'),

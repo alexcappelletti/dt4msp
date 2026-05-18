@@ -63,11 +63,11 @@ onMounted(async () => {
 </script>
 
 <template>
-	<div class="tw:grid tw:grid-cols-1 tw:gap-4">
-		<div class="tw:col-span-1 tw:bg-white tw:rounded-md tw:p-3 tw:border tw:border-slate-200">
+	<div class="tw:grid tw:grid-cols-2 tw:gap-4 tw:items-stretch">
+		<div class="tw:col-span-1 tw:bg-white tw:rounded-md tw:p-3 tw:border tw:border-red-500">
 			<div class="tw:flex tw:flex-wrap tw:items-center tw:justify-between tw:gap-3 tw:mb-3">
-				<h3 class="tw:text-2xl tw:font-semibold">{{ resultCountLabel }}</h3>
-				<div class="tw:flex tw:gap-2 tw:w-full md:tw:w-auto">
+				<span class="tw:text-2xl tw:font-semibold">{{ resultCountLabel }}</span>
+				<!-- <div class="tw:flex tw:gap-2 tw:w-full md:tw:w-auto">
 					<v-text-field
 						v-model="searchText"
 						label="Cerca mappa"
@@ -87,7 +87,7 @@ onMounted(async () => {
 						hide-details
 						class="tw:min-w-[180px]"
 					/>
-				</div>
+				</div> -->
 			</div>
 
 			<div v-if="mapStore.error" class="tw:text-sm tw:text-red-700 tw:bg-red-50 tw:border tw:border-red-200 tw:rounded tw:p-2 tw:mb-3">
@@ -97,7 +97,7 @@ onMounted(async () => {
 			<div v-if="isLoading" class="tw:py-3">
 				<v-progress-linear indeterminate color="primary" />
 			</div>
-			<div v-else class="tw:max-h-[70vh] tw:overflow-y-auto tw:pr-1">
+			<div v-else class="tw:h-[68vh] tw:overflow-y-auto tw:pr-1">
 				<button
 					v-for="item in filteredLayers"
 					:key="item.pk"
@@ -138,8 +138,8 @@ onMounted(async () => {
 			</div>
 		</div>
 
-		<div class="tw:col-span-2 tw:bg-white tw:rounded-md tw:p-3 tw:border tw:border-slate-200 tw:min-h-[420px]">
-			<div class="tw:w-full tw:h-full tw:min-h-[380px] tw:rounded-md tw:border tw:border-dashed tw:border-slate-300 tw:bg-slate-50"></div>
+		<div class="md:tw:col-span-2 tw:bg-white tw:rounded-md tw:p-3 tw:border tw:border-red-500">
+			<div class="tw:w-full tw:h-[68vh] tw:rounded-md tw:border tw:border-dashed tw:border-slate-300 tw:bg-slate-50"></div>
 		</div>
 	</div>
 </template>

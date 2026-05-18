@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
 			statusMessage: "OWS_BASE_URL non configurato",
 		});
 	}
-
+	console.log(`Proxy OWS: ${owsBaseUrl}, timeout: ${owsTimeoutMs}ms`);
 	const upstreamUrl = normalizeBaseUrl(owsBaseUrl);
 	const incomingQuery = getQuery(event);
 

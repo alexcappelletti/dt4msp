@@ -13,8 +13,10 @@ const isLoginPage = computed(() => route.path === '/');
 			<LayoutSidebarNav v-if="!isLoginPage" />
 
 			<!-- Questa Š l'area in cui Nuxt inietta il contenuto della pagina corrente (es. pages/areas/[id].vue) -->
-			<v-main>
-				<slot />
+			<v-main class="main-shell">
+				<div class="page-slot">
+					<slot />
+				</div>
 			</v-main>
 		</v-app>
 	
@@ -25,9 +27,23 @@ const isLoginPage = computed(() => route.path === '/');
 .app-layout {
 	display: flex;
 	/* Affianca la sidebar e l'area principale */
-	min-height: 100vh;
-	//background-color: $main-rose-color !important;
+	height: 100dvh;
+	overflow: hidden;
+	background-color: $main-rose-color !important;
 
+}
+
+.main-shell {
+	min-width: 0;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.page-slot {
+	height: 100%;
+	min-width: 0;
+	min-height: 0;
+	overflow: hidden;
 }
 
 .main-content-area {

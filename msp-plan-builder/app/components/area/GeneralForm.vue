@@ -292,6 +292,10 @@ const cancelStatement = () => {
 	background-color: #fff;
 	width: 100%;
 	min-height: 100%;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
 }
 
 .saving-indicator {
@@ -304,15 +308,28 @@ const cancelStatement = () => {
 }
 
 .area-form-window {
-	height: calc(100vh - 200px);
+	width: 100%;
+	max-width: 100%;
+	min-width: 0;
+	flex: 1 1 auto;
+	min-height: 0;
+	/* Ridimensionamento responsivo in base alla larghezza disponibile */
+	//max-height: clamp(340px, 62vw, 72dvh);
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
 }
 
+:deep(.v-window__container) {
+	height: 100%;
+	min-height: 0;
+}
+
 :deep(.v-window-item) {
 	height: 100%;
+	max-height: 100%;
 	overflow-y: auto;
+	overflow-x: hidden;
 }
 
 .tab-style {

@@ -1,6 +1,12 @@
 /* Evita reset globali tipo * { margin:0; padding:0 } */
 html, body {
   height: 100%;
+  overflow: hidden;
+}
+
+#__nuxt {
+  height: 100%;
+  overflow: hidden;
 }
 
 /* Stabilizza lo stile delle tab tra ambienti (dev/prod, locale/Vercel):
