@@ -1,10 +1,10 @@
-
 <script setup lang="ts">
-import { useRoute, useRouter } from 'vue-router';
-import { computed, onMounted } from 'vue';
-import { storeToRefs } from 'pinia';
-import { useScenarioStore } from '@/stores/scenarioStore';
 import { useAuth } from '@/composables/useAuth';
+import { useScenarioStore } from '@/stores/scenarioStore';
+import { map } from 'lodash-es';
+import { storeToRefs } from 'pinia';
+import { computed, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 const router = useRouter();
 const route = useRoute();
@@ -26,29 +26,64 @@ const activeScenarioId = computed(() => {
 	return '';
 });
 
-const navItems = computed<NavItem[]>(() => [
-	{
-		id: 'area',
-		name: currentProject.value?.areaOfInterest?.name || 'Area',
-		icon: 'mdi-earth',
-		path: `/areas/${currentProject.value?.areaOfInterest?.id || ''}`,
-		isActive: route.path.startsWith('/areas')
-	},
-	...scenarios.value.map((scenario, index) => ({
-		id: `scenario-${scenario.id}`,
-		name: scenario.name || `Scenario ${index + 1}`,
-		icon: index === 0 ? 'mdi-chart-bar' : 'mdi-chart-line',
-		path: `/scenarios/${scenario.id}`,
-		isActive: activeScenarioId.value === scenario.id
-	})),
-	{
+const hasAssociatedMap = computed(
+	() => !!currentProject.value?.areaOfInterest?.associatedMap
+);
+
+const navItems = computed<NavItem[]>(() => {
+	const items: NavItem[] = [
+		{
+			id: 'area',
+			name: currentProject.value?.areaOfInterest?.name || 'Area',
+			icon: 'mdi-earth',
+			path: `/areas/${currentProject.value?.areaOfInterest?.id || ''}`,
+			isActive: route.path.startsWith('/areas') && route.path.includes(currentProject.value?.areaOfInterest?.id || '')
+		}
+	];
+	if (hasAssociatedMap.value) {
+		const geonodeMapPk = currentProject.value?.areaOfInterest?.associatedMap?.pk || '--';
+		items.push({
+			id: 'map',
+			name: "Risorse spaziali",
+			icon: 'mdi-map',
+			path: `/spatial-resources/${currentProject.value?.areaOfInterest?.associatedMap?.pk || ''}`,
+			isActive: route.path.startsWith('/spatial-resources') && route.path.includes(geonodeMapPk)
+		});
+	}	
+
+	// // Aggiungi "Risorse Spaziali" se c'è una mappa associata all'area
+	// if (currentProject.value?.areaOfInterest?.associatedMap?.pk) {
+	// 	items.push({
+	// 		id: 'spatial-resources',
+	// 		name: 'Risorse Spaziali',
+	// 		icon: 'mdi-layers',
+	// 		path: `/spatial-resources/${currentProject.value.areaOfInterest.associatedMap.pk}/spatial-resources`,
+	// 		
+	// 	});
+	// }
+
+	// Aggiungi scenari
+	items.push(
+		...scenarios.value.map((scenario, index) => ({
+			id: `scenario-${scenario.id}`,
+			name: scenario.name || `Scenario ${index + 1}`,
+			icon: index === 0 ? 'mdi-chart-bar' : 'mdi-chart-line',
+			path: `/scenarios/${scenario.id}`,
+			isActive: activeScenarioId.value === scenario.id
+		}))
+	);
+
+	// Aggiungi Home
+	items.push({
 		id: 'home',
 		name: 'Home',
 		icon: 'mdi-home-outline',
 		path: '/',
 		isActive: route.path === '/'
-	}
-]);
+	});
+
+	return items;
+});
 
 onMounted(async () => {
 	await refresh();
@@ -101,6 +136,7 @@ const createNewScenario = async () => {
 		box-shadow: none;
 		text-transform: none; // Rimuovi maiuscolo automatico
 	}
+
 	.nav-item {
 		margin-bottom: 8px;
 		color: #333;

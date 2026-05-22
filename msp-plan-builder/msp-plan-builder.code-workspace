@@ -6,48 +6,114 @@
 	],
 	"settings": {
 		"workbench.editor.enableDragAndDrop": true,
+		"editor.defaultFormatter": "esbenp.prettier-vscode",
+		"editor.detectIndentation": false,
+		"editor.insertSpaces": false,
+		"editor.renderWhitespace": "selection",
+		"editor.tabSize": 4,
+		"[vue]": {
+			"editor.defaultFormatter": "esbenp.prettier-vscode"
+		},
+		// Configurazione specifica per i file Vue (Official/Volar)
+		"vue.format.enable": true,
+		"prettier.vueIndentScriptAndStyle": true,
+		"editor.codeActionsOnSave": {
+			// Ordina i blocchi <script>, <template>, <style> al salvataggio
+			"source.organizeImports": "explicit",
+			"source.sortMembers.all": "explicit"
+		},
+		// Imposta la lingua predefinita per i blocchi <script> in .vue su TypeScript
+		"vue.script.defaultLang": "ts",
+		// Assicurati che l'HTML in Vue sia formattato con Prettier
+		// Assicurati che i file TS/JS usino Prettier come formatter
+		"[typescript]": {
+			"editor.defaultFormatter": "esbenp.prettier-vscode"
+		},
+		"[javascript]": {
+			"editor.defaultFormatter": "esbenp.prettier-vscode"
+		},
+		"editor.formatOnSave": true,
+		"editor.lineNumbers": "on",
+		"editor.fontSize": 13,
+		"editor.fontFamily": "Fira code",
+		"editor.tokenColorCustomizations": {},
+		"files.associations": {
+			"*.css": "tailwindcss"
+		},
+		"editor.quickSuggestions": {
+			"strings": "on"
+		},
+		"typescript.tsdk": "node_modules/typescript/lib",
+		"typescript.preferences.importModuleSpecifier": "shortest",
+		"prettier.useTabs": true,
+		"prettier.tabWidth": 4,
+		"tailwindCSS.classAttributes": [
+			"class",
+			"ui"
+		],
+		"tailwindCSS.experimental.classRegex": [
+			[
+				"ui:\\s*{([^)]*)\\s*}",
+				"(?:'|\"|`)([^']*)(?:'|\"|`)"
+			]
+		],
+		"[json]": {
+			"editor.defaultFormatter": "esbenp.prettier-vscode"
+		},
 		"workbench.colorCustomizations": {
-			"activityBar.background": "#524f4e",
-			"activityBar.dropBorder": "#77036d",
-			"activityBar.foreground": "#a254b6",
-			"activityBar.inactiveForeground": "#bca7c4",
-			"activityBar.border": "#8f918a",
-			"activityBarBadge.background": "#c50ca08e",
-			"activityBarBadge.foreground": "#dd6464",
-			"sideBar.background": "#444242",
-			"statusBar.background": "#3b333b",
-			"editor.foreground": "#9c8888",
-			"editorCursor.foreground": "#f3ebeb",
-			"editorLineNumber.activeForeground": "#e5eebb",
-			"editorLineNumber.foreground": "#7f6f6f",
-			"editorHoverWidget.background": "#4c4e4b",
-			"editorHoverWidget.foreground": "#b19358",
-			"editorHoverWidget.border": "#999299",
-			"editorError.foreground": "#da132d",
-			"editorWhitespace.foreground": "#d1f509",
-			"editorWarning.foreground": "#db9406",
-			"editorMarkerNavigationError.background": "#e2d8d8",
-			"editorSuggestWidget.foreground": "#d4be98",
-			"editorSuggestWidget.background": "#3c3836",
-			"editorMarkerNavigationError.headerBackground": "#806f6f",
-			"editorMarkerNavigationInfo.background": "#d0e6f6",
-			"editorMarkerNavigationWarning.background": "#fce8d4",
-			"editorHint.border": "#e2e055",
-			"editorHint.foreground": "#005577",
-			"editorInfo.foreground": "#c47d13",
-			"problemsInfoIcon.foreground": "#e92831",
-			"list.activeSelectionForeground": "#e66108",
-			"list.focusBackground": "#55925a",
-			"editor.findWidgetBackground": "#2d2b2d",
-			"editor.findWidgetForeground": "#f2f0f0",
-			"editor.findWidgetBorder": "#6f5f7c",
-			"editor.findWidgetMatchBackground": "#ffcc0077",
-			"editor.findWidgetMatchBorder": "#ffd700",
-			"editor.findWidgetMatchHighlightBackground": "#ffff0088",
-			"editor.findWidgetMatchHighlightBorder": "#ffd700",
-			"editor.findMatchBackground": "#ffcc0077",
-			"editor.findMatchHighlightBackground": "#ffff0088",
-			"editor.findMatchBorder": "#ffd700"
+			"[Best Themes - Calm Darkvenom]": {
+				"activityBar.background": "#524f4e",
+				"activityBar.dropBorder": "#77036d",
+				"activityBar.foreground": "#a254b6",
+				"activityBar.inactiveForeground": "#bca7c4",
+				"activityBar.border": "#8f918a",
+				"activityBarBadge.background": "#c50ca08e",
+				"activityBarBadge.foreground": "#dd6464",
+
+				"icon.foreground": "#c47d13",
+				"selection.background": "#75736f",
+				"input.foreground": "#aaa398",
+				"textLink.foreground": "#a86c12",
+				"textLink.activeForeground": "#f2c45d"
+				// "sideBar.background": "#8d8787",
+				// "statusBar.background": "#3b333b",
+				// "editor.foreground": "#dbcfcf",
+				// "editorCursor.foreground": "#f3ebeb",
+				// "editorLineNumber.activeForeground": "#e5eebb",
+				// "editorLineNumber.foreground": "#ddd6d6",
+				"editorHoverWidget.background": "#686d65",
+				"editorHoverWidget.foreground": "#312e26",
+				"editorHoverWidget.border": "#999299",
+				"editorHoverWidget.highlightForeground": "#ec0d0d",
+				"editorWidget.background": "#3c3836",
+				"editorSuggestWidget.selectedBackground": "#bee6c5",
+				
+				// "editorError.foreground": "#da132d",
+				// "editorWhitespace.foreground": "#d1f509",
+				// "editorWarning.foreground": "#db9406",
+				// "editorMarkerNavigationError.background": "#e2d8d8",
+				// "editorSuggestWidget.foreground": "#d4be98",
+				// "editorSuggestWidget.background": "#3c3836",
+				// "editorMarkerNavigationError.headerBackground": "#806f6f",
+				// "editorMarkerNavigationInfo.background": "#68b5ec",
+				// "editorMarkerNavigationWarning.background": "#fce8d4",
+				// "editorHint.border": "#e2e055",
+				// "editorHint.foreground": "#005577",
+				// "editorInfo.foreground": "#c47d13",
+				// "problemsInfoIcon.foreground": "#e92831",
+				// "list.activeSelectionForeground": "#e66108",
+				// "list.focusBackground": "#55925a",
+				// "editor.findWidgetBackground": "#2d2b2d",
+				// "editor.findWidgetForeground": "#f2f0f0",
+				// "editor.findWidgetBorder": "#6f5f7c",
+				// "editor.findWidgetMatchBackground": "#ffcc0077",
+				// "editor.findWidgetMatchBorder": "#ffd700",
+				// "editor.findWidgetMatchHighlightBackground": "#ffff0088",
+				// "editor.findWidgetMatchHighlightBorder": "#ffd700",
+				// "editor.findMatchBackground": "#ffcc0077",
+				// "editor.findMatchHighlightBackground": "#ffff0088",
+				// "editor.findMatchBorder": "#ffd700"
+			},
 		}
 	}
 }

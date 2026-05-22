@@ -5,7 +5,7 @@
 	"editor.renderWhitespace": "selection",
 	"editor.tabSize": 4,
 	"[vue]": {
-		"editor.defaultFormatter": "Vue.volar"
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
 	},
 	// Configurazione specifica per i file Vue (Official/Volar)
 	"vue.format.enable": true,
@@ -20,7 +20,7 @@
 	// Assicurati che l'HTML in Vue sia formattato con Prettier
 	// Assicurati che i file TS/JS usino Prettier come formatter
 	"[typescript]": {
-		"editor.defaultFormatter": "esbenp.prettier-vscode"
+		"editor.defaultFormatter": "vscode.typescript-language-features"
 	},
 	"[javascript]": {
 		"editor.defaultFormatter": "esbenp.prettier-vscode"

@@ -1,25 +1,20 @@
 <!-- layouts/default.vue -->
-<script setup lang="ts">
-const route = useRoute();
-const isLoginPage = computed(() => route.path === '/');
-</script>
-
 <template>
-		<!-- Il layout principale ha un unico elemento radice -->
-		<v-app class="app-layout">
-			<!-- L'header della pagina, auto-importato da app/components/shell/AppHeader.vue -->
-			<shell-app-header v-if="!isLoginPage" />
-			<!-- La sidebar di navigazione, auto-importata da app/components/shell/SidebarNav.vue -->
-			<shell-sidebar-nav v-if="!isLoginPage" />
+	<!-- Il layout principale ha un unico elemento radice -->
+	<v-app class="app-layout">
+		<!-- L'header della pagina, auto-importato da app/components/shell/AppHeader.vue -->
+		<shell-app-header />
+		<!-- La sidebar di navigazione, auto-importata da app/components/shell/SidebarNav.vue -->
+		<shell-sidebar-nav />
 
-			<!-- Questa Š l'area in cui Nuxt inietta il contenuto della pagina corrente (es. pages/areas/[id].vue) -->
-			<v-main class="main-shell">
-				<div class="page-slot">
-					<slot />
-				</div>
-			</v-main>
-		</v-app>
-	
+		<!-- Questa Š l'area in cui Nuxt inietta il contenuto della pagina corrente (es. pages/areas/[id].vue) -->
+		<v-main class="main-shell">
+			<div class="page-slot">
+				<slot />
+			</div>
+		</v-main>
+	</v-app>
+
 </template>
 
 <style lang="scss" scoped>

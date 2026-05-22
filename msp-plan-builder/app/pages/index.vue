@@ -32,6 +32,7 @@ const enterApp = async () => {
 	}
 };
 
+definePageMeta({ layout: 'login' });
 useHead({ title: 'Accesso' });
 </script>
 
@@ -40,26 +41,15 @@ useHead({ title: 'Accesso' });
 		<div class="login-card">
 			<h1 class="login-title">MSP Plan Builder</h1>
 			<p class="login-subtitle">Accedi con il tuo account Google per iniziare.</p>
-			<v-alert
-				v-if="authError"
-				type="error"
-				variant="tonal"
-				density="comfortable"
-				class="tw:mb-4"
-			>
+			<v-alert v-if="authError" type="error" variant="tonal" density="comfortable" class="tw:mb-4">
 				{{ authError }}
 			</v-alert>
 
 			<div v-if="authenticated" class="auth-box">
 				<p class="welcome">Ciao, {{ user?.name || user?.email }}</p>
 				<div class="actions">
-					<v-btn
-						color="primary"
-						variant="flat"
-						:loading="isEntering"
-						:disabled="isEntering"
-						@click="enterApp"
-					>
+					<v-btn color="primary" variant="flat" :loading="isEntering" :disabled="isEntering"
+						@click="enterApp">
 						Entra nell'app
 					</v-btn>
 					<v-btn variant="tonal" @click="logout">Logout</v-btn>
@@ -78,7 +68,6 @@ useHead({ title: 'Accesso' });
 
 <style scoped>
 .login-page {
-	min-height: calc(100vh - 64px);
 	display: flex;
 	align-items: center;
 	justify-content: center;
