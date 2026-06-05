@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { shallowRef, watch, onMounted, onUnmounted, ref } from 'vue';
 import maplibregl, { Map as MaplibreMap, type LayerSpecification } from 'maplibre-gl';
-import type { Layer } from '#/shared/types/geonodeTypes';
+import type { Dataset } from '#/shared/types/geonodeTypes';
 import { useOgcHelper, type OGCType } from '@/composables/useOgcHelper';
 import { useLayeredMapStore } from '~/stores/layeredMapStore';
 //@ts-ignore

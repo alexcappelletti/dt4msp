@@ -159,6 +159,11 @@ export interface Dataset {
 	download_url: string;
 	dataset_ows_url: string;
 	capabilities_url: string;
+	ows_url?: string;
+	storeType?: string;
+	upload_session?: number;
+	use_featureinfo_custom_template?: boolean;
+	featureinfo_custom_template?: string;
 	thumbnail_url: string;
 	embed_url?: string;
 	created: string;
@@ -215,7 +220,8 @@ export interface Dataset {
 }
 
 /**
- * Interfaccia leggera per la lista dataset associati a una mappa.
+ * Interfaccia leggera per layer e dataset.
+ * Utilizzata sia da layers.get che da map-datasets.get.
  */
 export interface DatasetListItem {
 	pk: string;
@@ -225,6 +231,44 @@ export interface DatasetListItem {
 	owner_username: string;
 	created: string;
 	popular_count: string;
+}
+
+/**
+ * Interfaccia essenziale per i dataset associati a una mappa.
+ */
+export interface MapDatasetItem {
+	pk: string;
+	datasetName: string;
+	progressiveNumber: number;
+}
+
+/**
+ * Interfaccia leggera per una risorsa GeoNode generica.
+ */
+export interface GeonodeResourceListItem {
+	pk: string;
+	uuid?: string;
+	resource_type: string;
+	title: string;
+	abstract: string;
+	owner_username: string;
+	created: string;
+	last_updated?: string;
+	detail_url: string;
+	thumbnail_url: string;
+	popular_count: string;
+	share_count: string;
+	rating: string;
+}
+
+export interface GeonodeResourcesResponse {
+	links?: { next: string | null; previous: string | null };
+	total?: number;
+	page?: number;
+	page_size?: number;
+	resources?: Array<Record<string, unknown>>;
+	objects?: Array<Record<string, unknown>>;
+	results?: Array<Record<string, unknown>>;
 }
 
 export interface GeoNodeDatasetsResponse {
@@ -245,96 +289,6 @@ export interface GeoNodeDatasetsResponse {
 /**
  * Interfaccia per l'oggetto Layer principale
  */
-export interface Layer {
-	pk: string;
-	uuid: string;
-	name: string;
-	workspace: string;
-	store: string;
-	storeType: string;
-	charset: string;
-	is_mosaic: boolean;
-	has_time: boolean;
-	has_elevation: boolean;
-	time_regex: string | null;
-	elevation_regex: string | null;
-	use_featureinfo_custom_template: boolean;
-	featureinfo_custom_template: string;
-	default_style: SldStyle;
-	styles: SldStyle[];
-	attribute_set: AttributeSetItem[];
-	ptype: string;
-	ows_url: string;
-	upload_session: number;
-	resource_type: string;
-	polymorphic_ctype_id: string;
-	owner: User;
-	poc: User;
-	metadata_author: User;
-	title: string;
-	abstract: string;
-	attribution: string;
-	doi: string | null;
-	alternate: string;
-	date: string;
-	date_type: string;
-	temporal_extent_start: string | null;
-	temporal_extent_end: string | null;
-	edition: string | null;
-	purpose: string;
-	maintenance_frequency: string | null;
-	constraints_other: string;
-	language: string;
-	supplemental_information: string;
-	data_quality_statement: string;
-	bbox_polygon: BoundingBoxPolygon;
-	ll_bbox_polygon: BoundingBoxPolygon;
-	srid: string;
-	group: string | null;
-	popular_count: string;
-	share_count: string;
-	rating: string;
-	featured: boolean;
-	is_published: boolean;
-	is_approved: boolean;
-	detail_url: string;
-	created: string;
-	last_updated: string;
-	raw_abstract: string;
-	raw_purpose: string;
-	raw_constraints_other: string;
-	raw_supplemental_information: string;
-	raw_data_quality_statement: string;
-	metadata_only: boolean;
-	processed: boolean;
-	embed_url: string;
-	thumbnail_url: string;
-	keywords: Keyword[];
-	tkeywords: TaxonomicalKeyword[];
-	regions: Region[];
-	category: { identifier: string };
-	restriction_code_type: { identifier: string };
-	license: { identifier: string };
-	spatial_representation_type: string | null;
-	link: string;
-	perms: string[];
-	favorite: boolean;
-	links: ResourceLink[];
-}
-
-/**
- * Interfaccia leggera per la lista layer (catalogo).
- */
-export interface LayerListItem {
-	pk: string;
-	title: string;
-	thumbnail_url: string;
-	abstract: string;
-	owner_username: string;
-	created: string;
-	popular_count: string;
-}
-
 /**
  * Interfaccia leggera per la lista mappe (catalogo GeoNode maps).
  */
@@ -386,7 +340,7 @@ export interface GeonodeMapListResponse {
  * Interfaccia per la risposta JSON completa che contiene l'oggetto Layer
  */
 export interface LayerDetailsResponse {
-	layer: Layer;
+	layer: Dataset;
 }
 
 /**

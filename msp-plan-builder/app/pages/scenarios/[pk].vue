@@ -15,7 +15,15 @@ const route = useRoute();
 const router = useRouter();
 const scenarioStore = useScenarioStore();
 const projectStore = useProjectStore();
+const tabsStore = useTabsStore();
 const { selectedScenario, scenarios } = storeToRefs(scenarioStore); // Reattivo dallo store
+const { scenarioTab } = storeToRefs(tabsStore);
+const tab = computed({
+	get: () => scenarioTab.value,
+	set: (val: 'general' | 'statements' | 'measures' | 'effects' | 'feedback') => {
+		scenarioTab.value = val;
+	}
+});
 const mspProvider = useMspDataProvider();
 const routeProjectId = computed(() => {
 	const value = route.query.projectId;
@@ -23,7 +31,6 @@ const routeProjectId = computed(() => {
 });
 const resolvedProjectId = computed(() => projectStore.currentProject?.id ?? routeProjectId.value);
 
-const tab = ref('general');
 const isLoading = ref(true);
 const isSaving = ref(false);
 const deleteDialogOpen = ref(false);

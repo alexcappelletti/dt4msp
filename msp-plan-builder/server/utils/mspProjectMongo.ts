@@ -1,8 +1,8 @@
-import type { H3Event } from "h3";
-import type { AreaOfInterest, Feedback, OptionalData, Project, Scenario } from "#/shared/types/msp-project";
 import { ProjectModel } from "#/server/models/mongodbProjectSchemas";
 import { ensureMongoConnection } from "#/server/utils/mongoClient";
 import { isProjectVersionMatch, normalizeUpdatedAt } from "#/server/utils/projectVersioning";
+import type { AreaOfInterest, Feedback, OptionalData, Project, Scenario } from "#/shared/types/msp-project";
+import type { H3Event } from "h3";
 
 function toDate(value: unknown): Date {
 	if (value instanceof Date) return value;
@@ -183,7 +183,7 @@ export async function saveProjectToMongo(event: H3Event, project: Project): Prom
 	return hydrateProject(next);
 }
 
-export async function updateProjectWithLock(
+export async function updateProjectWithLockMongo(
 	event: H3Event,
 	projectId: string,
 	options: { expectedUpdatedAt?: string | null } | undefined,
@@ -244,7 +244,7 @@ export async function saveAreaToMongo(
 	area: AreaOfInterest,
 	options?: { expectedUpdatedAt?: string | null },
 ): Promise<AreaOfInterest> {
-	await updateProjectWithLock(event, projectId, options, async (project) => ({
+	await updateProjectWithLockMongo(event, projectId, options, async (project) => ({
 		...project,
 		areaOfInterest: area,
 		updatedAt: new Date(),
@@ -258,7 +258,7 @@ export async function saveScenarioToMongo(
 	scenario: Scenario,
 	options?: { expectedUpdatedAt?: string | null },
 ): Promise<Scenario> {
-	await updateProjectWithLock(event, projectId, options, async (project) => {
+	await updateProjectWithLockMongo(event, projectId, options, async (project) => {
 		const areaScenarios = Array.isArray(project.areaOfInterest?.scenarios)
 			? [...project.areaOfInterest.scenarios]
 			: [];
@@ -290,7 +290,7 @@ export async function deleteScenarioFromMongo(
 	options?: { expectedUpdatedAt?: string | null },
 ): Promise<{ deleted: boolean }> {
 	let deleted = false;
-	await updateProjectWithLock(event, projectId, options, async (project) => {
+	await updateProjectWithLockMongo(event, projectId, options, async (project) => {
 		const areaScenarios = Array.isArray(project.areaOfInterest?.scenarios)
 			? project.areaOfInterest.scenarios
 			: [];

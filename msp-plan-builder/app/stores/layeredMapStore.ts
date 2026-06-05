@@ -3,12 +3,12 @@ import { ref, reactive, computed } from 'vue'
 import WFS from 'ol/format/WFS';
 import { XMLSerializer } from 'xmldom';
 import { useOgcHelper, type OGCType } from '@/composables/useOgcHelper';
-import type { Layer } from '#/shared/types/geonodeTypes';
+import type { Dataset } from '#/shared/types/geonodeTypes';
 import { getLayerFromSLDResponse, type SourcedLayer } from '#/shared/utils/sld';
 
 
 interface LayerState {
-	geonodeLayer: Layer;
+	geonodeLayer: Dataset;
 	geojsonData: GeoJSON.FeatureCollection | null;
 	rasterTiles: string[];
 	styles: SourcedLayer[];
@@ -41,7 +41,7 @@ export const useLayeredMapStore = defineStore('layeredMap', () => {
 	/**
 	 * Seleziona il layer e decide quale tipo OGC attivare
 	 */
-	async function selectGnLayer(gnLayer: Layer) {
+	async function selectGnLayer(gnLayer: Dataset) {
 		selectedGnLayer.value = gnLayer.pk;
 		const availableTypes = ogcTypes(gnLayer).map(t => t.toLowerCase()) as OGCType[];
 		let targetType: OGCType;
@@ -56,7 +56,7 @@ export const useLayeredMapStore = defineStore('layeredMap', () => {
 		await fetchOGCLayerData([gnLayer], targetType);
 	}
 
-	async function fetchOGCLayerData(gnLayers: Layer[], typeFilter?: OGCType): Promise<void> {
+	async function fetchOGCLayerData(gnLayers: Dataset[], typeFilter?: OGCType): Promise<void> {
 		if (currentAbortController) {
 			currentAbortController.abort();
 		}
@@ -82,7 +82,7 @@ export const useLayeredMapStore = defineStore('layeredMap', () => {
 			if (error.name !== 'AbortError') throw error;
 		}
 	}
-	async function fetchWFSLayerData(layer: Layer, signal: AbortSignal): Promise<void> {
+	async function fetchWFSLayerData(layer: Dataset, signal: AbortSignal): Promise<void> {
 		layersData[layer.pk] = {
 			geonodeLayer: layer,
 			rasterTiles: [], 
@@ -134,7 +134,7 @@ export const useLayeredMapStore = defineStore('layeredMap', () => {
 		}
 	}
 
-	function fetchWMSLayerData(layer: Layer) {
+	function fetchWMSLayerData(layer: Dataset) {
 		layersData[layer.pk] = {
 			geonodeLayer: layer,
 			rasterTiles: [buildWmsUrlForMapLibre(layer)],

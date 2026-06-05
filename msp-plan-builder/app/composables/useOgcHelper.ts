@@ -1,6 +1,6 @@
 import * as tilebelt from '@mapbox/tilebelt'
 import type { LngLatBoundsLike } from 'maplibre-gl'
-import type { Layer } from '#/shared/types/geonodeTypes';
+import type { Dataset } from '#/shared/types/geonodeTypes';
 import type {MapRequest} from '#/shared/types/mapRequest'
 
 
@@ -30,7 +30,7 @@ export const useOgcHelper = () => {
 	}
 
 	const buildWfsGetFeatureParams = (
-		l: Layer,
+		l: Dataset,
 		options?: {
 			cqlFilter?: string;
 			maxFeatures?: number;
@@ -61,7 +61,7 @@ export const useOgcHelper = () => {
 		return params
 	}
 
-	const featureUrl4Proxy = (l: Layer, options?: OwsUrlOptions): string => {
+	const featureUrl4Proxy = (l: Dataset, options?: OwsUrlOptions): string => {
 		//const query = new URLSearchParams("VERSION=2.0.0&SERVICE=WFS&REQUEST=GetFeature&TYPENAME=geonode:Dominio_SoS&OUTPUTFORMAT=application/json&mapUrl=https://geoplatform.tools4msp.eu/geoserver/ows")
 		const query = new URLSearchParams(buildWfsGetFeatureParams(l))
 		query.set("mapUrl", l.ows_url)
@@ -101,7 +101,7 @@ export const useOgcHelper = () => {
 	  * Converte un oggetto BoundingBoxPolygon di GeoNode in un BBOX valido per MapLibre.
 	  * Formato output: [minLng, minLat, maxLng, maxLat]
 	  */
-	const convertLLBoxToMapLibreBbox = (l: Layer): LngLatBoundsLike | null => {
+	const convertLLBoxToMapLibreBbox = (l: Dataset): LngLatBoundsLike | null => {
 		const ring = l.ll_bbox_polygon.coordinates?.[0]; // Accesso al primo anello
 
 		if (!ring || ring.length < 1 || !Array.isArray(ring)) {
@@ -133,7 +133,7 @@ export const useOgcHelper = () => {
 		return [minLng, minLat, maxLng, maxLat];
 	}
 
-	const buildWmsUrlForMapLibre = (l: Layer, opts?: OwsUrlOptions): string =>{
+	const buildWmsUrlForMapLibre = (l: Dataset, opts?: OwsUrlOptions): string =>{
 		const query = new URLSearchParams({
 			mapUrl: l.ows_url,
 			SERVICE: 'WMS',
@@ -171,7 +171,7 @@ export const useOgcHelper = () => {
 
 	
 
-	const ogcTypes = (l: Layer): OGCType[] => {
+	const ogcTypes = (l: Dataset): OGCType[] => {
 		const foundTypes = new Set<OGCType>();
 		l.links.forEach(link => {
 			if (link.link_type === 'OGC:WMS') {

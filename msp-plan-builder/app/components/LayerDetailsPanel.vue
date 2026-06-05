@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue';
-import type { Layer } from '#/shared/types/geonodeTypes';
+import type { Dataset } from '#/shared/types/geonodeTypes';
 import { useOgcHelper, type OGCType } from '@/composables/useOgcHelper';
 import { useLayeredMapStore } from '~/stores/layeredMapStore';
 
 const props = defineProps<{
-	layer: Layer | null;
+	layer: Dataset | null;
 	isLoading: boolean;
 }>();
 

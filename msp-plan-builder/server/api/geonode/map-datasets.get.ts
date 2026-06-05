@@ -71,9 +71,12 @@ export default defineEventHandler(async (event) => {
 	}
 
 	const datasets = pickDatasetItems(response);
-	console.log(`Recuperati ${datasets.length} dataset per mapId ${mapId}
+	const visibleDatasets = datasets.filter(
+		(dataset) => Array.isArray(dataset.perms) && dataset.perms.length > 0,
+	);
+	console.log(`Recuperati ${visibleDatasets.length} dataset visibili per mapId ${mapId}
 		.`);
-	return datasets.map((dataset): DatasetListItem => ({
+	return visibleDatasets.map((dataset): DatasetListItem => ({
 		pk: String(dataset.pk),
 		title: dataset.title || '',
 		thumbnail_url: dataset.thumbnail_url || '',

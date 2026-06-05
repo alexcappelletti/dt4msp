@@ -1,17 +1,21 @@
 
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-// Assicurati che il percorso di importazione per il tipo Layer completo sia corretto
-import type { DatasetListItem, GeonodeMapListItem, GeonodeMapListResponse, Layer, LayerListItem } from '#/shared/types/geonodeTypes';
+import type { Dataset, DatasetListItem, GeonodeMapListItem, GeonodeMapListResponse } from '#/shared/types/geonodeTypes';
 
-
-
+export interface SpatialResourceGroup {
+	group: 'base' | 'map';
+	label: string;
+	items: DatasetListItem[];
+}
 
 export const useSpatialResourceStore = defineStore('remote-spatial-resources', () => {
-	const layers = ref<LayerListItem[]>([]);
+	const layers = ref<DatasetListItem[]>([]);
 	const mapDatasets = ref<DatasetListItem[]>([]);
+	const spatialResourceGroups = ref<SpatialResourceGroup[]>([]);
 	const maps = ref<GeonodeMapListItem[]>([]);
-	const selectedLayerDetails = ref<Layer | null>(null);
+	const selectedDatasetDetails = ref<Dataset | null>(null);
+	const selectedMapId = ref<string | null>(null);
 	const error = ref<Error | null>(null);
 	const busy = ref<boolean>(false);
 	const currentPage = ref<number>(1);
@@ -22,8 +26,9 @@ export const useSpatialResourceStore = defineStore('remote-spatial-resources', (
 
 	const availableLayers = computed(() => layers.value);
 	const availableMapDatasets = computed(() => mapDatasets.value);
+	const availableSpatialResources = computed(() => spatialResourceGroups.value);
 	const availableMaps = computed(() => maps.value);
-	const currentlySelectedLayer = computed(() => selectedLayerDetails.value);
+	const currentlySelectedDataset = computed(() => selectedDatasetDetails.value);
 	const hasMoreMaps = computed(() => currentPage.value * pageSize.value < totalMaps.value);
 
 	const loadMaps = async (page = 1, searchText?: string) => {
@@ -71,12 +76,13 @@ export const useSpatialResourceStore = defineStore('remote-spatial-resources', (
 		busy.value = true;
 		error.value = null;
 		try {
-			layers.value = await $fetch<Array<LayerListItem>>('/api/geonode/layers', {
-				method: 'GET',
-				query: {
-					searchText,
-				},
-			});
+			console.log("trying to load dataset ");
+			// layers.value = await $fetch<Array<DatasetListItem>>('/api/geonode/layers', {
+			// 	method: 'GET',
+			// 	query: {
+			// 		searchText,
+			// 	},
+			// });
 		} catch (err: any) {
 			error.value = err instanceof Error ? err : new Error(String(err));
 		} finally {
@@ -84,16 +90,73 @@ export const useSpatialResourceStore = defineStore('remote-spatial-resources', (
 		}
 	};
 
+	const updateSpatialResourceGroups = () => {
+		const layerPks = new Set(layers.value.map(layer => layer.pk));
+		const uniqueMapDatasets = mapDatasets.value.filter(
+			dataset => !layerPks.has(dataset.pk),
+		);
+
+		spatialResourceGroups.value = [
+			{
+				group: 'base',
+				label: 'Layer Generali',
+				items: layers.value,
+			},
+			{
+				group: 'map',
+				label: 'Dataset della Mappa',
+				items: uniqueMapDatasets,
+			},
+		];
+	};
+
 	const loadMapDatasets = async (mapId: string) => {
+		console.log('loading map datasets for mapId: ', mapId);
+		selectedMapId.value = mapId;
 		busy.value = true;
 		error.value = null;
-		try {
-			mapDatasets.value = await $fetch<Array<DatasetListItem>>('/api/geonode/map-datasets', {
-				method: 'GET',
-				query: {
-					mapId,
-				},
+		mapDatasets.value = [];
+		layers.value = [];
+		spatialResourceGroups.value = [];
+
+		const mapDatasetsPromise = $fetch<Array<DatasetListItem>>('/api/geonode/map-datasets', {
+			method: 'GET',
+			query: {
+				mapId,
+			},
+		})
+			.then((data) => {
+				mapDatasets.value = data;
+				updateSpatialResourceGroups();
+				return data;
 			});
+
+		const layersPromise = $fetch<Array<DatasetListItem>>('/api/geonode/layers', {
+			method: 'GET',
+		})
+			.then((data) => {
+				layers.value = data;
+				updateSpatialResourceGroups();
+				return data;
+			});
+
+		try {
+			const results = await Promise.allSettled([
+				mapDatasetsPromise,
+				layersPromise,
+			]);
+
+			const rejected = results.filter(
+				(result): result is PromiseRejectedResult => result.status === 'rejected',
+			);
+
+			if (rejected.length === 2) {
+				throw rejected[0].reason;
+			}
+
+			if (rejected.length === 1) {
+				error.value = rejected[0].reason instanceof Error ? rejected[0].reason : new Error(String(rejected[0].reason));
+			}
 		} catch (err: any) {
 			error.value = err instanceof Error ? err : new Error(String(err));
 		} finally {
@@ -105,10 +168,11 @@ export const useSpatialResourceStore = defineStore('remote-spatial-resources', (
 		mapDatasets.value = [];
 	};
 
-	const getLayer = async(pk: string): Promise<Layer> =>{
-		return await $fetch<Layer>('/api/geonode/layer', {
+	const getDataset = async (pk: string): Promise<Dataset> => {
+		return await $fetch<Dataset>('/api/geonode/dataset', {
 			method: 'GET',
 			query: {
+				mapId: selectedMapId.value,
 				pk: pk
 			},
 
@@ -119,13 +183,12 @@ export const useSpatialResourceStore = defineStore('remote-spatial-resources', (
 	 * Carica i dettagli completi per un layer specifico e lo imposta come selezionato.
 	 * @param pk La PK del layer da caricare
 	 */
-	const selectLayer = async (pk: string) => {
+	const selectDataset = async (pk: string) => {
 		busy.value = true;
 		error.value = null;
-		selectedLayerDetails.value = null; // Resetta il dettaglio precedente
+		selectedDatasetDetails.value = null; // Resetta il dettaglio precedente
 		try {
-			// getLayer ritorna il tipo Layer completo
-			selectedLayerDetails.value = await getLayer(pk);
+					selectedDatasetDetails.value = await getDataset(pk);
 		} catch (err: any) {
 			error.value = err instanceof Error ? err : new Error(String(err));
 		} finally {
@@ -140,16 +203,17 @@ export const useSpatialResourceStore = defineStore('remote-spatial-resources', (
 		loadLayers,
 		loadMapDatasets,
 		resetMapDatasets,
-		getLayer,
-		selectLayer,
+		getDataset,
+		selectDataset,
 		availableLayers,
 		availableMapDatasets,
+		availableSpatialResources,
 		availableMaps,
 		hasMoreMaps,
 		currentPage,
 		totalMaps,
 		pageSize,
-		currentlySelectedLayer,
+		currentlySelectedDataset: currentlySelectedDataset,
 		error,
 		busy
 	};

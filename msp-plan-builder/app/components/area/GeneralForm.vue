@@ -5,6 +5,7 @@ import type { AreaOfInterest, Statement } from '#/shared/types/msp-project';
 import { generateUUID } from '#/shared/utils/generateUUID';
 import { debounce } from 'lodash-es';
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
+import { storeToRefs } from 'pinia';
 import GeonodeMapList from './GeonodeMapList.vue';
 import FormLayout from '#/app/components/layouts/FormLayout.vue';
 
@@ -20,8 +21,8 @@ const props = withDefaults(defineProps<{
 
 const mspDataProvider = useMspDataProvider();
 const projectStore = useProjectStore();
-
-const activeTab = ref<'general' | 'statements' | 'map'>('general');
+const tabsStore = useTabsStore();
+const { areaTab: activeTab } = storeToRefs(tabsStore);
 const isHydrating = ref(true);
 const isSaving = ref(false);
 const area = ref<AreaOfInterest | null>(null);

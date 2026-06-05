@@ -2,15 +2,25 @@
 	const props = withDefaults(
 		defineProps<{
 			loading?: boolean;
+			detailOpen?: boolean;
 		}>(),
 		{
 			loading: false,
+			detailOpen: true,
 		},
 	);
 </script>
 
 <template>
-	<section :class="['card-list-layout', { 'has-detail': $slots.detail }]">
+	<section
+		:class="[
+			'card-list-layout',
+			{
+				'has-detail': $slots.detail,
+				'detail-open': $slots.detail && props.detailOpen,
+			},
+		]"
+	>
 		<div class="card-list-layout__sidebar">
 			<div v-if="$slots.header" class="card-list-layout__header">
 				<slot name="header" />
@@ -48,8 +58,13 @@
 		gap: 16px;
 	}
 
-	.card-list-layout.has-detail {
+	.card-list-layout.has-detail.detail-open {
 		grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+	}
+
+	.card-list-layout.has-detail:not(.detail-open) {
+		/* collapse detail column when not open */
+		grid-template-columns: 1fr 0px;
 	}
 
 	.card-list-layout__sidebar,
@@ -60,6 +75,10 @@
 		flex-direction: column;
 		padding: 12px;
 		gap: 12px;
+		transition:
+			width 0.18s ease,
+			opacity 0.18s ease;
+		overflow: hidden;
 	}
 
 	.card-list-layout__header,

@@ -1,8 +1,8 @@
-import type { Project, Scenario, AreaOfInterest, OptionalData, Feedback } from '#/shared/types/msp-project';
-import type { H3Event } from 'h3';
-import { withRedisClient } from '#/server/utils/redisClient';
-import { randomUUID } from 'node:crypto';
 import { isProjectVersionMatch, normalizeUpdatedAt } from '#/server/utils/projectVersioning';
+import { withRedisClient } from '#/server/utils/redisClient';
+import type { AreaOfInterest, Feedback, OptionalData, Project, Scenario } from '#/shared/types/msp-project';
+import type { H3Event } from 'h3';
+import { randomUUID } from 'node:crypto';
 
 function getPrefix(event: H3Event): string {
 	const config = useRuntimeConfig(event);
@@ -173,7 +173,7 @@ async function withProjectWriteLock<T>(
 				if (currentToken === lockToken) {
 					await client.del(lockKey);
 				}
-			} catch {}
+			} catch { }
 		}
 	});
 }
@@ -184,7 +184,7 @@ async function getProjectFromClient(client: any, projectKey: string): Promise<Pr
 	return hydrateProject(project);
 }
 
-export async function updateProjectWithLock(
+export async function updateProjectWithLockRedis(
 	event: H3Event,
 	projectId: string,
 	options: { expectedUpdatedAt?: string | null } | undefined,
@@ -219,7 +219,7 @@ export async function saveAreaToRedis(
 	area: AreaOfInterest,
 	options?: { expectedUpdatedAt?: string | null },
 ): Promise<AreaOfInterest> {
-	await updateProjectWithLock(event, projectId, options, async (project) => ({
+	await updateProjectWithLockRedis(event, projectId, options, async (project) => ({
 		...project,
 		areaOfInterest: area,
 		updatedAt: new Date(),
@@ -233,7 +233,7 @@ export async function saveScenarioToRedis(
 	scenario: Scenario,
 	options?: { expectedUpdatedAt?: string | null },
 ): Promise<Scenario> {
-	await updateProjectWithLock(event, projectId, options, async (project) => {
+	await updateProjectWithLockRedis(event, projectId, options, async (project) => {
 		const areaScenarios = Array.isArray(project.areaOfInterest?.scenarios)
 			? [...project.areaOfInterest.scenarios]
 			: [];
@@ -265,7 +265,7 @@ export async function deleteScenarioFromRedis(
 	options?: { expectedUpdatedAt?: string | null },
 ): Promise<{ deleted: boolean }> {
 	let deleted = false;
-	await updateProjectWithLock(event, projectId, options, async (project) => {
+	await updateProjectWithLockRedis(event, projectId, options, async (project) => {
 		const areaScenarios = Array.isArray(project.areaOfInterest?.scenarios)
 			? project.areaOfInterest.scenarios
 			: [];

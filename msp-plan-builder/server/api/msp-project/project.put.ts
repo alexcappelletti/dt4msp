@@ -1,5 +1,5 @@
+import { updateProjectWithLockMongo as updateProjectWithLock } from '#/server/utils/mspProjectMongo';
 import type { Project } from '#/shared/types/msp-project';
-import { updateProjectWithLock } from '#/server/utils/mspProjectMongo';
 
 export default defineEventHandler(async (event) => {
 	const body = await readBody<Partial<Project>>(event);

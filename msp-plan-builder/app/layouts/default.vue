@@ -14,55 +14,54 @@
 			</div>
 		</v-main>
 	</v-app>
-
 </template>
 
 <style lang="scss" scoped>
-/* Stili di base per replicare il layout mostrato nella tua immagine */
-.app-layout {
-	display: flex;
-	/* Affianca la sidebar e l'area principale */
-	height: 100dvh;
-	overflow: hidden;
-	background-color: $main-rose-color !important;
+	/* Stili di base per replicare il layout mostrato nella tua immagine */
+	.app-layout {
+		display: flex;
+		/* Affianca la sidebar e l'area principale */
+		height: 100dvh;
+		overflow: hidden;
+		background-color: $main-rose-color !important;
+	}
 
-}
+	.main-shell {
+		min-width: 0;
+		min-height: 0;
+		height: 100%;
+		overflow: hidden;
+	}
 
-.main-shell {
-	min-width: 0;
-	min-height: 0;
-	height: 100%;
-	overflow: hidden;
-}
+	.page-slot {
+		flex: 1 1 auto;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 100%;
+		min-width: 0;
+		min-height: 0;
+		overflow: hidden;
+	}
 
-.page-slot {
-	flex: 1 1 auto;
-	display: flex;
-	height: 100%;
-	min-width: 0;
-	min-height: 0;
-	overflow: hidden;
-}
+	:deep(.v-main__wrap) {
+		display: flex;
+		flex: 1 1 auto;
+		min-height: 0;
+		height: 100%;
+		overflow: hidden;
+	}
 
-:deep(.v-main__wrap) {
-	display: flex;
-	flex: 1 1 auto;
-	min-height: 0;
-	height: 100%;
-	overflow: hidden;
-}
+	.main-content-area {
+		flex-grow: 1;
+		/* Permette all'area del contenuto di espandersi */
+		display: flex;
+		flex-direction: column;
+		//background-color: $main-rose-color !important;
+	}
 
-.main-content-area {
-	flex-grow: 1;
-	/* Permette all'area del contenuto di espandersi */
-	display: flex;
-	flex-direction: column;
-	//background-color: $main-rose-color !important;
-
-}
-
-.page-wrapper {
-	padding: 20px;
-	/* L'area bianca che contiene il form nell'immagine sar… gestita dal CSS della pagina stessa */
-}
+	.page-wrapper {
+		padding: 20px;
+		/* L'area bianca che contiene il form nell'immagine sar… gestita dal CSS della pagina stessa */
+	}
 </style>
