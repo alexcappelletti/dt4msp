@@ -1,55 +1,61 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue';
-import type { Dataset } from '#/shared/types/geonodeTypes';
-import { useOgcHelper, type OGCType } from '@/composables/useOgcHelper';
-import { useLayeredMapStore } from '~/stores/layeredMapStore';
+	import type { Dataset } from "#/shared/types/geonodeTypes";
+	import { useOgcHelper, type OGCType } from "@/composables/useOgcHelper";
+	import { computed, watch } from "vue";
+	import { useLayeredMapStore } from "~/stores/layeredMapStore";
 
-const props = defineProps<{
-	layer: Dataset | null;
-	isLoading: boolean;
-}>();
+	const props = defineProps<{
+		layer: Dataset | null;
+		isLoading: boolean;
+	}>();
 
-const { ogcTypes } = useOgcHelper();
-const mapStore = useLayeredMapStore();
+	const { ogcTypes } = useOgcHelper();
+	const mapStore = useLayeredMapStore();
 
-const hasDetails = computed(() => props.layer !== null);
+	const hasDetails = computed(() => props.layer !== null);
 
-/**
+	/**
  * Logica di default: 
  * Se il layer cambia, decidiamo il tipo OGC iniziale.
 //  */
-watch(() => props.layer, async (newLayer) => {
-	if (newLayer) {
-		const availableTypes = ogcTypes(newLayer); // es: ['wms', 'wfs']
-		
-		if (availableTypes.includes('wms')) {
-			// Altrimenti usa WMS
-			mapStore.setSelectedOGCType('wms');
-		} else if (availableTypes.includes('wfs')) {
-			// Priorità al WFS se presente (anche se c'è WMS)
-			mapStore.setSelectedOGCType('wfs');
+	watch(
+		() => props.layer,
+		async (newLayer) => {
+			if (newLayer) {
+				const availableTypes = ogcTypes(newLayer); // es: ['wms', 'wfs']
+
+				if (availableTypes.includes("wms")) {
+					// Altrimenti usa WMS
+					mapStore.setSelectedOGCType("wms");
+				} else if (availableTypes.includes("wfs")) {
+					// Priorità al WFS se presente (anche se c'è WMS)
+					mapStore.setSelectedOGCType("wfs");
+				}
+			}
+		},
+		{ immediate: true },
+	);
+
+	// Mapping reattivo tra il componente Vuetify e lo Store
+	const selectedOGCType = computed({
+		get: () => mapStore.selectedOGCType,
+		set: (newValue) => {
+			if (newValue) {
+				mapStore.setSelectedOGCType(newValue as OGCType);
+			}
+		},
+	});
+
+	// Calcolo dinamico delle feature caricate dallo store
+	const featuresFound = computed(() => {
+		if (props.layer && mapStore.selectedOGCType === "wfs") {
+			const state = mapStore.getFeaturedLayersState.find(
+				(s) => s.geonodeLayer.pk === props.layer?.pk,
+			);
+			return state?.geojsonData?.features?.length || 0;
 		}
-	}
-}, { immediate: true });
-
-// Mapping reattivo tra il componente Vuetify e lo Store
-const selectedOGCType = computed({
-  get: () => mapStore.selectedOGCType,
-  set: (newValue) => {
-    if (newValue) {
-      mapStore.setSelectedOGCType(newValue as OGCType);
-    }
-  }
-});
-
-// Calcolo dinamico delle feature caricate dallo store
-const featuresFound = computed(() => {
-  if (props.layer && mapStore.selectedOGCType === 'wfs') {
-    const state = mapStore.getFeaturedLayersState.find(s => s.geonodeLayer.pk === props.layer?.pk);
-    return state?.geojsonData?.features?.length || 0;
-  }
-  return 0;
-});
+		return 0;
+	});
 </script>
 
 <template>
@@ -57,15 +63,18 @@ const featuresFound = computed(() => {
 		<!-- Stato caricamento -->
 		<div v-if="isLoading && !hasDetails" class="tw:text-gray-600 tw:p-4">
 			<p class="tw:mb-2">Caricamento dettagli...</p>
-			<v-progress-linear indeterminate color="primary"></v-progress-linear>
+			<v-progress-linear
+				indeterminate
+				color="primary"
+			></v-progress-linear>
 		</div>
 
 		<!-- Dettagli Layer -->
 		<div v-else-if="hasDetails && layer">
 			<h2 class="tw:text-2xl tw:font-bold tw:mb-4">{{ layer.title }}</h2>
-			
+
 			<p class="tw:mt-4 tw:mb-4 tw:text-gray-700 tw:text-sm">
-				{{ layer.abstract || 'Nessuna descrizione fornita.' }}
+				{{ layer.abstract || "Nessuna descrizione fornita." }}
 			</p>
 
 			<div class="tw:flex tw:flex-wrap tw:gap-6 tw:mb-4">
@@ -73,25 +82,37 @@ const featuresFound = computed(() => {
 				<div class="tw:flex-1 tw:min-w-0">
 					<div class="tw:my-4">
 						<div class="tw:flex tw:items-center tw:gap-2 tw:mb-2">
-							<span class="tw:text-sm tw:font-semibold">Servizio OGC:</span>
-							<a :href="layer.ows_url" target="_blank" class="tw:text-xs tw:text-blue-500 tw:hover:underline">
+							<span class="tw:text-sm tw:font-semibold"
+								>Servizio OGC:</span
+							>
+							<a
+								:href="layer.ows_url"
+								target="_blank"
+								class="tw:text-xs tw:text-blue-500 tw:hover:underline"
+							>
 								Endpoint Server
 							</a>
 						</div>
 
-						<v-btn-toggle 
+						<v-btn-toggle
 							v-model="selectedOGCType"
-							mandatory 
-							color="primary" 
-							density="compact" 
+							mandatory
+							color="primary"
+							density="compact"
 							variant="outlined"
 							divided
 						>
-							<v-btn v-if="ogcTypes(layer).includes('wms')" value="wms">
+							<v-btn
+								v-if="ogcTypes(layer).includes('wms')"
+								value="wms"
+							>
 								<v-icon start>mdi-layers-outline</v-icon>
 								WMS (Raster)
 							</v-btn>
-							<v-btn v-if="ogcTypes(layer).includes('wfs')" value="wfs">
+							<v-btn
+								v-if="ogcTypes(layer).includes('wfs')"
+								value="wfs"
+							>
 								<v-icon start>mdi-vector-selection</v-icon>
 								WFS (Vettoriale)
 							</v-btn>
@@ -109,23 +130,28 @@ const featuresFound = computed(() => {
 							<v-icon size="small">mdi-database-check</v-icon>
 						</template>
 						<span class="tw:text-xs">
-							Feature vettoriali caricate: <strong>{{ featuresFound }}</strong>
+							Feature vettoriali caricate:
+							<strong>{{ featuresFound }}</strong>
 						</span>
 					</v-alert>
 				</div>
 
 				<!-- COLONNA DESTRA: Thumbnail -->
 				<div class="tw:w-64">
-					<v-img 
-						:src="layer.thumbnail_url" 
-						:alt="layer.title" 
-						class="tw:rounded-md tw:shadow-md" 
-						cover 
+					<v-img
+						:src="layer.thumbnail_url"
+						:alt="layer.title"
+						class="tw:rounded-md tw:shadow-md"
+						cover
 						height="160"
 					>
 						<template v-slot:placeholder>
-							<div class="tw:flex tw:items-center tw:justify-center tw:h-full tw:bg-gray-100">
-								<v-icon color="grey-lighten-1">mdi-image-off</v-icon>
+							<div
+								class="tw:flex tw:items-center tw:justify-center tw:h-full tw:bg-gray-100"
+							>
+								<v-icon color="grey-lighten-1"
+									>mdi-image-off</v-icon
+								>
 							</div>
 						</template>
 					</v-img>
@@ -140,16 +166,26 @@ const featuresFound = computed(() => {
 						MODALITÀ: {{ selectedOGCType }}
 					</v-chip>
 				</div>
-				<div class="tw:w-full tw:border tw:rounded-lg tw:overflow-hidden tw:bg-slate-50">
+				<div
+					class="tw:w-full tw:border tw:rounded-lg tw:overflow-hidden tw:bg-slate-50"
+				>
 					<layer-map-view />
 				</div>
 			</div>
 		</div>
 
 		<!-- Stato Vuoto -->
-		<div v-else class="tw:flex-1 tw:flex tw:flex-col tw:items-center tw:justify-center tw:text-gray-400 tw:gap-4">
-			<v-icon size="64" color="grey-lighten-1">mdi-map-search-outline</v-icon>
-			<p>Seleziona un layer dalla lista per visualizzare i dettagli e l'anteprima.</p>
+		<div
+			v-else
+			class="tw:flex-1 tw:flex tw:flex-col tw:items-center tw:justify-center tw:text-gray-400 tw:gap-4"
+		>
+			<v-icon size="64" color="grey-lighten-1"
+				>mdi-map-search-outline</v-icon
+			>
+			<p>
+				Seleziona un layer dalla lista per visualizzare i dettagli e
+				l'anteprima.
+			</p>
 		</div>
 	</div>
 </template>

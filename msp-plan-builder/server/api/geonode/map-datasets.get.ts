@@ -71,9 +71,9 @@ export default defineEventHandler(async (event) => {
 	}
 
 	const datasets = pickDatasetItems(response);
-	const visibleDatasets = datasets.filter(
-		(dataset) => Array.isArray(dataset.perms) && dataset.perms.length > 0,
-	);
+	const visibleDatasets = datasets// .filter(
+	// 	(dataset) => Array.isArray(dataset.perms) && dataset.perms.length > 0,
+	// );
 	console.log(`Recuperati ${visibleDatasets.length} dataset visibili per mapId ${mapId}
 		.`);
 	return visibleDatasets.map((dataset): DatasetListItem => ({
@@ -84,6 +84,6 @@ export default defineEventHandler(async (event) => {
 		owner_username: dataset.owner?.username || 'utente',
 		created: dataset.created || '',
 		popular_count: dataset.popular_count || '0',
+		canVisualize: Array.isArray(dataset.perms) && dataset.perms.length > 0,
 	}));
 });
-

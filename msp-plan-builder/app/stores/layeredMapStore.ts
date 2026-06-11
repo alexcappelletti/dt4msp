@@ -1,10 +1,10 @@
-import { defineStore } from 'pinia'
-import { ref, reactive, computed } from 'vue'
-import WFS from 'ol/format/WFS';
-import { XMLSerializer } from 'xmldom';
-import { useOgcHelper, type OGCType } from '@/composables/useOgcHelper';
 import type { Dataset } from '#/shared/types/geonodeTypes';
 import { getLayerFromSLDResponse, type SourcedLayer } from '#/shared/utils/sld';
+import { useOgcHelper, type OGCType } from '@/composables/useOgcHelper';
+import WFS from 'ol/format/WFS';
+import { defineStore } from 'pinia';
+import { computed, reactive, ref } from 'vue';
+import { XMLSerializer } from 'xmldom';
 
 
 interface LayerState {
@@ -45,12 +45,12 @@ export const useLayeredMapStore = defineStore('layeredMap', () => {
 		selectedGnLayer.value = gnLayer.pk;
 		const availableTypes = ogcTypes(gnLayer).map(t => t.toLowerCase()) as OGCType[];
 		let targetType: OGCType;
-		 // 1. Se l'utente ha già una selezione attiva ed è supportata dal nuovo layer, la teniamo
-		if (ogcType.value && availableTypes.includes(ogcType.value.toLowerCase() as OGCType)) {targetType = ogcType.value;} 
-		 // 2. PRIORITÀ WFS: Se non c'è selezione precedente, ma il layer supporta WFS, scegliamo WFS
-    	else if (availableTypes.includes('wms')) {targetType = 'wms';} 
-		else if (availableTypes.includes('wfs')) {targetType = 'wfs';} 
-		else {targetType = availableTypes[0] || 'wms';}
+		// 1. Se l'utente ha già una selezione attiva ed è supportata dal nuovo layer, la teniamo
+		if (ogcType.value && availableTypes.includes(ogcType.value.toLowerCase() as OGCType)) { targetType = ogcType.value; }
+		// 2. PRIORITÀ WFS: Se non c'è selezione precedente, ma il layer supporta WFS, scegliamo WFS
+		else if (availableTypes.includes('wms')) { targetType = 'wms'; }
+		else if (availableTypes.includes('wfs')) { targetType = 'wfs'; }
+		else { targetType = availableTypes[0] || 'wms'; }
 		console.log("targetType", targetType)
 		await setSelectedOGCType(targetType);
 		await fetchOGCLayerData([gnLayer], targetType);
@@ -69,11 +69,11 @@ export const useLayeredMapStore = defineStore('layeredMap', () => {
 			const targetType = typeFilter || (types.includes('wfs') ? 'wfs' : 'wms');
 
 			if (typeFilter === 'wfs' && (types.includes('wfs') || types.includes('geojson'))) {
-            	tasks.push(fetchWFSLayerData(layer, signal));
-        	} 
-	        else if (typeFilter === 'wms' && types.includes('wms')) {
-    	        fetchWMSLayerData(layer);
-        	}
+				tasks.push(fetchWFSLayerData(layer, signal));
+			}
+			else if (typeFilter === 'wms' && types.includes('wms')) {
+				fetchWMSLayerData(layer);
+			}
 		});
 
 		try {
@@ -85,11 +85,11 @@ export const useLayeredMapStore = defineStore('layeredMap', () => {
 	async function fetchWFSLayerData(layer: Dataset, signal: AbortSignal): Promise<void> {
 		layersData[layer.pk] = {
 			geonodeLayer: layer,
-			rasterTiles: [], 
-			geojsonData: null, 
+			rasterTiles: [],
+			geojsonData: null,
 			styles: [],
-			loading: true, 
-			error: null, 
+			loading: true,
+			error: null,
 			fetchStatus: 'fetching'
 		} as LayerState;
 		try {

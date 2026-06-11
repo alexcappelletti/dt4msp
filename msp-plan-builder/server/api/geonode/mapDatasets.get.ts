@@ -31,35 +31,35 @@ function pickDatasetItems(payload: GeoNodeMapDatasetsPayload): Dataset[] {
 }
 
 export default defineEventHandler(async (event) => {
-	const query = getQuery(event);
-	const mapId = query.mapId || query.map_id;
-	const geonodeBaseUrl =
-		useRuntimeConfig(event).geonodeApiUrl || 'https://geoplatform.tools4msp.eu';
+	// const query = getQuery(event);
+	// const mapId = query.mapId || query.map_id;
+	// const geonodeBaseUrl =
+	// 	useRuntimeConfig(event).geonodeApiUrl || 'https://geoplatform.tools4msp.eu';
 
-	if (!mapId || typeof mapId !== 'string') {
-		throw createError({
-			statusCode: 400,
-			statusMessage: 'Parametro mapId mancante o non valido.',
-		});
-	}
+	// if (!mapId || typeof mapId !== 'string') {
+	// 	throw createError({
+	// 		statusCode: 400,
+	// 		statusMessage: 'Parametro mapId mancante o non valido.',
+	// 	});
+	// }
 
-	try {
-		const url = `${geonodeBaseUrl}/api/v2/maps/${encodeURIComponent(mapId)}/datasets`;
-		const response = await $fetch<GeoNodeMapDatasetsPayload>(url);
-		const datasets = pickDatasetItems(response);
+	// try {
+	// 	const url = `${geonodeBaseUrl}/api/v2/maps/${encodeURIComponent(mapId)}/datasets`;
+	// 	const response = await $fetch<GeoNodeMapDatasetsPayload>(url);
+	// 	const datasets = pickDatasetItems(response);
 
-		return datasets.map(
-			(dataset, index): MapDatasetItem => ({
-				pk: String(dataset.pk),
-				datasetName: dataset.title || dataset.name || '',
-				progressiveNumber: index + 1,
-			}),
-		);
-	} catch (err: any) {
-		console.error(`Errore recupero map datasets per mapId ${mapId}:`, err);
-		throw createError({
-			statusCode: err?.statusCode === 404 ? 404 : 500,
-			statusMessage: err?.statusMessage || 'Impossibile recuperare i dataset della mappa.',
-		});
-	}
+	// 	return datasets.map(
+	// 		(dataset, index): MapDatasetItem => ({
+	// 			pk: String(dataset.pk),
+	// 			datasetName: dataset.title || dataset.name || '',
+	// 			progressiveNumber: index + 1,
+	// 		}),
+	// 	);
+	// } catch (err: any) {
+	// 	console.error(`Errore recupero map datasets per mapId ${mapId}:`, err);
+	// 	throw createError({
+	// 		statusCode: err?.statusCode === 404 ? 404 : 500,
+	// 		statusMessage: err?.statusMessage || 'Impossibile recuperare i dataset della mappa.',
+	// 	});
+	// }
 });

@@ -43,38 +43,14 @@ export default defineEventHandler(async (event) => {
 			statusMessage: 'PK del dataset mancante o non valido.',
 		});
 	}
-
-	let mapDatasets: Dataset[] | null = null;
 	let lastError: any = null;
 
-	try {
-		const url = `${GEONODE_BASE_URL}/api/v2/maps/${encodeURIComponent(mapId)}/datasets`;
-		const response = await $fetch<Dataset[] | GeoNodeDatasetsResponse>(url);
-		mapDatasets = pickDatasetItems(response);
-	} catch (err: any) {
-		lastError = err;
-	}
-
-	if (!mapDatasets) {
-		console.error(`Errore recupero dataset per mapId ${mapId}:`, lastError);
-		throw createError({
-			statusCode: lastError?.statusCode === 404 ? 404 : 500,
-			statusMessage: lastError?.statusMessage || 'Impossibile recuperare i dataset della mappa.',
-		});
-	}
-
-	const matchingDataset = mapDatasets.find((dataset) => String(dataset.pk) === String(pk));
-	if (!matchingDataset) {
-		throw createError({
-			statusCode: 404,
-			statusMessage: `Dataset con PK ${pk} non trovato nella mappa ${mapId}.`,
-		});
-	}
-
+	
 	try {
 		const layerUrl = `${GEONODE_BASE_URL}/api/v2/datasets/${encodeURIComponent(pk)}`;
-		const layerResponse = await $fetch<{ layer: Dataset }>(layerUrl);
-		const layerData = layerResponse.layer;
+		const layerResponse = await $fetch<{ dataset: Dataset }>(layerUrl);
+		const layerData = layerResponse.dataset;
+		//solo quelli con permessi definiti altrimenti skip
 		if (Array.isArray(layerData.perms) && layerData.perms.length === 0) {
 			const { perms, ...cleanedLayer } = layerData;
 			return cleanedLayer as Dataset;

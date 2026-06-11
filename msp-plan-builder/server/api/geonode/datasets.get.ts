@@ -3,7 +3,7 @@ import type { Dataset, DatasetListItem } from '#/shared/types/geonodeTypes';
 const PAGE_SIZE = 20;
 const MAX_PAGES = 20;
 
-interface GeoNodeLayersResponse {
+interface GeoNodeDatasetsResponse {
 	links: { next: string | null; previous: string | null };
 	total: number;
 	page: number;
@@ -13,7 +13,7 @@ interface GeoNodeLayersResponse {
 	objects?: Dataset[];
 }
 
-function pickLayerItems(response: GeoNodeLayersResponse): Dataset[] {
+function pickDatasetItems(response: GeoNodeDatasetsResponse): Dataset[] {
 	if (Array.isArray(response.layers)) return response.layers;
 	if (Array.isArray(response.objects)) return response.objects;
 	if (Array.isArray(response.datasets)) return response.datasets;
@@ -22,7 +22,7 @@ function pickLayerItems(response: GeoNodeLayersResponse): Dataset[] {
 
 export default defineEventHandler(async (event) => {
 	const GEONODE_BASE_URL: string = useRuntimeConfig(event).geonodeApiUrl || "https://geoplatform.tools4msp.eu";
-	const allLayers: Dataset[] = [];
+	const allDatasets: Dataset[] = [];
 	let nextPage: number | null = 1;
 	let pageCount = 0;
 
@@ -35,27 +35,27 @@ export default defineEventHandler(async (event) => {
 			pageUrl += `&q=${encodeURIComponent(searchText)}`;
 		}
 		try {
-			const response: GeoNodeLayersResponse = await $fetch<GeoNodeLayersResponse>(pageUrl);
-			allLayers.push(...pickLayerItems(response));
+			const response: GeoNodeDatasetsResponse = await $fetch<GeoNodeDatasetsResponse>(pageUrl);
+			allDatasets.push(...pickDatasetItems(response));
 			nextPage = response.links?.next ? nextPage + 1 : null;
 			pageCount += 1;
-			console.log(`Fetched page ${response.page} of layers, total so far: ${allLayers.length}`);
+			console.log(`Fetched page ${response.page} of datasets, total so far: ${allDatasets.length}`);
 		} catch (err) {
-			console.error(`Error fetching layers page ${nextPage}:`, err);
+			console.error(`Error fetching datasets page ${nextPage}:`, err);
 			break;
 		}
 	}
 
-	return allLayers
-		.filter((layer) => Array.isArray(layer.perms) && layer.perms.length > 0)
-		.map((layer): DatasetListItem => ({
-			pk: layer.pk,
-			title: layer.title,
-			thumbnail_url: layer.thumbnail_url || '',
-			abstract: layer.abstract || '',
-			owner_username: layer.owner?.username || 'utente',
-			created: layer.created || '',
-			popular_count: layer.popular_count || '0',
+	return allDatasets
+		.filter((dataset) => Array.isArray(dataset.perms) && dataset.perms.length > 0)
+		.map((dataset): DatasetListItem => ({
+			pk: dataset.pk,
+			title: dataset.title,
+			thumbnail_url: dataset.thumbnail_url || '',
+			abstract: dataset.abstract || '',
+			owner_username: dataset.owner?.username || 'utente',
+			created: dataset.created || '',
+			popular_count: dataset.popular_count || '0',
+			canVisualize: Array.isArray(dataset.perms) && dataset.perms.length > 0,
 		}));
 });
-

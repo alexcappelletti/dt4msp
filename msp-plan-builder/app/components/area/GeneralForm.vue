@@ -7,6 +7,7 @@ import { debounce } from 'lodash-es';
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import GeonodeMapList from './GeonodeMapList.vue';
+import MapChooser from './MapChooser.vue';
 import FormLayout from '#/app/components/layouts/FormLayout.vue';
 
 const props = withDefaults(defineProps<{
@@ -222,6 +223,7 @@ const cancelStatement = () => {
 				<v-tab value="general">Generale</v-tab>
 				<v-tab value="statements">Statements</v-tab>
 				<v-tab value="map">Mappa</v-tab>
+				<v-tab value="map2">Browse mappe</v-tab>
 			</v-tabs>
 
 			<v-window v-model="activeTab" class="area-form-window">
@@ -268,6 +270,11 @@ const cancelStatement = () => {
 
 				<v-window-item value="map">
 					<GeonodeMapList v-model="area!.associatedMap" />
+				</v-window-item>
+				<v-window-item value="map2">
+					<MapChooser
+						v-model:selected-geonode-map="area!.associatedMap"
+					/>
 				</v-window-item>
 			</v-window>
 		</div>

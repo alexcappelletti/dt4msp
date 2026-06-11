@@ -221,7 +221,7 @@ export interface Dataset {
 
 /**
  * Interfaccia leggera per layer e dataset.
- * Utilizzata sia da layers.get che da map-datasets.get.
+ * Utilizzata sia da datasets.get che da map-datasets.get.
  */
 export interface DatasetListItem {
 	pk: string;
@@ -231,6 +231,7 @@ export interface DatasetListItem {
 	owner_username: string;
 	created: string;
 	popular_count: string;
+	canVisualize?: boolean;
 }
 
 /**

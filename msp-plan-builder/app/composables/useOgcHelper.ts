@@ -30,7 +30,7 @@ export const useOgcHelper = () => {
 	}
 
 	const buildWfsGetFeatureParams = (
-		l: Dataset,
+		l: Layer,
 		options?: {
 			cqlFilter?: string;
 			maxFeatures?: number;
@@ -101,7 +101,7 @@ export const useOgcHelper = () => {
 	  * Converte un oggetto BoundingBoxPolygon di GeoNode in un BBOX valido per MapLibre.
 	  * Formato output: [minLng, minLat, maxLng, maxLat]
 	  */
-	const convertLLBoxToMapLibreBbox = (l: Dataset): LngLatBoundsLike | null => {
+	const convertLLBoxToMapLibreBbox = (l: Layer): LngLatBoundsLike | null => {
 		const ring = l.ll_bbox_polygon.coordinates?.[0]; // Accesso al primo anello
 
 		if (!ring || ring.length < 1 || !Array.isArray(ring)) {
@@ -133,7 +133,7 @@ export const useOgcHelper = () => {
 		return [minLng, minLat, maxLng, maxLat];
 	}
 
-	const buildWmsUrlForMapLibre = (l: Dataset, opts?: OwsUrlOptions): string =>{
+	const buildWmsUrlForMapLibre = (l: Layer, opts?: OwsUrlOptions): string =>{
 		const query = new URLSearchParams({
 			mapUrl: l.ows_url,
 			SERVICE: 'WMS',
@@ -171,7 +171,7 @@ export const useOgcHelper = () => {
 
 	
 
-	const ogcTypes = (l: Dataset): OGCType[] => {
+	const ogcTypes = (l: Layer): OGCType[] => {
 		const foundTypes = new Set<OGCType>();
 		l.links.forEach(link => {
 			if (link.link_type === 'OGC:WMS') {

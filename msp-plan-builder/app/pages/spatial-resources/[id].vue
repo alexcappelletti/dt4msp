@@ -1,156 +1,181 @@
 <script setup lang="ts">
-	import type { Dataset } from "#/shared/types/geonodeTypes";
-	import ListDetailLayout from "@/components/layouts/ListDetailLayout.vue";
-	import { useScenarioStore } from "@/stores/scenarioStore";
-	import {
-		useSpatialResourceStore,
-		type SpatialResourceGroup,
-	} from "@/stores/spatialStore";
-	import { storeToRefs } from "pinia";
-	import { computed, ref, watch } from "vue";
-	import { useRoute } from "vue-router";
+import type { Dataset, Keyword } from "#/shared/types/geonodeTypes";
+import ListDetailLayout from "@/components/layouts/ListDetailLayout.vue";
+import SpatialDatasetList from "@/components/spatial-resources/SpatialDatasetList.vue";
+import { useScenarioStore } from "@/stores/scenarioStore";
+import {
+	useSpatialResourceStore,
+	type SpatialResourceGroup,
+} from "@/stores/spatialStore";
+import { storeToRefs } from "pinia";
+import { computed, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 
-	const route = useRoute();
-	const scenarioStore = useScenarioStore();
-	const spatialResourceStore = useSpatialResourceStore();
-	const { currentProject } = storeToRefs(scenarioStore);
+const route = useRoute();
+const scenarioStore = useScenarioStore();
+const spatialResourceStore = useSpatialResourceStore();
+const { currentProject } = storeToRefs(scenarioStore);
+const { availableSpatialResources, currentlySelectedDataset } =
+	storeToRefs(spatialResourceStore);
 
-	const mapId = computed(() => String(route.params.id || ""));
-	const isLoading = ref(false);
-	const selectedDatasetDetails = ref<Dataset | null>(null);
-	const searchText = ref("");
-	const sortBy = ref<"title" | "popular" | "created">("title");
+const mapId = computed(() => String(route.params.id || ""));
+const isLoading = ref(false);
+const selectedCardPk = ref<string | null>(null);
+const searchText = ref("");
+const sortBy = ref<"title" | "popular" | "created">("title");
+const expandedDescriptionPks = ref<Set<string>>(new Set());
 
-	const sortOptions = [
-		{ label: "Titolo", value: "title" },
-		{ label: "Popolarita", value: "popular" },
-		{ label: "Data di creazione", value: "created" },
-	];
+const sortOptions = [
+	{ label: "Titolo", value: "title" },
+	{ label: "Popolarita", value: "popular" },
+	{ label: "Data di creazione", value: "created" },
+];
 
-	const spatialResourceGroups = computed(
-		() => spatialResourceStore.availableSpatialResources,
+const spatialResourceGroups = computed(() => availableSpatialResources.value);
+const selectedDatasetDetails = computed(() => currentlySelectedDataset.value);
+
+const normalizeText = (value?: string | null) => (value ?? "").toLowerCase();
+const getKeywordKey = (keyword: Keyword) => keyword.slug || keyword.name;
+const getKeywordLabel = (keyword: Keyword) => keyword.name;
+const getSelectedDatasetOwner = (dataset: Dataset) =>
+	dataset.owner?.username || "";
+const formatItalianDate = (date?: string) =>
+	date ? new Date(date).toLocaleDateString("it-IT") : "";
+const isDetailsOpen = computed(() => Boolean(selectedCardPk.value));
+const expandedDescriptionPkList = computed(() =>
+	Array.from(expandedDescriptionPks.value),
+);
+
+const allItems = computed(() =>
+	spatialResourceGroups.value.flatMap((group) => group.items),
+);
+
+const datasetCountLabel = computed(() => {
+	const count = filteredAndSortedItems.value.length;
+	if (count === 0) return "";
+	if (count === 1) return "1 layer trovato";
+	return `${count} layer trovati`;
+});
+
+const loadDatasetsForMap = async (mapIdValue: string) => {
+	selectedCardPk.value = null;
+	expandedDescriptionPks.value.clear();
+
+	if (!mapIdValue) {
+		spatialResourceStore.resetMapDatasets();
+		return;
+	}
+
+	isLoading.value = true;
+	try {
+		await spatialResourceStore.loadMapDatasets(mapIdValue);
+	} finally {
+		isLoading.value = false;
+	}
+};
+
+watch(
+	mapId,
+	async (newMapId, oldMapId) => {
+		if (!newMapId || newMapId === oldMapId) return;
+		await loadDatasetsForMap(newMapId);
+	},
+	{ immediate: true },
+);
+
+const filteredItems = computed(() => {
+	const query = searchText.value.trim().toLowerCase();
+	if (!query) {
+		return allItems.value;
+	}
+
+	return allItems.value.filter(
+		(item) =>
+			normalizeText(item.title).includes(query) ||
+			normalizeText(item.abstract).includes(query) ||
+			normalizeText(item.owner_username).includes(query),
 	);
+});
 
-	// Flat list of all items from all groups
-	const allItems = computed(() => {
-		return spatialResourceGroups.value.flatMap((group) => group.items);
-	});
-
-	const datasetCountLabel = computed(() => {
-		const count = filteredAndSortedItems.value.length;
-		if (count === 0) return "";
-		if (count === 1) return "1 risorsa trovata";
-		return `${count} risorse trovate`;
-	});
-
-	const loadDatasetsForMap = async (mapIdValue: string) => {
-		if (!mapIdValue) {
-			spatialResourceStore.resetMapDatasets();
-			return;
-		}
-
-		isLoading.value = true;
-		try {
-			await spatialResourceStore.loadMapDatasets(mapIdValue);
-			selectedDatasetDetails.value = null;
-		} finally {
-			isLoading.value = false;
-		}
-	};
-
-	watch(
-		mapId,
-		async (newMapId, oldMapId) => {
-			if (!newMapId || newMapId === oldMapId) return;
-			await loadDatasetsForMap(newMapId);
-		},
-		{ immediate: true },
-	);
-
-	// Filter all items across all groups
-	const filteredItems = computed(() => {
-		const query = searchText.value.trim().toLowerCase();
-		if (!query) {
-			return allItems.value;
-		}
-		return allItems.value.filter(
-			(item) =>
-				(item as any).title.toLowerCase().includes(query) ||
-				(item as any).abstract.toLowerCase().includes(query) ||
-				(item as any).owner_username.toLowerCase().includes(query),
-		);
-	});
-
-	// Sort filtered items
-	const filteredAndSortedItems = computed(() => {
-		const items = [...filteredItems.value];
-		switch (sortBy.value) {
-			case "popular":
-				return items.sort(
-					(a, b) =>
-						Number((b as any).popular_count ?? 0) -
-						Number((a as any).popular_count ?? 0),
-				);
-			case "created":
-				return items.sort((a, b) => {
-					const aDate = new Date((a as any).created).getTime();
-					const bDate = new Date((b as any).created).getTime();
-					return bDate - aDate;
-				});
-			case "title":
-			default:
-				return items.sort((a, b) =>
-					(a as any).title.localeCompare((b as any).title, "it"),
-				);
-		}
-	});
-
-	// Group sorted items back into groups
-	const groupedAndSortedItems = computed(() => {
-		const sorted = filteredAndSortedItems.value;
-		const grouped: SpatialResourceGroup[] = [];
-
-		for (const group of spatialResourceGroups.value) {
-			const groupItems = sorted.filter((item) =>
-				group.items.some(
-					(groupItem) => (groupItem as any).pk === (item as any).pk,
-				),
+const filteredAndSortedItems = computed(() => {
+	const items = [...filteredItems.value];
+	switch (sortBy.value) {
+		case "popular":
+			return items.sort(
+				(a, b) => Number(b.popular_count ?? 0) - Number(a.popular_count ?? 0),
 			);
-			if (groupItems.length > 0) {
-				grouped.push({
-					...group,
-					items: groupItems,
-				});
-			}
+		case "created":
+			return items.sort((a, b) => {
+				const aDate = new Date(a.created).getTime();
+				const bDate = new Date(b.created).getTime();
+				return bDate - aDate;
+			});
+		case "title":
+		default:
+			return items.sort((a, b) => a.title.localeCompare(b.title, "it"));
+	}
+});
+
+const groupedAndSortedItems = computed(() => {
+	const sorted = filteredAndSortedItems.value;
+	const grouped: SpatialResourceGroup[] = [];
+
+	for (const group of spatialResourceGroups.value) {
+		const groupItems = sorted.filter((item) =>
+			group.items.some((groupItem) => groupItem.pk === item.pk),
+		);
+		if (groupItems.length > 0) {
+			grouped.push({
+				...group,
+				items: groupItems,
+			});
 		}
+	}
 
-		return grouped;
-	});
+	return grouped;
+});
 
-	const associatedMapTitle = computed(
-		() =>
-			currentProject.value?.areaOfInterest?.associatedMap?.title ||
-			"Mappa",
-	);
-	const areaTitle = computed(
-		() => currentProject.value?.areaOfInterest?.name || "Area",
-	);
+const associatedMapTitle = computed(
+	() => currentProject.value?.areaOfInterest?.associatedMap?.title || "Mappa",
+);
+const areaTitle = computed(
+	() => currentProject.value?.areaOfInterest?.name || "Area",
+);
 
-	const selectDataset = async (pk: string) => {
-		isLoading.value = true;
-		try {
-			await spatialResourceStore.selectDataset(pk);
-			selectedDatasetDetails.value =
-				(spatialResourceStore.currentlySelectedDataset as any)?.value ??
-				null;
-		} finally {
-			isLoading.value = false;
-		}
-	};
+const selectDataset = async (pk: string) => {
+	if (selectedCardPk.value === pk) {
+		closeExpandedCard();
+		return;
+	}
 
-	const handleSearchTyping = (query: string) => {
-		searchText.value = query ?? "";
-	};
+	selectedCardPk.value = pk;
+	isLoading.value = true;
+	try {
+		await spatialResourceStore.selectDataset(pk);
+	} finally {
+		isLoading.value = false;
+	}
+};
+
+const updateSearchText = (query: string) => {
+	searchText.value = query ?? "";
+};
+
+const toggleDescriptionExpansion = (pk: string) => {
+	if (expandedDescriptionPks.value.has(pk)) {
+		expandedDescriptionPks.value.delete(pk);
+		return;
+	}
+
+	expandedDescriptionPks.value.add(pk);
+};
+
+const isDescriptionExpanded = (pk: string) =>
+	expandedDescriptionPks.value.has(pk);
+
+const closeExpandedCard = () => {
+	selectedCardPk.value = null;
+};
 </script>
 
 <template>
@@ -165,170 +190,128 @@
 			</p>
 		</div>
 
-		<list-detail-layout
-			:loading="isLoading"
-			:detail-open="!!selectedDatasetDetails"
-		>
-			<template #filters>
-				<div class="filters-row">
-					<v-text-field
-						v-model="searchText"
-						label="Ricerca dataset"
-						variant="outlined"
-						prepend-inner-icon="mdi-magnify"
-						clearable
-						hide-details
-						class="mr-4"
-						@update:model-value="handleSearchTyping"
-					/>
-					<v-select
-						v-model="sortBy"
-						:items="sortOptions"
-						label="Ordina per"
-						hide-details
-						variant="outlined"
-						class="sort-select"
-					/>
+		<transition name="details-page-swap" mode="out-in">
+			<section
+				v-if="isDetailsOpen"
+				key="details"
+				class="details-page"
+			>
+				<div class="details-page-toolbar">
+					<v-btn
+						prepend-icon="mdi-arrow-left"
+						variant="text"
+						class="back-button"
+						@click="closeExpandedCard"
+					>
+						Torna ai layer
+					</v-btn>
 				</div>
-				<p class="text-caption text-medium-emphasis mb-2">
-					{{ datasetCountLabel }}
-				</p>
-			</template>
 
-			<template #supporting>
-				<div class="supporting-pane">
-					<div v-if="selectedDatasetDetails">
-						<p class="text-caption">
-							<strong>Keywords</strong>
-						</p>
-						<ul>
-							<li
-								v-for="kw in selectedDatasetDetails.keywords ||
-								[]"
-								:key="
-									(kw as any).identifier || (kw as any).name
-								"
-							>
-								{{ (kw as any).name || (kw as any).identifier }}
-							</li>
-						</ul>
-					</div>
-					<div v-else class="text-caption text-medium-emphasis">
-						Nessun dettaglio selezionato
-					</div>
-				</div>
-			</template>
-			<template #list>
 				<div
-					v-if="filteredAndSortedItems.length === 0"
-					class="empty-state"
+					v-if="selectedDatasetDetails"
+					class="details-page-body"
 				>
-					<v-icon size="48" class="text-grey-5"
-						>mdi-database-off-outline</v-icon
-					>
-					<p class="mt-4 text-body2">Nessuna risorsa trovata</p>
-				</div>
-
-				<div v-else>
-					<div
-						v-for="group in groupedAndSortedItems"
-						:key="group.group"
-						class="resource-group"
-					>
-						<h3 class="group-label">{{ group.label }}</h3>
-						<div class="datasets-grid">
-							<v-card
-								v-for="item in group.items"
-								:key="(item as any).pk"
-								class="dataset-card"
-								:class="{
-									'active-card':
-										selectedDatasetDetails?.pk ===
-										(item as any).pk,
-								}"
-								@click="selectDataset((item as any).pk)"
-							>
-								<div class="card-image-wrapper">
-									<v-img
-										:src="(item as any).thumbnail_url"
-										:alt="(item as any).title"
-										height="180"
-										cover
-										class="bg-grey-2"
-									>
-										<template #placeholder>
-											<div
-												class="d-flex align-center justify-center h-100 bg-grey-3"
-											>
-												<v-icon size="48" color="grey-5"
-													>mdi-image-off</v-icon
-												>
-											</div>
-										</template>
-									</v-img>
+					<div class="details-page-hero">
+						<v-img
+							:src="selectedDatasetDetails.thumbnail_url"
+							:alt="selectedDatasetDetails.title"
+							height="320"
+							cover
+							class="details-page-image bg-grey-2"
+						>
+							<template #placeholder>
+								<div
+									class="d-flex align-center justify-center h-100 bg-grey-3"
+								>
+									<v-icon size="64" color="grey-5">
+										mdi-image-off
+									</v-icon>
 								</div>
+							</template>
+						</v-img>
+					</div>
 
-								<v-card-item class="card-content">
-									<v-card-title
-										class="text-subtitle2 font-weight-bold line-clamp-2"
-									>
-										{{ (item as any).title }}
-									</v-card-title>
+					<div class="details-page-content">
+						<p class="details-page-kicker">Scheda layer</p>
+						<h1 class="details-page-title">
+							{{ selectedDatasetDetails.title }}
+						</h1>
+						<p
+							v-if="selectedDatasetDetails.abstract"
+							class="details-page-abstract"
+						>
+							{{ selectedDatasetDetails.abstract }}
+						</p>
 
-									<v-card-subtitle
-										v-if="(item as any).abstract"
-										class="text-caption line-clamp-2 mt-2"
-									>
-										{{ (item as any).abstract }}
-									</v-card-subtitle>
+						<div class="details-page-meta">
+							<div
+								v-if="getSelectedDatasetOwner(selectedDatasetDetails)"
+								class="meta-item"
+							>
+								<v-icon size="18" class="mr-2">mdi-account</v-icon>
+								<span>{{ getSelectedDatasetOwner(selectedDatasetDetails) }}</span>
+							</div>
+							<div
+								v-if="selectedDatasetDetails.created"
+								class="meta-item"
+							>
+								<v-icon size="18" class="mr-2">mdi-calendar</v-icon>
+								<span>{{ formatItalianDate(selectedDatasetDetails.created) }}</span>
+							</div>
+							<div class="meta-item">
+								<v-icon size="18" class="mr-2">mdi-pound</v-icon>
+								<span>{{ selectedDatasetDetails.pk }}</span>
+							</div>
+						</div>
 
-									<div
-										class="card-footer mt-3 pt-3 border-t d-flex items-center justify-between"
-									>
-										<div
-											class="text-caption text-grey d-flex gap-2 flex-wrap"
-										>
-											<span
-												class="d-flex align-center gap-1"
-											>
-												<v-icon size="12"
-													>mdi-account</v-icon
-												>
-												{{
-													(item as any).owner_username
-												}}
-											</span>
-											<span
-												class="d-flex align-center gap-1"
-											>
-												<v-icon size="12"
-													>mdi-eye</v-icon
-												>
-												{{
-													(item as any).popular_count
-												}}
-											</span>
-										</div>
-										<div>
-											<v-btn
-												size="small"
-												variant="outlined"
-												@click.stop="
-													selectDataset(
-														(item as any).pk,
-													)
-												"
-												>Visualizza</v-btn
-											>
-										</div>
-									</div>
-								</v-card-item>
-							</v-card>
+						<div
+							v-if="
+								selectedDatasetDetails.keywords &&
+								selectedDatasetDetails.keywords.length > 0
+							"
+							class="details-keywords"
+						>
+							<p class="keywords-label">Keywords</p>
+							<div class="keywords-list">
+								<v-chip
+									v-for="kw in selectedDatasetDetails.keywords"
+									:key="getKeywordKey(kw)"
+									size="small"
+									class="keyword-chip"
+								>
+									{{ getKeywordLabel(kw) }}
+								</v-chip>
+							</div>
 						</div>
 					</div>
 				</div>
-			</template>
-		</list-detail-layout>
+
+				<div v-else class="empty-details-page">
+					<v-progress-circular indeterminate color="primary" />
+				</div>
+			</section>
+
+			<list-detail-layout
+				v-else
+				key="catalog"
+				:loading="isLoading"
+			>
+				<template #list>
+					<SpatialDatasetList
+						:groups="groupedAndSortedItems"
+						:search-text="searchText"
+						:sort-by="sortBy"
+						:sort-options="sortOptions"
+						:dataset-count-label="datasetCountLabel"
+						:expanded-description-pks="expandedDescriptionPkList"
+						@update:search-text="updateSearchText"
+						@update:sort-by="sortBy = $event"
+						@select-dataset="selectDataset"
+						@toggle-description="toggleDescriptionExpansion"
+					/>
+				</template>
+			</list-detail-layout>
+		</transition>
 	</div>
 </template>
 
@@ -348,215 +331,141 @@
 		border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 		flex-shrink: 0;
 	}
-	// Cards Section
-	.cards-section {
+	.details-page {
+		flex: 1;
 		display: flex;
 		flex-direction: column;
-		height: 100%;
+		min-height: 0;
+		padding: 1.5rem;
 	}
 
-	.datasets-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(320px, 320px));
-		justify-items: start;
-		grid-auto-flow: row;
-		gap: 1.5rem;
-		padding: 1rem 0;
-	}
-
-	.resource-group {
-		margin-bottom: 2rem;
-	}
-
-	.group-label {
-		font-size: 1rem;
-		font-weight: 600;
+	.details-page-toolbar {
+		display: flex;
+		align-items: center;
 		margin-bottom: 1rem;
+	}
+
+	.back-button {
+		align-self: flex-start;
+	}
+
+	.details-page-body {
+		display: grid;
+		grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+		gap: 1.5rem;
+		align-items: start;
+		background: rgba(255, 255, 255, 0.75);
+		border: 1px solid rgba(0, 0, 0, 0.08);
+		border-radius: 24px;
+		padding: 1.5rem;
+		backdrop-filter: blur(8px);
+		box-shadow: 0 24px 60px rgba(96, 56, 72, 0.12);
+	}
+
+	.details-page-image {
+		border-radius: 18px;
+		overflow: hidden;
+	}
+
+	.details-page-content {
+		min-width: 0;
+	}
+
+	.details-page-kicker {
+		margin: 0;
+		font-size: 0.75rem;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: rgba(0, 0, 0, 0.5);
+	}
+
+	.details-page-title {
+		font-size: 1.75rem;
+		font-weight: 700;
+		margin: 0.35rem 0 1rem;
+		line-height: 1.3;
 		color: rgba(0, 0, 0, 0.87);
 	}
 
-	@media (max-width: 960px) {
-		.datasets-grid {
-			grid-template-columns: repeat(auto-fit, minmax(260px, 260px));
-			justify-content: start;
-			justify-items: start;
-		}
-	}
-
-	@media (max-width: 620px) {
-		.datasets-grid {
-			grid-template-columns: 1fr;
-			justify-content: stretch;
-		}
-	}
-
-	.filters-row {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 1rem;
-		margin-bottom: 1rem;
-	}
-
-	.sort-select {
-		min-width: 220px;
-		width: 100%;
-		max-width: 280px;
-	}
-
-	.dataset-card {
-		width: 100%;
-		max-width: 320px;
-		cursor: pointer;
-		transition:
-			box-shadow 0.18s ease,
-			border-color 0.18s ease;
-		border: 2px solid transparent;
-		overflow: hidden;
-		background-color: white;
-
-		&:hover {
-			/* subtle hover, no 3D transform */
-			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
-		}
-
-		&.active-card {
-			border-color: var(--v-theme-primary);
-			box-shadow: 0 0 0 3px rgba(var(--v-theme-primary-rgb), 0.06);
-		}
-	}
-
-	.dataset-detail-panel {
-		display: flex;
-		flex-direction: column;
-		height: 100%;
-		min-height: 0;
-		background-color: white;
-		border: 1px solid rgba(0, 0, 0, 0.08);
-		border-radius: 16px;
-		padding: 1rem;
-	}
-
-	.detail-card {
-		display: flex;
-		flex-direction: column;
-		height: 100%;
-		min-height: 0;
-		gap: 1rem;
-	}
-
-	.detail-image {
-		border-radius: 12px;
-		overflow: hidden;
-	}
-
-	.detail-body {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-	}
-
-	.detail-title {
-		font-size: 1.25rem;
-		font-weight: 700;
-		margin: 0;
-	}
-
-	.detail-description {
-		color: rgba(0, 0, 0, 0.75);
+	.details-page-abstract {
+		font-size: 1rem;
 		line-height: 1.6;
+		color: rgba(0, 0, 0, 0.75);
+		margin: 0 0 1.5rem 0;
 	}
 
-	.detail-meta {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 0.75rem;
-		font-size: 0.9rem;
-		color: rgba(0, 0, 0, 0.65);
-	}
-
-	.detail-actions {
+	.details-page-meta {
 		display: flex;
-		gap: 0.75rem;
 		flex-wrap: wrap;
+		gap: 0.75rem;
+		margin-bottom: 1.5rem;
 	}
 
-	.detail-empty-state {
+	.meta-item {
 		display: flex;
-		flex-direction: column;
+		align-items: center;
+		font-size: 0.875rem;
+		color: rgba(0, 0, 0, 0.65);
+		padding: 0.75rem 0.9rem;
+		background-color: rgba(255, 255, 255, 0.68);
+		border: 1px solid rgba(0, 0, 0, 0.06);
+		border-radius: 999px;
+	}
+
+	.details-keywords {
+		margin-top: 1.5rem;
+	}
+
+	.keywords-label {
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: rgba(0, 0, 0, 0.87);
+		margin: 0 0 0.75rem 0;
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+	}
+
+	.keywords-list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
+	.keyword-chip {
+		background-color: rgba(var(--v-theme-primary-rgb), 0.1);
+		color: rgb(var(--v-theme-primary));
+	}
+
+	.empty-details-page {
+		display: flex;
 		align-items: center;
 		justify-content: center;
 		flex: 1;
-		min-height: 220px;
-		color: var(--v-theme-grey);
+		min-height: 320px;
 	}
 
-	.card-image-wrapper {
-		position: relative;
-		overflow: hidden;
-		background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+	.details-page-swap-enter-active,
+	.details-page-swap-leave-active {
+		transition:
+			opacity 0.22s ease,
+			transform 0.28s cubic-bezier(0.2, 0, 0, 1);
 	}
 
-	.card-content {
-		padding: 1rem;
+	.details-page-swap-enter-from,
+	.details-page-swap-leave-to {
+		opacity: 0;
+		transform: translateY(14px);
 	}
 
-	.card-footer {
-		border-color: rgba(0, 0, 0, 0.08);
-	}
+	@media (max-width: 960px) {
+		.details-page {
+			padding: 1rem;
+		}
 
-	.line-clamp-2 {
-		display: -webkit-box;
-		-webkit-box-orient: vertical;
-		-webkit-line-clamp: 2;
-		line-clamp: 2;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: normal;
-		max-height: calc(2 * 1.2rem);
-	}
-
-	.loading-state,
-	.empty-state {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		min-height: 300px;
-		color: var(--v-theme-grey);
-	}
-
-	.empty-state {
-		display: flex;
-		flex-direction: column;
-		grid-column: center;
-		justify-self: center;
-		min-height: 300px;
-		width: 100%r;
-	}
-
-	.page-loading-overlay {
-		position: absolute;
-		inset: 0;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		background: rgba(255, 255, 255, 0.6);
-		z-index: 20;
-	}
-
-	.loading-dialog {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		padding: 1rem 1.25rem;
-		border-radius: 12px;
-		background: #fff;
-		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-	}
-
-	.border-t {
-		border-top: 1px solid currentColor;
+		.details-page-body {
+			grid-template-columns: 1fr;
+			padding: 1rem;
+		}
 	}
 </style>
-

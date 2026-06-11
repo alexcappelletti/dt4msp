@@ -1,10 +1,10 @@
 
+import type { Dataset, DatasetListItem, GeonodeMapListItem, GeonodeMapListResponse } from '#/shared/types/geonodeTypes';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import type { Dataset, DatasetListItem, GeonodeMapListItem, GeonodeMapListResponse } from '#/shared/types/geonodeTypes';
 
 export interface SpatialResourceGroup {
-	group: 'base' | 'map';
+	group: 'general' | 'specific';
 	label: string;
 	items: DatasetListItem[];
 }
@@ -77,7 +77,7 @@ export const useSpatialResourceStore = defineStore('remote-spatial-resources', (
 		error.value = null;
 		try {
 			console.log("trying to load dataset ");
-			// layers.value = await $fetch<Array<DatasetListItem>>('/api/geonode/layers', {
+			// layers.value = await $fetch<Array<DatasetListItem>>('/api/geonode/datasets', {
 			// 	method: 'GET',
 			// 	query: {
 			// 		searchText,
@@ -90,24 +90,45 @@ export const useSpatialResourceStore = defineStore('remote-spatial-resources', (
 		}
 	};
 
+	const loadGeneralDatasets = async () => {
+		const data = await $fetch<Array<DatasetListItem>>('/api/geonode/datasets', {
+			method: 'GET',
+		});
+		layers.value = data;
+		updateSpatialResourceGroups();
+		return data;
+	};
+
+	const loadSpecificDatasets = async (mapId: string) => {
+		const data = await $fetch<Array<DatasetListItem>>('/api/geonode/map-datasets', {
+			method: 'GET',
+			query: {
+				mapId,
+			},
+		});
+		mapDatasets.value = data;
+		updateSpatialResourceGroups();
+		return data;
+	};
+
 	const updateSpatialResourceGroups = () => {
-		const layerPks = new Set(layers.value.map(layer => layer.pk));
-		const uniqueMapDatasets = mapDatasets.value.filter(
-			dataset => !layerPks.has(dataset.pk),
+		const mapDatasetPks = new Set(mapDatasets.value.map((dataset) => dataset.pk));
+		const generalLayers = layers.value.filter(
+			(layer) => !mapDatasetPks.has(layer.pk),
 		);
 
 		spatialResourceGroups.value = [
 			{
-				group: 'base',
-				label: 'Layer Generali',
-				items: layers.value,
+				group: 'general',
+				label: 'Layer generali',
+				items: generalLayers,
 			},
 			{
-				group: 'map',
-				label: 'Dataset della Mappa',
-				items: uniqueMapDatasets,
+				group: 'specific',
+				label: "Layer specifici dell'area",
+				items: mapDatasets.value,
 			},
-		];
+		].filter((group) => group.items.length > 0);
 	};
 
 	const loadMapDatasets = async (mapId: string) => {
@@ -119,31 +140,13 @@ export const useSpatialResourceStore = defineStore('remote-spatial-resources', (
 		layers.value = [];
 		spatialResourceGroups.value = [];
 
-		const mapDatasetsPromise = $fetch<Array<DatasetListItem>>('/api/geonode/map-datasets', {
-			method: 'GET',
-			query: {
-				mapId,
-			},
-		})
-			.then((data) => {
-				mapDatasets.value = data;
-				updateSpatialResourceGroups();
-				return data;
-			});
-
-		const layersPromise = $fetch<Array<DatasetListItem>>('/api/geonode/layers', {
-			method: 'GET',
-		})
-			.then((data) => {
-				layers.value = data;
-				updateSpatialResourceGroups();
-				return data;
-			});
+		const specificDatasetsPromise = loadSpecificDatasets(mapId);
+		const generalDatasetsPromise = loadGeneralDatasets();
 
 		try {
 			const results = await Promise.allSettled([
-				mapDatasetsPromise,
-				layersPromise,
+				specificDatasetsPromise,
+				generalDatasetsPromise,
 			]);
 
 			const rejected = results.filter(
@@ -166,10 +169,13 @@ export const useSpatialResourceStore = defineStore('remote-spatial-resources', (
 
 	const resetMapDatasets = () => {
 		mapDatasets.value = [];
+		layers.value = [];
+		spatialResourceGroups.value = [];
+		selectedDatasetDetails.value = null;
 	};
 
-	const getDataset = async (pk: string): Promise<Dataset> => {
-		return await $fetch<Dataset>('/api/geonode/dataset', {
+	const getDatasetDetails = async (pk: string): Promise<Dataset> => {
+		return await $fetch<Dataset>('/api/geonode/dataset-details', {
 			method: 'GET',
 			query: {
 				mapId: selectedMapId.value,
@@ -188,7 +194,7 @@ export const useSpatialResourceStore = defineStore('remote-spatial-resources', (
 		error.value = null;
 		selectedDatasetDetails.value = null; // Resetta il dettaglio precedente
 		try {
-					selectedDatasetDetails.value = await getDataset(pk);
+			selectedDatasetDetails.value = await getDatasetDetails(pk);
 		} catch (err: any) {
 			error.value = err instanceof Error ? err : new Error(String(err));
 		} finally {
@@ -201,9 +207,11 @@ export const useSpatialResourceStore = defineStore('remote-spatial-resources', (
 		loadMaps,
 		loadMoreMaps,
 		loadLayers,
+		loadGeneralDatasets,
+		loadSpecificDatasets,
 		loadMapDatasets,
 		resetMapDatasets,
-		getDataset,
+		getDataset: getDatasetDetails,
 		selectDataset,
 		availableLayers,
 		availableMapDatasets,
