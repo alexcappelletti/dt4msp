@@ -20,6 +20,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{
 	(e: "update:selectedGeonodeMap", value: GeonodeMapReference | null): void;
+	(e: "open-details", item: GeonodeMapListItem): void;
 }>();
 
 const mapStore = useSpatialResourceStore();
@@ -28,6 +29,9 @@ const sortBy = ref<"date_desc" | "popular_desc" | "title_asc" | "title_desc">(
 	"date_desc",
 );
 const selectedMap = ref<GeonodeMapListItem | null>(null);
+const showSwitchConfirmDialog = ref(false);
+const confirmSwitchText = ref("");
+const pendingSelection = ref<GeonodeMapListItem | null>(null);
 
 const sortOptions = [
 	{ title: "Data piu recente", value: "date_desc" },
@@ -38,7 +42,6 @@ const sortOptions = [
 const skeletonCards = Array.from({ length: 6 }, (_, index) => index);
 
 const isLoading = computed(() => mapStore.busy);
-const selectedMapLabel = computed(() => props.selectedGeonodeMap?.title || "");
 
 const filteredMaps = computed(() => {
 	const query = searchText.value.trim().toLowerCase();
@@ -93,6 +96,11 @@ const currentMap = computed(() => {
 	);
 });
 
+const confirmTargetTitle = computed(() => pendingSelection.value?.title ?? "");
+const canConfirmSwitch = computed(
+	() => confirmSwitchText.value.trim() === confirmTargetTitle.value,
+);
+
 const formatDate = (dateValue: string) => {
 	if (!dateValue) return "-";
 	const parsed = new Date(dateValue);
@@ -113,14 +121,48 @@ const abstract = (item: GeonodeMapListItem) => {
 	return cleaned;
 };
 
+const toGeonodeMapReference = (
+	item: GeonodeMapListItem,
+): GeonodeMapReference => ({
+	pk: item.pk,
+	title: item.title,
+	detailUrl: item.detail_url,
+	thumbnailUrl: item.thumbnail_url,
+});
+
 const emitSelection = (item: GeonodeMapListItem) => {
 	selectedMap.value = item;
-	emit("update:selectedGeonodeMap", {
-		pk: item.pk,
-		title: item.title,
-		detailUrl: item.detail_url,
-		thumbnailUrl: item.thumbnail_url,
-	});
+	emit("update:selectedGeonodeMap", toGeonodeMapReference(item));
+};
+
+const closeSwitchDialog = () => {
+	showSwitchConfirmDialog.value = false;
+	confirmSwitchText.value = "";
+	pendingSelection.value = null;
+};
+
+const requestSelection = (item: GeonodeMapListItem) => {
+	if (
+		!props.selectedGeonodeMap?.pk ||
+		String(props.selectedGeonodeMap.pk) === String(item.pk)
+	) {
+		emitSelection(item);
+		return;
+	}
+
+	pendingSelection.value = item;
+	confirmSwitchText.value = "";
+	showSwitchConfirmDialog.value = true;
+};
+
+const confirmSelectionSwitch = () => {
+	if (!pendingSelection.value || !canConfirmSwitch.value) return;
+	emitSelection(pendingSelection.value);
+	closeSwitchDialog();
+};
+
+const openDetails = (item: GeonodeMapListItem) => {
+	emit("open-details", item);
 };
 
 const isActiveMap = (item: GeonodeMapListItem) => {
@@ -169,7 +211,6 @@ watch(
 			<p class="map-chooser__description">{{ props.description }}</p>
 		</div>
 		<div v-if="currentMap" class="map-chooser-info">
-			<p class="selection-label">Selezione corrente</p>
 			<div class="map-chooser__selection-content">
 				<strong>{{ currentMap.title }}</strong>
 				<span>{{ abstract(currentMap) }}</span>
@@ -209,56 +250,76 @@ watch(
 			</v-btn>
 		</div>
 
-		<div v-if="isLoading" class="map-card-grid">
-			<div v-for="card in skeletonCards" :key="card" class="map-card-skeleton">
-				<v-skeleton-loader type="image" class="map-card-skeleton__image" />
-				<div class="map-card-skeleton__body">
-					<v-skeleton-loader type="heading" class="map-card-skeleton__heading" />
-					<v-skeleton-loader type="text" class="map-card-skeleton__text" />
-					<v-skeleton-loader type="text" class="map-card-skeleton__text map-card-skeleton__text--short" />
+		<div class="map-chooser__cards">
+			<div v-if="isLoading" class="map-card-grid">
+				<div v-for="card in skeletonCards" :key="card" class="map-card-skeleton">
+					<v-skeleton-loader type="image" class="map-card-skeleton__image" />
+					<div class="map-card-skeleton__body">
+						<v-skeleton-loader type="heading" class="map-card-skeleton__heading" />
+						<v-skeleton-loader type="text" class="map-card-skeleton__text" />
+						<v-skeleton-loader type="text" class="map-card-skeleton__text map-card-skeleton__text--short" />
+					</div>
 				</div>
 			</div>
-		</div>
 
-		<div v-else-if="filteredMaps.length === 0" class="map-chooser__empty">
-			<v-icon size="42" color="grey">mdi-map-off</v-icon>
-			<p>Nessuna mappa trovata.</p>
-		</div>
+			<div v-else-if="filteredMaps.length === 0" class="map-chooser__empty">
+				<v-icon size="42" color="grey">mdi-map-off</v-icon>
+				<p>Nessuna mappa trovata.</p>
+			</div>
 
-		<div v-else class="map-card-grid">
-			<button v-for="item in filteredMaps" :key="item.pk" type="button" class="map-card"
-				:class="{ 'map-card--selected': isActiveMap(item) }" @click="emitSelection(item)">
-				<div class="map-card__image">
-					<v-img :src="item.thumbnail_url" :alt="item.title" aspect-ratio="1.4" cover
-						class="map-card__image-inner">
-						<template #placeholder>
-							<div class="map-card__placeholder">no image</div>
-						</template>
-					</v-img>
-					<div class="map-card__badge">
-						<v-icon size="14">mdi-map-outline</v-icon>
-						<span>{{ formatDate(item.created) }}</span>
+			<div v-else class="map-card-grid">
+				<article
+					v-for="item in filteredMaps"
+					:key="item.pk"
+					class="map-card"
+					:class="{ 'map-card--selected': isActiveMap(item) }"
+					role="button"
+					tabindex="0"
+					@click="openDetails(item)"
+					@keydown.enter.prevent="openDetails(item)"
+					@keydown.space.prevent="openDetails(item)"
+				>
+					<div class="map-card__image">
+						<div v-if="!isActiveMap(item)" class="map-card__action">
+							<v-btn
+								size="small"
+								variant="flat"
+								icon="mdi-map-plus"
+								:aria-label="isActiveMap(item) ? 'Mappa selezionata' : 'Seleziona mappa'"
+								@click.stop="requestSelection(item)"
+							/>
+						</div>
+						<v-img :src="item.thumbnail_url" :alt="item.title" aspect-ratio="1.4" cover
+							class="map-card__image-inner">
+							<template #placeholder>
+								<div class="map-card__placeholder">no image</div>
+							</template>
+						</v-img>
+						<div class="map-card__badge">
+							<v-icon size="14">mdi-map-outline</v-icon>
+							<span>{{ formatDate(item.created) }}</span>
+						</div>
 					</div>
-				</div>
 
-				<div class="map-card__body">
-					<h3 class="map-card__title">{{ item.title }}</h3>
-					<p class="map-card__description">
-						{{ abstract(item) }}
-					</p>
+					<div class="map-card__body">
+						<h3 class="map-card__title">{{ item.title }}</h3>
+						<p class="map-card__description">
+							{{ abstract(item) }}
+						</p>
 
-					<div class="map-card__meta">
-						<span>
-							<v-icon size="14">mdi-account</v-icon>
-							{{ item.owner_username }}
-						</span>
-						<span>
-							<v-icon size="14">mdi-eye-outline</v-icon>
-							{{ item.popular_count }}
-						</span>
+						<div class="map-card__meta">
+							<span>
+								<v-icon size="14">mdi-account</v-icon>
+								{{ item.owner_username }}
+							</span>
+							<span>
+								<v-icon size="14">mdi-eye-outline</v-icon>
+								{{ item.popular_count }}
+							</span>
+						</div>
 					</div>
-				</div>
-			</button>
+				</article>
+			</div>
 		</div>
 
 		<div v-if="mapStore.hasMoreMaps" class="map-chooser__more">
@@ -266,6 +327,47 @@ watch(
 				Carica altre mappe
 			</v-btn>
 		</div>
+
+		<v-dialog v-model="showSwitchConfirmDialog" max-width="560">
+			<v-card class="map-switch-dialog">
+				<v-card-title class="map-switch-dialog__title">
+					Conferma sostituzione mappa
+				</v-card-title>
+				<v-card-text class="map-switch-dialog__content">
+					<p>
+						Esiste gia una mappa associata all'area:
+						<strong>{{ props.selectedGeonodeMap?.title }}</strong>.
+					</p>
+					<p>
+						Per sostituirla con
+						<strong>{{ confirmTargetTitle }}</strong>,
+						scrivi esattamente il nome della nuova mappa nel campo qui sotto.
+					</p>
+
+					<v-text-field
+						v-model="confirmSwitchText"
+						:label="`Scrivi: ${confirmTargetTitle}`"
+						variant="outlined"
+						autofocus
+						hide-details="auto"
+					/>
+				</v-card-text>
+				<v-card-actions class="map-switch-dialog__actions">
+					<v-spacer />
+					<v-btn variant="text" @click="closeSwitchDialog">
+						Annulla
+					</v-btn>
+					<v-btn
+						color="primary"
+						variant="flat"
+						:disabled="!canConfirmSwitch"
+						@click="confirmSelectionSwitch"
+					>
+						Conferma modifica
+					</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-dialog>
 	</div>
 	
 </template>
@@ -342,6 +444,13 @@ watch(
 	margin-top: auto;
 }
 
+.map-chooser__cards {
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow-y: auto;
+	padding-right: 0.35rem;
+}
+
 .map-card-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
@@ -375,9 +484,10 @@ watch(
 		background: linear-gradient(
 			90deg,
 			rgba($main-light-rose-color, 0),
-			rgba($main-light-rose-color, 0.28),
+			rgba(255, 255, 255, 0.42),
 			rgba($main-light-rose-color, 0)
 		);
+		animation: map-card-skeleton-wave 1.6s ease-in-out infinite;
 	}
 
 	:deep(.v-skeleton-loader__image) {
@@ -404,9 +514,10 @@ watch(
 		background: linear-gradient(
 			90deg,
 			rgba($main-light-rose-color, 0),
-			rgba($main-light-rose-color, 0.22),
+			rgba(255, 255, 255, 0.32),
 			rgba($main-light-rose-color, 0)
 		);
+		animation: map-card-skeleton-wave 1.6s ease-in-out infinite;
 	}
 
 	:deep(.v-skeleton-loader__heading),
@@ -434,6 +545,16 @@ watch(
 	}
 }
 
+@keyframes map-card-skeleton-wave {
+	0% {
+		transform: translateX(-100%);
+	}
+
+	100% {
+		transform: translateX(100%);
+	}
+}
+
 .map-card {
 	display: flex;
 	flex-direction: column;
@@ -442,30 +563,40 @@ watch(
 	min-width: 0;
 	padding: 0;
 	border: 1px solid rgba(0, 0, 0, 0.08);
-	border-radius: 20px;
+	border-radius: 0.6rem;
 	background:
 		linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 244, 245, 0.98));
 	overflow: hidden;
 	text-align: left;
 	cursor: pointer;
 	transition:
-		transform 0.18s ease,
-		box-shadow 0.18s ease,
+		filter 0.18s ease,
 		border-color 0.18s ease;
+	outline: none;
 
 	&:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 18px 40px rgba(71, 48, 56, 0.12);
+		filter: brightness(0.97);
+	}
+
+	&:focus-visible {
+		filter: brightness(0.97);
 	}
 }
 
 .map-card--selected {
 	border-color: rgba(var(--v-theme-primary-rgb), 0.5);
-	box-shadow: 0 0 0 3px rgba(var(--v-theme-primary-rgb), 0.1);
+	background:$selection-light-color;
 }
 
 .map-card__image {
 	position: relative;
+}
+
+.map-card__action {
+	position: absolute;
+	top: 0.75rem;
+	right: 0.75rem;
+	z-index: 2;
 }
 
 .map-card__image-inner {
@@ -499,6 +630,7 @@ watch(
 .map-card__body {
 	display: flex;
 	flex-direction: column;
+	flex: 1;
 	gap: 0.75rem;
 	padding: 1rem;
 }
@@ -589,6 +721,27 @@ watch(
 		line-height: 1.45;
 		color: rgba(0, 0, 0, 0.62);
 	}
+}
+
+.map-switch-dialog__title {
+	font-weight: 700;
+	color: $main-dark-rose-color;
+}
+
+.map-switch-dialog__content {
+	display: flex;
+	flex-direction: column;
+	gap: 0.9rem;
+
+	p {
+		margin: 0;
+		line-height: 1.5;
+		color: rgba(0, 0, 0, 0.72);
+	}
+}
+
+.map-switch-dialog__actions {
+	padding: 0 1.5rem 1.25rem;
 }
 
 @media (max-width: 959px) {

@@ -2,12 +2,14 @@
 import StatementList from './StatementList.vue';
 import StatementForm from './StatementForm.vue';
 import type { AreaOfInterest, Statement } from '#/shared/types/msp-project';
+import type { GeonodeMapListItem } from '#/shared/types/geonodeTypes';
 import { generateUUID } from '#/shared/utils/generateUUID';
 import { debounce } from 'lodash-es';
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import GeonodeMapList from './GeonodeMapList.vue';
 import MapChooser from './MapChooser.vue';
+import MapEmbedPreview from './MapEmbedPreview.vue';
 import FormLayout from '#/app/components/layouts/FormLayout.vue';
 
 const props = withDefaults(defineProps<{
@@ -30,6 +32,7 @@ const area = ref<AreaOfInterest | null>(null);
 
 const statementView = ref<'list' | 'form'>('list');
 const editedStatement = ref<Statement | null>(null);
+const activeMap = ref<GeonodeMapListItem | null>(null);
 
 const showToast = ref(false);
 const toastColor = ref<'success' | 'error'>('success');
@@ -184,6 +187,50 @@ const cancelStatement = () => {
 	editedStatement.value = null;
 	statementView.value = 'list';
 };
+
+const formatMapDate = (value?: string | null) => {
+	if (!value) return '-';
+	const parsed = new Date(value);
+	if (Number.isNaN(parsed.getTime())) return '-';
+	return new Intl.DateTimeFormat('it-IT', {
+		day: '2-digit',
+		month: 'short',
+		year: 'numeric',
+	}).format(parsed);
+};
+
+const stripMapHtml = (value?: string | null) => {
+	if (!value) return 'Nessuna descrizione disponibile.';
+	const cleaned = value.replace(/<[^>]*>/g, '').trim();
+	return cleaned || 'Nessuna descrizione disponibile.';
+};
+
+const closeMapDetails = () => {
+	activeMap.value = null;
+};
+
+const associateActiveMapToArea = () => {
+	if (!area.value || !activeMap.value) return;
+	area.value.associatedMap = {
+		pk: activeMap.value.pk,
+		title: activeMap.value.title,
+		detailUrl: activeMap.value.detail_url,
+		thumbnailUrl: activeMap.value.thumbnail_url,
+	};
+};
+
+watch(activeTab, (tab) => {
+	if (tab !== 'map2') {
+		closeMapDetails();
+	}
+});
+
+watch(
+	() => area.value?.id,
+	() => {
+		closeMapDetails();
+	},
+);
 </script>
 
 <template>
@@ -272,9 +319,102 @@ const cancelStatement = () => {
 					<GeonodeMapList v-model="area!.associatedMap" />
 				</v-window-item>
 				<v-window-item value="map2">
-					<MapChooser
-						v-model:selected-geonode-map="area!.associatedMap"
-					/>
+					<div class="map-browser-panel">
+						<MapChooser
+							v-model:selected-geonode-map="area!.associatedMap"
+							@open-details="activeMap = $event"
+						/>
+
+						<v-fade-transition>
+							<section v-if="activeMap" class="map-details-window">
+								<header class="map-details-window__header">
+									<div class="map-details-window__heading">
+										<p class="map-details-window__eyebrow">Dettagli mappa</p>
+										<h2>{{ activeMap.title }}</h2>
+										<p>{{ stripMapHtml(activeMap.abstract) }}</p>
+									</div>
+									<div class="map-details-window__actions">
+										<v-btn
+											v-if="String(area?.associatedMap?.pk || '') !== String(activeMap.pk)"
+											color="primary"
+											variant="flat"
+											prepend-icon="mdi-map-plus"
+											@click="associateActiveMapToArea"
+										>
+											Associa all'area
+										</v-btn>
+										<v-btn variant="text" prepend-icon="mdi-close" @click="closeMapDetails">
+											Chiudi
+										</v-btn>
+									</div>
+								</header>
+
+								<div class="map-details-window__body">
+									<div class="map-details-window__content">
+										<div class="map-details-window__meta-grid">
+											<div class="map-details-window__meta-card">
+												<span>Owner</span>
+												<strong>{{ activeMap.owner_username || '-' }}</strong>
+											</div>
+											<div class="map-details-window__meta-card">
+												<span>Creata</span>
+												<strong>{{ formatMapDate(activeMap.created) }}</strong>
+											</div>
+											<div class="map-details-window__meta-card">
+												<span>Aggiornata</span>
+												<strong>{{ formatMapDate(activeMap.last_updated) }}</strong>
+											</div>
+											<div class="map-details-window__meta-card">
+												<span>Visite</span>
+												<strong>{{ activeMap.popular_count || '0' }}</strong>
+											</div>
+											<div class="map-details-window__meta-card">
+												<span>Condivisioni</span>
+												<strong>{{ activeMap.share_count || '0' }}</strong>
+											</div>
+											<div class="map-details-window__meta-card">
+												<span>Proiezione</span>
+												<strong>{{ activeMap.projection || '-' }}</strong>
+											</div>
+										</div>
+
+										<div class="map-details-window__section">
+											<h3>Descrizione</h3>
+											<p>{{ stripMapHtml(activeMap.abstract) }}</p>
+										</div>
+
+										<div class="map-details-window__section">
+											<h3>Coordinate e navigazione</h3>
+											<ul class="map-details-window__facts">
+												<li>Centro X: {{ activeMap.center_x ?? '-' }}</li>
+												<li>Centro Y: {{ activeMap.center_y ?? '-' }}</li>
+												<li>Zoom: {{ activeMap.zoom ?? '-' }}</li>
+												<li>Lingua: {{ activeMap.language || '-' }}</li>
+											</ul>
+										</div>
+
+										<MapEmbedPreview
+											:title="activeMap.title"
+											:embed-url="activeMap.embed_url"
+										/>
+
+										<div class="map-details-window__links">
+											<v-btn
+												v-if="activeMap.detail_url"
+												:href="activeMap.detail_url"
+												target="_blank"
+												rel="noopener noreferrer"
+												variant="outlined"
+												prepend-icon="mdi-open-in-new"
+											>
+												Apri su GeoNode
+											</v-btn>
+										</div>
+									</div>
+								</div>
+							</section>
+						</v-fade-transition>
+					</div>
 				</v-window-item>
 			</v-window>
 		</div>
@@ -319,6 +459,141 @@ const cancelStatement = () => {
 	min-width: 0;
 }
 
+.map-browser-panel {
+	position: relative;
+	height: 100%;
+	min-height: 0;
+}
+
+.map-details-window {
+	position: absolute;
+	inset: 0;
+	z-index: 5;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	padding: 20px;
+	background:
+		linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(254, 247, 255, 0.98));
+	overflow-y: auto;
+}
+
+.map-details-window__header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+	flex-wrap: wrap;
+}
+
+.map-details-window__heading {
+	max-width: 820px;
+
+	h2 {
+		margin: 0;
+		font-size: clamp(1.5rem, 2vw, 2rem);
+		line-height: 1.15;
+		color: #1f2937;
+	}
+
+	p {
+		margin: 0.6rem 0 0;
+		line-height: 1.6;
+		color: rgba(0, 0, 0, 0.68);
+	}
+}
+
+.map-details-window__eyebrow {
+	margin: 0 0 0.45rem !important;
+	font-size: 0.78rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: rgba(0, 0, 0, 0.45) !important;
+}
+
+.map-details-window__actions {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+.map-details-window__body {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	min-height: 0;
+}
+
+.map-details-window__content {
+	min-width: 0;
+}
+
+.map-details-window__content {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px 18px;
+}
+
+.map-details-window__meta-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 8px 16px;
+	grid-column: 1 / -1;
+}
+
+.map-details-window__meta-card {
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
+	padding: 0;
+
+	span {
+		font-size: 0.74rem;
+		font-weight: 700;
+		letter-spacing: 0.05em;
+		text-transform: uppercase;
+		color: rgba(0, 0, 0, 0.45);
+	}
+
+	strong {
+		font-size: 0.96rem;
+		color: rgba(0, 0, 0, 0.82);
+	}
+}
+
+.map-details-window__section {
+	padding: 0.15rem 0;
+
+	h3 {
+		margin: 0 0 0.35rem;
+		font-size: 0.92rem;
+		color: #1f2937;
+	}
+
+	p {
+		margin: 0;
+		line-height: 1.55;
+		font-size: 0.94rem;
+		color: rgba(0, 0, 0, 0.7);
+	}
+}
+
+.map-details-window__facts {
+	margin: 0;
+	padding-left: 1rem;
+	display: grid;
+	gap: 0.25rem;
+	font-size: 0.94rem;
+	color: rgba(0, 0, 0, 0.7);
+}
+
+.map-details-window__links {
+	display: flex;
+	justify-content: flex-start;
+	grid-column: 1 / -1;
+}
+
 .saving-indicator {
 	position: absolute;
 	top: 10px;
@@ -351,8 +626,6 @@ const cancelStatement = () => {
 :deep(.v-window-item) {
 	height: 100%;
 	max-height: 100%;
-	overflow-y: auto;
-	overflow-x: hidden;
 	//scrollbar-gutter: stable;
 }
 
@@ -373,5 +646,15 @@ const cancelStatement = () => {
 
 :deep(.v-speed-dial__content) {
 	gap: 10px;
+}
+
+@media (max-width: 960px) {
+	.map-details-window__content {
+		grid-template-columns: 1fr;
+	}
+
+	.map-details-window__meta-grid {
+		grid-template-columns: 1fr;
+	}
 }
 </style>

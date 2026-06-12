@@ -4,7 +4,8 @@ $main-rose-color: #fef7ff;
 $main-dark-rose-color: color.scale($main-rose-color, $lightness: -10%);
 $main-super-dark-rose-color: color.scale($main-rose-color, 	$lightness: -12%);
 $main-light-rose-color: color.scale($main-rose-color, $lightness: -1%);
-
+$selection-dark-color: color.scale($main-super-dark-rose-color, $blackness: 12%);
+$selection-light-color: color.scale($main-light-rose-color, $blackness: -22%);
 $bt-color: #ffd8e4;
 
 // se vuoi usarlo come stringa CSS
