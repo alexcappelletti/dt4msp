@@ -26,7 +26,8 @@ export const useAuth = () => {
 
 	const loginWithGoogle = () => {
 		if (import.meta.client) {
-			window.location.href = '/api/auth/google/login';
+			const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+			window.location.href = `/api/auth/google/login?returnTo=${encodeURIComponent(returnTo)}`;
 		}
 	};
 

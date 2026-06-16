@@ -13,6 +13,7 @@ onMounted(async () => {
 		authError.value = data.message;
 	} catch {
 		authError.value = null;
+		console.log("error at auth error check")
 	} finally {
 		isReady.value = true;
 	}
@@ -21,11 +22,13 @@ onMounted(async () => {
 const enterApp = async () => {
 	isEntering.value = true;
 	try {
-		const project = await mspDataProvider.fetchProject('prj-2026-001');
-		const areaId = project?.areaOfInterest?.id;
-		if (!areaId) return;
-		await router.push(`/areas/${areaId}`);
-	} catch {
+		// const project = await mspDataProvider.fetchProject('prj-2026-001');
+		// const areaId = project?.areaOfInterest?.id;
+		// if (!areaId) return;
+		// await router.push(`/areas/${areaId}`);
+		await router.push('/index-debug');
+	} catch (err){
+		console.error('Errore durante il caricamento del progetto.' +JSON.stringify(err));
 		// Se il progetto non e caricato, non forziamo route fallback.
 	} finally {
 		isEntering.value = false;

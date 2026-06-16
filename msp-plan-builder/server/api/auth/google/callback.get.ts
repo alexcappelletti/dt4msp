@@ -1,5 +1,6 @@
-import { popOAuthStateCookie, setSessionCookie } from '#/server/utils/authSession';
+import { popOAuthStateCookie, popReturnToCookie, setSessionCookie } from '#/server/utils/authSession';
 import { authorizeGoogleUser } from '#/server/utils/authz';
+import { getGoogleRedirectUri } from '#/server/utils/googleAuth';
 import { setCookie } from 'h3';
 
 interface GoogleTokenResponse {
@@ -29,9 +30,10 @@ export default defineEventHandler(async (event) => {
 			throw new Error('OAuth state non valido');
 		}
 
-		if (!config.googleClientId || !config.googleClientSecret || !config.googleRedirectUri) {
+		if (!config.googleClientId || !config.googleClientSecret) {
 			throw new Error('Google OAuth non configurato');
 		}
+		const redirectUri = getGoogleRedirectUri(event);
 
 		const tokenRes = await $fetch<GoogleTokenResponse>('https://oauth2.googleapis.com/token', {
 			method: 'POST',
@@ -40,7 +42,7 @@ export default defineEventHandler(async (event) => {
 				code,
 				client_id: config.googleClientId,
 				client_secret: config.googleClientSecret,
-				redirect_uri: config.googleRedirectUri,
+				redirect_uri: redirectUri,
 				grant_type: 'authorization_code',
 			}).toString(),
 		});
@@ -68,7 +70,8 @@ export default defineEventHandler(async (event) => {
 			config.authSecret,
 		);
 
-		return sendRedirect(event, '/areas', 302);
+		const returnTo = popReturnToCookie(event) || '/';
+		return sendRedirect(event, returnTo, 302);
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : String(error);
 		console.error('[AUTH][GOOGLE_CALLBACK] Login failed:', message);

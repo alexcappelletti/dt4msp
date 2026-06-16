@@ -11,6 +11,14 @@ export interface AuthUser {
 
 const SESSION_COOKIE = 'msp_auth_session';
 const OAUTH_STATE_COOKIE = 'msp_google_oauth_state';
+const RETURN_TO_COOKIE = 'msp_auth_return_to';
+
+function sanitizeReturnToPath(input: string | undefined): string | null {
+	if (!input) return null;
+	if (!input.startsWith('/')) return null;
+	if (input.startsWith('//')) return null;
+	return input;
+}
 
 function toBase64Url(input: string): string {
 	return Buffer.from(input, 'utf8').toString('base64url');
@@ -76,4 +84,23 @@ export function popOAuthStateCookie(event: H3Event): string | undefined {
 	const state = getCookie(event, OAUTH_STATE_COOKIE);
 	deleteCookie(event, OAUTH_STATE_COOKIE, { path: '/' });
 	return state;
+}
+
+export function setReturnToCookie(event: H3Event, returnTo: string) {
+	const safePath = sanitizeReturnToPath(returnTo);
+	if (!safePath) return;
+
+	setCookie(event, RETURN_TO_COOKIE, safePath, {
+		httpOnly: true,
+		sameSite: 'lax',
+		secure: process.env.NODE_ENV === 'production',
+		path: '/',
+		maxAge: 60 * 10,
+	});
+}
+
+export function popReturnToCookie(event: H3Event): string | null {
+	const returnTo = sanitizeReturnToPath(getCookie(event, RETURN_TO_COOKIE));
+	deleteCookie(event, RETURN_TO_COOKIE, { path: '/' });
+	return returnTo;
 }
