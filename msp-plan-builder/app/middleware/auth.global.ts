@@ -1,5 +1,5 @@
 export default defineNuxtRouteMiddleware(async (to) => {
-	const publicPaths = new Set(['/', '/index-debug']);
+	const publicPaths = new Set(['/', '/index-info']);
 	if (publicPaths.has(to.path)) {
 		return;
 	}

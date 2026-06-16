@@ -26,7 +26,7 @@ const enterApp = async () => {
 		// const areaId = project?.areaOfInterest?.id;
 		// if (!areaId) return;
 		// await router.push(`/areas/${areaId}`);
-		await router.push('/index-debug');
+			await router.push('/index-info');
 	} catch (err){
 		console.error('Errore durante il caricamento del progetto.' +JSON.stringify(err));
 		// Se il progetto non e caricato, non forziamo route fallback.

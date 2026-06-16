@@ -11,6 +11,12 @@ type DebugResponse = {
 	hasSessionCookie: boolean;
 	hasOAuthStateCookie: boolean;
 	authErrorCookie: string | null;
+	envChecks: Array<{
+		key: string;
+		defined: boolean;
+		source: string;
+		required: boolean;
+	}>;
 	authenticated: boolean;
 	user: {
 		sub: string;
@@ -48,7 +54,7 @@ const loadDebug = async () => {
 onMounted(loadDebug);
 
 definePageMeta({ layout: 'login' });
-useHead({ title: 'Debug Accesso' });
+useHead({ title: 'Info Accesso' });
 </script>
 
 <template>
@@ -56,7 +62,7 @@ useHead({ title: 'Debug Accesso' });
 		<div class="debug-card">
 			<div class="debug-header">
 				<div>
-					<h1 class="debug-title">Debug autenticazione</h1>
+					<h1 class="debug-title">Info autenticazione</h1>
 					<p class="debug-subtitle">
 						Pagina di verifica per il deploy Vercel: login Google, callback OAuth, sessione e autorizzazione.
 					</p>
@@ -112,6 +118,21 @@ useHead({ title: 'Debug Accesso' });
 				</div>
 
 				<div class="debug-section">
+					<h2>Check variabili ambiente</h2>
+					<p class="debug-note">
+						Controllo informativo sulla definizione delle variabili lette via runtime config. I valori non vengono mostrati.
+					</p>
+					<ul class="debug-list">
+						<li v-for="item in debug.envChecks" :key="item.key">
+							<strong>{{ item.key }}</strong>:
+							{{ item.defined ? 'definita' : 'mancante' }}
+							{{ item.required ? '(obbligatoria)' : '(opzionale)' }}
+							<code>{{ item.source }}</code>
+						</li>
+					</ul>
+				</div>
+
+				<div class="debug-section">
 					<h2>Utente</h2>
 					<pre class="debug-pre">{{ JSON.stringify(debug.user, null, 2) }}</pre>
 				</div>
@@ -137,19 +158,24 @@ useHead({ title: 'Debug Accesso' });
 <style scoped>
 .debug-page {
 	width: 100%;
+	min-height: 100vh;
 	display: flex;
 	justify-content: center;
 	padding: 24px;
+	box-sizing: border-box;
 }
 
 .debug-card {
 	width: 100%;
 	max-width: 1100px;
+	max-height: calc(100vh - 48px);
+	overflow-y: auto;
 	background: #ffffff;
 	border: 1px solid #e8deef;
 	border-radius: 18px;
 	padding: 28px;
 	box-shadow: 0 14px 30px rgba(41, 19, 63, 0.08);
+	box-sizing: border-box;
 }
 
 .debug-header {
@@ -208,6 +234,12 @@ useHead({ title: 'Debug Accesso' });
 .debug-list li {
 	margin-bottom: 8px;
 	word-break: break-word;
+}
+
+.debug-note {
+	margin: 0 0 12px;
+	color: #5a4b67;
+	font-size: 0.95rem;
 }
 
 .debug-pre {
