@@ -1,5 +1,7 @@
+
 <script setup lang="ts">
 import type { DatasetListItem } from "#/shared/types/geonodeTypes";
+import { computed } from "vue";
 
 const props = defineProps<{
 	item: DatasetListItem;
@@ -12,7 +14,10 @@ const emit = defineEmits<{
 	toggleDescription: [pk: string];
 }>();
 
+const isSelectable = computed(() => Boolean(props.item.canVisualize));
+
 const selectDataset = () => {
+	if (!isSelectable.value) return;
 	emit("select", props.item.pk);
 };
 
@@ -27,10 +32,23 @@ const toggleDescription = () => {
 		:class="{
 			'dataset-card-general': group === 'general',
 			'dataset-card-specific': group === 'specific',
+			'dataset-card-disabled': !isSelectable,
 		}"
+		:ripple="isSelectable"
+		:tabindex="isSelectable ? 0 : -1"
+		:aria-disabled="!isSelectable"
 		@click="selectDataset"
 	>
 		<div class="card-image-wrapper">
+			<div
+				class="card-availability"
+				:class="item.canVisualize ? 'card-availability--yes' : 'card-availability--no'"
+			>
+				<v-icon size="14">
+					{{ item.canVisualize ? "mdi-eye-outline" : "mdi-eye-off-outline" }}
+				</v-icon>
+				
+			</div>
 			<v-img
 				:src="item.thumbnail_url"
 				:alt="item.title"
@@ -77,6 +95,7 @@ const toggleDescription = () => {
 			</v-btn>
 
 			<div class="card-footer mt-3 pt-3 border-t">
+				
 				<div class="card-meta-row">
 					<div
 						class="text-caption text-grey d-flex gap-2 flex-wrap align-center"
@@ -87,14 +106,7 @@ const toggleDescription = () => {
 							<v-icon size="12">mdi-account</v-icon>
 							{{ item.owner_username }}
 						</span>
-						<v-btn
-							v-if="item.canVisualize"
-							icon="mdi-arrow-right"
-							size="x-small"
-							variant="tonal"
-							class="card-visualize-btn"
-							@click.stop="selectDataset"
-						/>
+						
 					</div>
 				</div>
 			</div>
@@ -103,6 +115,7 @@ const toggleDescription = () => {
 </template>
 
 <style scoped lang="scss">
+	@use "../../assets/scss/abstracts" as *;
 	@use "sass:color";
 
 	$dark-rose-color: color.scale($main-rose-color, $lightness: -1.7%);
@@ -126,6 +139,16 @@ const toggleDescription = () => {
 		}
 	}
 
+	.dataset-card-disabled {
+		cursor: default;
+		opacity: 0.82;
+
+		&:hover {
+			box-shadow: none;
+			transform: none;
+		}
+	}
+
 	.dataset-card-general {
 		background-color: $light-rose-color;
 	}
@@ -138,6 +161,31 @@ const toggleDescription = () => {
 		position: relative;
 		overflow: hidden;
 		background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+	}
+
+	.card-availability {
+		position: absolute;
+		top: 0.75rem;
+		left: 0.75rem;
+		z-index: 2;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		padding: 0.35rem 0.6rem;
+		border-radius: 999px;
+		font-size: 0.72rem;
+		font-weight: 700;
+		backdrop-filter: blur(10px) saturate(140%);
+		-webkit-backdrop-filter: blur(10px) saturate(140%);
+		background: rgba($selection-dark-color, 0.42);
+	}
+
+	.card-availability--yes {
+		color: #1b1d1c;
+	}
+
+	.card-availability--no {
+		color: #242222;
 	}
 
 	.card-content {
@@ -157,6 +205,22 @@ const toggleDescription = () => {
 		align-items: center;
 		justify-content: space-between;
 		gap: 0.75rem;
+	}
+
+	.card-visualize-state {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		font-size: 0.78rem;
+		font-weight: 600;
+	}
+
+	.card-visualize-state--yes {
+		color: #166534;
+	}
+
+	.card-visualize-state--no {
+		color: #991b1b;
 	}
 
 	.card-visualize-btn {

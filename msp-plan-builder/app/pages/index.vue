@@ -22,11 +22,11 @@ onMounted(async () => {
 const enterApp = async () => {
 	isEntering.value = true;
 	try {
-		// const project = await mspDataProvider.fetchProject('prj-2026-001');
-		// const areaId = project?.areaOfInterest?.id;
-		// if (!areaId) return;
-		// await router.push(`/areas/${areaId}`);
-			await router.push('/index-info');
+		const project = await mspDataProvider.fetchProject('prj-2026-001');
+		const areaId = project?.areaOfInterest?.id;
+		if (!areaId) return;
+		await router.push(`/areas/${areaId}`);
+		//await router.push('/index-info');
 	} catch (err){
 		console.error('Errore durante il caricamento del progetto.' +JSON.stringify(err));
 		// Se il progetto non e caricato, non forziamo route fallback.

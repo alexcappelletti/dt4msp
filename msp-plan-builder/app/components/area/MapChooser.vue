@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { GeonodeMapListItem } from "#/shared/types/geonodeTypes";
+import type { GeonodeMap } from "#/shared/types/geonodeTypes";
 import type { GeonodeMapReference } from "#/shared/types/msp-project";
 import { useSpatialResourceStore } from "@/stores/spatialStore";
 import { computed, onMounted, ref, watch } from "vue";
@@ -20,7 +20,8 @@ const props = withDefaults(
 
 const emit = defineEmits<{
 	(e: "update:selectedGeonodeMap", value: GeonodeMapReference | null): void;
-	(e: "open-details", item: GeonodeMapListItem): void;
+	(e: "open-details", item: GeonodeMap): void;
+	(e: "close"): void;
 }>();
 
 const mapStore = useSpatialResourceStore();
@@ -28,10 +29,10 @@ const searchText = ref("");
 const sortBy = ref<"date_desc" | "popular_desc" | "title_asc" | "title_desc">(
 	"date_desc",
 );
-const selectedMap = ref<GeonodeMapListItem | null>(null);
+const selectedMap = ref<GeonodeMap | null>(null);
 const showSwitchConfirmDialog = ref(false);
 const confirmSwitchText = ref("");
-const pendingSelection = ref<GeonodeMapListItem | null>(null);
+const pendingSelection = ref<GeonodeMap | null>(null);
 
 const sortOptions = [
 	{ title: "Data piu recente", value: "date_desc" },
@@ -111,7 +112,7 @@ const formatDate = (dateValue: string) => {
 		year: "numeric",
 	}).format(parsed);
 };
-const abstract = (item: GeonodeMapListItem) => {
+const abstract = (item: GeonodeMap) => {
 	const noDescription = "Nessuna descrizione disponibile.";
 	const cleaned = (item.abstract || "").replace(/<[^>]*>/g, "").trim();
 
@@ -122,7 +123,7 @@ const abstract = (item: GeonodeMapListItem) => {
 };
 
 const toGeonodeMapReference = (
-	item: GeonodeMapListItem,
+	item: GeonodeMap,
 ): GeonodeMapReference => ({
 	pk: item.pk,
 	title: item.title,
@@ -130,7 +131,7 @@ const toGeonodeMapReference = (
 	thumbnailUrl: item.thumbnail_url,
 });
 
-const emitSelection = (item: GeonodeMapListItem) => {
+const emitSelection = (item: GeonodeMap) => {
 	selectedMap.value = item;
 	emit("update:selectedGeonodeMap", toGeonodeMapReference(item));
 };
@@ -141,7 +142,7 @@ const closeSwitchDialog = () => {
 	pendingSelection.value = null;
 };
 
-const requestSelection = (item: GeonodeMapListItem) => {
+const requestSelection = (item: GeonodeMap) => {
 	if (
 		!props.selectedGeonodeMap?.pk ||
 		String(props.selectedGeonodeMap.pk) === String(item.pk)
@@ -161,11 +162,11 @@ const confirmSelectionSwitch = () => {
 	closeSwitchDialog();
 };
 
-const openDetails = (item: GeonodeMapListItem) => {
+const openDetails = (item: GeonodeMap) => {
 	emit("open-details", item);
 };
 
-const isActiveMap = (item: GeonodeMapListItem) => {
+const isActiveMap = (item: GeonodeMap) => {
 	const activePk = props.selectedGeonodeMap?.pk ?? selectedMap.value?.pk;
 	if (!activePk) return false;
 	return String(item.pk) === String(activePk);
@@ -207,8 +208,19 @@ watch(
 <template>
 	<div class="component-panel tw:p-4">
 		<div class="header tw:mb-4">
-			<p class="map-chooser-title">{{ props.title }}</p>
-			<p class="map-chooser__description">{{ props.description }}</p>
+			<div class="map-chooser__header-row">
+				<div class="map-chooser__header-copy">
+					<p class="map-chooser-title">{{ props.title }}</p>
+					<p class="map-chooser__description">{{ props.description }}</p>
+				</div>
+				<v-btn
+					variant="text"
+					prepend-icon="mdi-close"
+					@click="emit('close')"
+				>
+					Chiudi
+				</v-btn>
+			</div>
 		</div>
 		<div v-if="currentMap" class="map-chooser-info">
 			<div class="map-chooser__selection-content">
@@ -368,6 +380,10 @@ watch(
 				</v-card-actions>
 			</v-card>
 		</v-dialog>
+
+		<div v-if="$slots.default" class="map-chooser__details-overlay">
+			<slot />
+		</div>
 	</div>
 	
 </template>
@@ -384,6 +400,7 @@ watch(
 	min-height: 0;
 	display: flex;
 	flex-direction: column;
+	position: relative;
 }
 
 
@@ -399,6 +416,20 @@ watch(
 	font-size: 1rem;
 	font-weight: 700;
 	color: $main-dark-rose-color;
+}
+
+.map-chooser__header-row {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 1rem;
+	flex-wrap: wrap;
+}
+
+.map-chooser__header-copy {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
 }
 
 .map-chooser__description {
@@ -686,6 +717,17 @@ watch(
 .map-chooser__more {
 	display: flex;
 	justify-content: center;
+}
+
+.map-chooser__details-overlay {
+	position: absolute;
+	inset: 0;
+	z-index: 6;
+	pointer-events: none;
+}
+
+.map-chooser__details-overlay > * {
+	pointer-events: auto;
 }
 
 .map-chooser-info {

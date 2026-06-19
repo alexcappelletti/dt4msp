@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Dataset, Keyword } from "#/shared/types/geonodeTypes";
 import ListDetailLayout from "@/components/layouts/ListDetailLayout.vue";
+import SpatialDatasetDetailsPanel from "@/components/spatial-resources/SpatialDatasetDetailsPanel.vue";
 import SpatialDatasetList from "@/components/spatial-resources/SpatialDatasetList.vue";
 import { useScenarioStore } from "@/stores/scenarioStore";
 import {
@@ -19,6 +19,7 @@ const { availableSpatialResources, currentlySelectedDataset } =
 	storeToRefs(spatialResourceStore);
 
 const mapId = computed(() => String(route.params.id || ""));
+const isOwsChildRoute = computed(() => route.path.endsWith("/ows"));
 const isLoading = ref(false);
 const selectedCardPk = ref<string | null>(null);
 const searchText = ref("");
@@ -35,12 +36,6 @@ const spatialResourceGroups = computed(() => availableSpatialResources.value);
 const selectedDatasetDetails = computed(() => currentlySelectedDataset.value);
 
 const normalizeText = (value?: string | null) => (value ?? "").toLowerCase();
-const getKeywordKey = (keyword: Keyword) => keyword.slug || keyword.name;
-const getKeywordLabel = (keyword: Keyword) => keyword.name;
-const getSelectedDatasetOwner = (dataset: Dataset) =>
-	dataset.owner?.username || "";
-const formatItalianDate = (date?: string) =>
-	date ? new Date(date).toLocaleDateString("it-IT") : "";
 const isDetailsOpen = computed(() => Boolean(selectedCardPk.value));
 const expandedDescriptionPkList = computed(() =>
 	Array.from(expandedDescriptionPks.value),
@@ -170,132 +165,37 @@ const toggleDescriptionExpansion = (pk: string) => {
 	expandedDescriptionPks.value.add(pk);
 };
 
-const isDescriptionExpanded = (pk: string) =>
-	expandedDescriptionPks.value.has(pk);
-
 const closeExpandedCard = () => {
 	selectedCardPk.value = null;
 };
 </script>
 
 <template>
-	<div class="spatial-resources-container">
+	<NuxtPage v-if="isOwsChildRoute" />
+
+	<div v-else class="spatial-resources-container">
 		<!-- Header -->
 		<div class="pa-6 header-section">
-			<p class="text-body2 text-grey">
-				Risorse spaziali associate alla mappa
-				<strong>{{ associatedMapTitle }}</strong> utilizzata nell'area
-				di studio
-				<strong>{{ areaTitle }}</strong>
-			</p>
+			<div class="spatial-resources-header-bar">
+				<p class="text-body2 text-grey">
+					Risorse spaziali associate alla mappa
+					<strong>{{ associatedMapTitle }}</strong> utilizzata nell'area
+					di studio
+					<strong>{{ areaTitle }}</strong>
+				</p>
+				<v-btn
+					:to="`/spatial-resources/${mapId}/ows`"
+					color="primary"
+					variant="outlined"
+					prepend-icon="mdi-map-check-outline"
+				>
+					Apri viewer OWS
+				</v-btn>
+			</div>
 		</div>
 
-		<transition name="details-page-swap" mode="out-in">
-			<section
-				v-if="isDetailsOpen"
-				key="details"
-				class="details-page"
-			>
-				<div class="details-page-toolbar">
-					<v-btn
-						prepend-icon="mdi-arrow-left"
-						variant="text"
-						class="back-button"
-						@click="closeExpandedCard"
-					>
-						Torna ai layer
-					</v-btn>
-				</div>
-
-				<div
-					v-if="selectedDatasetDetails"
-					class="details-page-body"
-				>
-					<div class="details-page-hero">
-						<v-img
-							:src="selectedDatasetDetails.thumbnail_url"
-							:alt="selectedDatasetDetails.title"
-							height="320"
-							cover
-							class="details-page-image bg-grey-2"
-						>
-							<template #placeholder>
-								<div
-									class="d-flex align-center justify-center h-100 bg-grey-3"
-								>
-									<v-icon size="64" color="grey-5">
-										mdi-image-off
-									</v-icon>
-								</div>
-							</template>
-						</v-img>
-					</div>
-
-					<div class="details-page-content">
-						<p class="details-page-kicker">Scheda layer</p>
-						<h1 class="details-page-title">
-							{{ selectedDatasetDetails.title }}
-						</h1>
-						<p
-							v-if="selectedDatasetDetails.abstract"
-							class="details-page-abstract"
-						>
-							{{ selectedDatasetDetails.abstract }}
-						</p>
-
-						<div class="details-page-meta">
-							<div
-								v-if="getSelectedDatasetOwner(selectedDatasetDetails)"
-								class="meta-item"
-							>
-								<v-icon size="18" class="mr-2">mdi-account</v-icon>
-								<span>{{ getSelectedDatasetOwner(selectedDatasetDetails) }}</span>
-							</div>
-							<div
-								v-if="selectedDatasetDetails.created"
-								class="meta-item"
-							>
-								<v-icon size="18" class="mr-2">mdi-calendar</v-icon>
-								<span>{{ formatItalianDate(selectedDatasetDetails.created) }}</span>
-							</div>
-							<div class="meta-item">
-								<v-icon size="18" class="mr-2">mdi-pound</v-icon>
-								<span>{{ selectedDatasetDetails.pk }}</span>
-							</div>
-						</div>
-
-						<div
-							v-if="
-								selectedDatasetDetails.keywords &&
-								selectedDatasetDetails.keywords.length > 0
-							"
-							class="details-keywords"
-						>
-							<p class="keywords-label">Keywords</p>
-							<div class="keywords-list">
-								<v-chip
-									v-for="kw in selectedDatasetDetails.keywords"
-									:key="getKeywordKey(kw)"
-									size="small"
-									class="keyword-chip"
-								>
-									{{ getKeywordLabel(kw) }}
-								</v-chip>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<div v-else class="empty-details-page">
-					<v-progress-circular indeterminate color="primary" />
-				</div>
-			</section>
-
-			<list-detail-layout
-				v-else
-				key="catalog"
-				:loading="isLoading"
-			>
+		<div class="spatial-resources-stage">
+			<list-detail-layout :loading="isLoading">
 				<template #list>
 					<SpatialDatasetList
 						:groups="groupedAndSortedItems"
@@ -311,7 +211,16 @@ const closeExpandedCard = () => {
 					/>
 				</template>
 			</list-detail-layout>
-		</transition>
+
+			<transition name="dataset-details-zoom" appear>
+				<SpatialDatasetDetailsPanel
+					v-if="isDetailsOpen"
+					:dataset="selectedDatasetDetails"
+					:loading="isLoading"
+					@close="closeExpandedCard"
+				/>
+			</transition>
+		</div>
 	</div>
 </template>
 
@@ -331,141 +240,38 @@ const closeExpandedCard = () => {
 		border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 		flex-shrink: 0;
 	}
-	.details-page {
-		flex: 1;
+
+	.spatial-resources-header-bar {
 		display: flex;
-		flex-direction: column;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		flex-wrap: wrap;
+	}
+
+	.spatial-resources-stage {
+		position: relative;
+		flex: 1;
 		min-height: 0;
-		padding: 1.5rem;
 	}
 
-	.details-page-toolbar {
-		display: flex;
-		align-items: center;
-		margin-bottom: 1rem;
-	}
-
-	.back-button {
-		align-self: flex-start;
-	}
-
-	.details-page-body {
-		display: grid;
-		grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
-		gap: 1.5rem;
-		align-items: start;
-		background: rgba(255, 255, 255, 0.75);
-		border: 1px solid rgba(0, 0, 0, 0.08);
-		border-radius: 24px;
-		padding: 1.5rem;
-		backdrop-filter: blur(8px);
-		box-shadow: 0 24px 60px rgba(96, 56, 72, 0.12);
-	}
-
-	.details-page-image {
-		border-radius: 18px;
-		overflow: hidden;
-	}
-
-	.details-page-content {
-		min-width: 0;
-	}
-
-	.details-page-kicker {
-		margin: 0;
-		font-size: 0.75rem;
-		font-weight: 700;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-		color: rgba(0, 0, 0, 0.5);
-	}
-
-	.details-page-title {
-		font-size: 1.75rem;
-		font-weight: 700;
-		margin: 0.35rem 0 1rem;
-		line-height: 1.3;
-		color: rgba(0, 0, 0, 0.87);
-	}
-
-	.details-page-abstract {
-		font-size: 1rem;
-		line-height: 1.6;
-		color: rgba(0, 0, 0, 0.75);
-		margin: 0 0 1.5rem 0;
-	}
-
-	.details-page-meta {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.75rem;
-		margin-bottom: 1.5rem;
-	}
-
-	.meta-item {
-		display: flex;
-		align-items: center;
-		font-size: 0.875rem;
-		color: rgba(0, 0, 0, 0.65);
-		padding: 0.75rem 0.9rem;
-		background-color: rgba(255, 255, 255, 0.68);
-		border: 1px solid rgba(0, 0, 0, 0.06);
-		border-radius: 999px;
-	}
-
-	.details-keywords {
-		margin-top: 1.5rem;
-	}
-
-	.keywords-label {
-		font-size: 0.875rem;
-		font-weight: 600;
-		color: rgba(0, 0, 0, 0.87);
-		margin: 0 0 0.75rem 0;
-		text-transform: uppercase;
-		letter-spacing: 0.5px;
-	}
-
-	.keywords-list {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5rem;
-	}
-
-	.keyword-chip {
-		background-color: rgba(var(--v-theme-primary-rgb), 0.1);
-		color: rgb(var(--v-theme-primary));
-	}
-
-	.empty-details-page {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		flex: 1;
-		min-height: 320px;
-	}
-
-	.details-page-swap-enter-active,
-	.details-page-swap-leave-active {
+	.dataset-details-zoom-enter-active,
+	.dataset-details-zoom-leave-active {
 		transition:
-			opacity 0.22s ease,
-			transform 0.28s cubic-bezier(0.2, 0, 0, 1);
+			opacity 0.24s ease,
+			transform 0.24s ease;
+		transform-origin: center center;
 	}
 
-	.details-page-swap-enter-from,
-	.details-page-swap-leave-to {
+	.dataset-details-zoom-enter-from,
+	.dataset-details-zoom-leave-to {
 		opacity: 0;
-		transform: translateY(14px);
+		transform: scale(0.92);
 	}
 
-	@media (max-width: 960px) {
-		.details-page {
-			padding: 1rem;
-		}
-
-		.details-page-body {
-			grid-template-columns: 1fr;
-			padding: 1rem;
-		}
+	.dataset-details-zoom-enter-to,
+	.dataset-details-zoom-leave-from {
+		opacity: 1;
+		transform: scale(1);
 	}
 </style>

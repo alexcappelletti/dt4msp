@@ -2,6 +2,7 @@
 const props = defineProps<{
 	title: string;
 	embedUrl?: string | null;
+	fullHeight?: boolean;
 }>();
 
 const normalizedEmbedUrl = computed(() => {
@@ -21,28 +22,24 @@ const normalizedEmbedUrl = computed(() => {
 </script>
 
 <template>
-	<section class="map-embed-preview">
-		<div class="map-embed-preview__header">
-			<h3>Anteprima interattiva</h3>
-			<a
-				v-if="normalizedEmbedUrl"
-				:href="normalizedEmbedUrl"
-				target="_blank"
-				rel="noopener noreferrer"
-				class="map-embed-preview__link"
-			>
-				Apri embed
-			</a>
-		</div>
+		<section class="map-embed-preview" :class="{ 'map-embed-preview--full-height': props.fullHeight }">
+			<div class="map-embed-preview__header">
+				
+			</div>
 
-		<div v-if="normalizedEmbedUrl" class="map-embed-preview__frame-wrap">
-			<iframe
-				:src="normalizedEmbedUrl"
-				:title="`Embed ${title}`"
-				class="map-embed-preview__frame"
-				loading="lazy"
-				referrerpolicy="strict-origin-when-cross-origin"
-				allowfullscreen
+			<div
+				v-if="normalizedEmbedUrl"
+				class="map-embed-preview__frame-wrap"
+				:class="{ 'map-embed-preview__frame-wrap--full-height': props.fullHeight }"
+			>
+				<iframe
+					:src="normalizedEmbedUrl"
+					:title="`Embed ${title}`"
+					class="map-embed-preview__frame"
+					:class="{ 'map-embed-preview__frame--full-height': props.fullHeight }"
+					loading="lazy"
+					referrerpolicy="strict-origin-when-cross-origin"
+					allowfullscreen
 			/>
 		</div>
 
@@ -61,6 +58,11 @@ const normalizedEmbedUrl = computed(() => {
 	grid-column: 1 / -1;
 }
 
+.map-embed-preview--full-height {
+	height: 100%;
+	min-height: 0;
+}
+
 .map-embed-preview__header {
 	display: flex;
 	align-items: center;
@@ -75,12 +77,12 @@ const normalizedEmbedUrl = computed(() => {
 	}
 }
 
-.map-embed-preview__link {
-	font-size: 0.88rem;
-	font-weight: 600;
-	color: #1f5f96;
-	text-decoration: none;
+.map-embed-preview__current {
+	display: flex;
+	align-items: center;
+	min-width: 0;
 }
+
 
 .map-embed-preview__frame-wrap {
 	overflow: hidden;
@@ -89,12 +91,22 @@ const normalizedEmbedUrl = computed(() => {
 	background: rgba(255, 255, 255, 0.8);
 }
 
+.map-embed-preview__frame-wrap--full-height {
+	flex: 1 1 auto;
+	min-height: 0;
+}
+
 .map-embed-preview__frame {
 	display: block;
 	width: 100%;
-	height: min(60vh, 560px);
+	height: min(68vh, 640px);
 	border: 0;
 	background: #fff;
+}
+
+.map-embed-preview__frame--full-height {
+	height: 100%;
+	min-height: 0;
 }
 
 .map-embed-preview__empty {

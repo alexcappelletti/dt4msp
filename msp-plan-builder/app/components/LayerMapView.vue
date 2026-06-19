@@ -1,271 +1,314 @@
 <!-- components/geospatial/MapViewer.vue (modificato) -->
 <script setup lang="ts">
-	import { useOgcHelper } from "@/composables/useOgcHelper";
-	import maplibregl, {
-		Map as MaplibreMap,
-		type LayerSpecification,
-	} from "maplibre-gl";
-	import { onMounted, onUnmounted, ref, shallowRef, watch } from "vue";
-	import { useLayeredMapStore } from "~/stores/layeredMapStore";
-	//@ts-ignore
-	maplibregl.config.FILL_LARGE_MESH_ARRAYS = true;
-	const config = useRuntimeConfig();
-	const ESRI_APIKEY = config.public.esriApiKey;
-	const basemapURL =
-		"https://basemapstyles-api.arcgis.com/arcgis/rest/services/styles/v2/styles";
-	const basemapEnum = "arcgis/topographic";
-	const MarMediterraneo = {
-		center: [8.01419, 37.89222] as maplibregl.LngLatLike,
-		zoom: 5.0,
-	};
+import { useOgcHelper } from "@/composables/useOgcHelper";
+import maplibregl, {
+	Map as MaplibreMap,
+	type LayerSpecification,
+} from "maplibre-gl";
+import { onMounted, onUnmounted, ref, shallowRef, watch } from "vue";
+import { useLayeredMapStore } from "~/stores/layeredMapStore";
+//@ts-ignore
+maplibregl.config.FILL_LARGE_MESH_ARRAYS = true;
+const config = useRuntimeConfig();
+const ESRI_APIKEY = config.public.esriApiKey;
+const basemapURL =
+	"https://basemapstyles-api.arcgis.com/arcgis/rest/services/styles/v2/styles";
+const basemapEnum = "arcgis/topographic";
+const MarMediterraneo = {
+	center: [8.01419, 37.89222] as maplibregl.LngLatLike,
+	zoom: 5.0,
+};
 
-	console.log("Using ESRI API Key: ", ESRI_APIKEY ? "[REDACTED]" : "MISSING");
-	console.log("Basemap URL: ", ESRI_APIKEY);
+console.log("Using ESRI API Key: ", ESRI_APIKEY ? "[REDACTED]" : "MISSING");
+console.log("Basemap URL: ", ESRI_APIKEY);
 
-	const MAP_STYLE = {
-		version: 8,
-		sources: {
-			// Un layer base di sfondo, qui OpenStreetMap
-			"osm-base": {
-				type: "raster",
-				tiles: ["a.tile.openstreetmap.org{z}/{x}/{y}.png"],
-				tileSize: 256,
-				maxzoom: 19,
-			},
+const MAP_STYLE = {
+	version: 8,
+	sources: {
+		// Un layer base di sfondo, qui OpenStreetMap
+		"osm-base": {
+			type: "raster",
+			tiles: ["a.tile.openstreetmap.org{z}/{x}/{y}.png"],
+			tileSize: 256,
+			maxzoom: 19,
 		},
-		layers: [
-			{
-				id: "osm-base-layer",
-				type: "raster",
-				source: "osm-base",
-			},
-		],
-	};
-	const mapStore = useLayeredMapStore();
-	const { convertLLBoxToMapLibreBbox } = useOgcHelper();
+	},
+	layers: [
+		{
+			id: "osm-base-layer",
+			type: "raster",
+			source: "osm-base",
+		},
+	],
+};
+const mapStore = useLayeredMapStore();
+const { convertLLBoxToMapLibreBbox } = useOgcHelper();
 
-	const mapContainer = shallowRef(null);
-	const map = shallowRef<MaplibreMap | null>(null);
-	const centerCoords = ref<[number, number]>([0, 0]);
-	const zoomLevel = ref<number>(0);
+const mapContainer = shallowRef(null);
+const map = shallowRef<MaplibreMap | null>(null);
+const centerCoords = ref<[number, number]>([0, 0]);
+const zoomLevel = ref<number>(0);
 
-	const dynamicLayerIds = shallowRef<string[]>([]);
-	const dynamicSourceIds = shallowRef<string[]>([]);
-	const isLoadingLayers = ref(false);
+const dynamicLayerIds = shallowRef<string[]>([]);
+const dynamicSourceIds = shallowRef<string[]>([]);
+const isLoadingLayers = ref(false);
 
-	const initializeMap = () => {
-		// ... (logica inizializzazione mappa) ...
-		map.value = new maplibregl.Map({
-			container: mapContainer.value!,
-			style: `${basemapURL}/${basemapEnum}?token=${ESRI_APIKEY}`,
-			center: MarMediterraneo.center,
-			zoom: MarMediterraneo.zoom,
-		});
-		map.value.on("load", async () => {
-			console.log("loaded map ");
+const initializeMap = () => {
+	// ... (logica inizializzazione mappa) ...
+	map.value = new maplibregl.Map({
+		container: mapContainer.value!,
+		style: `${basemapURL}/${basemapEnum}?token=${ESRI_APIKEY}`,
+		center: MarMediterraneo.center,
+		zoom: MarMediterraneo.zoom,
+	});
+	map.value.on("load", async () => {
+		console.log("loaded map ");
+		await updateMap();
+	});
+	map.value.on("error", (e) => {
+		console.error("Errore mappa:", e);
+	});
+	map.value.on("move", () => {
+		updateMapInfo();
+	});
+};
+
+watch(
+	[() => mapStore.getFeaturedLayersState, () => mapStore.getRasterLayersState],
+	async () => {
+		const featured = mapStore.getFeaturedLayersState;
+		const raster = mapStore.getRasterLayersState;
+		console.log(
+			"[LayerMapView] Layer state changed - redrawing map",
+			"Featured:", featured.length, featured.map(l => l.geonodeLayer.pk),
+			"Raster:", raster.length, raster.map(l => l.geonodeLayer.pk)
+		);
+		try {
 			await updateMap();
-		});
-		map.value.on("error", (e) => {
-			console.error("Errore mappa:", e);
-		});
-		map.value.on("move", () => {
-			updateMapInfo();
-		});
+		} catch (err) {
+			console.error(
+				"Errore durante l'aggiornamento della mappa: ",
+				err,
+			);
+		}
+	},
+	{ immediate: true, deep: true },
+);
+
+function clearMap() {
+	if (!map.value) return;
+	const mapInstance = map.value;
+
+	console.log("[LayerMapView] Clearing all dynamic layers and sources...");
+
+	const removeLayer = (layerId: string) => {
+		try {
+			if (mapInstance.getLayer(layerId)) {
+				mapInstance.removeLayer(layerId);
+				console.log("[LayerMapView] Removed layer:", layerId);
+			}
+		} catch (e) {
+			console.warn("[LayerMapView] Could not remove layer:", layerId, e);
+		}
 	};
 
-	watch(
-		[() => mapStore.getGnLayers, () => mapStore.selectedOGCType],
-		async ([newGnLayers, newTypeFilter], [oldLayers, oldFilter]) => {
-			if (newGnLayers === oldLayers && newTypeFilter === oldFilter) {
-				return;
+	const removeSource = (sourceId: string) => {
+		try {
+			if (mapInstance.getSource(sourceId)) {
+				mapInstance.removeSource(sourceId);
+				console.log("[LayerMapView] Removed source:", sourceId);
 			}
-			try {
-				updateMap();
-			} catch (err) {
-				console.error(
-					"Errore durante l'aggiornamento della mappa: ",
-					err,
-				);
-			}
-		},
-		{ immediate: true, deep: true },
-	);
+		} catch (e) {
+			console.warn("[LayerMapView] Could not remove source:", sourceId, e);
+		}
+	};
 
-	function clearMap() {
-		if (!map.value) return;
-		dynamicLayerIds.value.forEach((id) => {
-			if (map.value?.getLayer(id)) {
-				map.value.removeLayer(id);
-			}
-		});
-		dynamicLayerIds.value = [];
-		dynamicSourceIds.value.forEach((id) => {
-			if (map.value?.getSource(id)) {
-				map.value.removeSource(id);
-			}
-		});
-		dynamicSourceIds.value = [];
+	// Rimuovi tutti i layer tracciati
+	dynamicLayerIds.value.forEach(removeLayer);
+	dynamicLayerIds.value = [];
+
+	// Rimuovi tutti i source tracciati
+	dynamicSourceIds.value.forEach(removeSource);
+	dynamicSourceIds.value = [];
+
+	// Scansiona lo stile e rimuovi tutti i layer/source rimanenti con il prefisso
+	const style = mapInstance.getStyle();
+	if (style) {
+		// Rimuovi tutti i layer che iniziano con "layer-"
+		if (Array.isArray(style.layers)) {
+			style.layers.forEach((layer) => {
+				if (layer.id?.startsWith("layer-")) {
+					removeLayer(layer.id);
+				}
+			});
+		}
+
+		// Rimuovi tutti i source che iniziano con "source-"
+		if (style.sources) {
+			const sourceIds = Object.keys(style.sources).filter((sourceId) =>
+				sourceId.startsWith("source-"),
+			);
+			sourceIds.forEach(removeSource);
+		}
 	}
 
-	async function updateMap() {
-		if (!map.value || !map.value.isStyleLoaded()) {
+	console.log("[LayerMapView] Map cleared");
+}
+
+async function updateMap() {
+	if (!map.value || !map.value.isStyleLoaded()) {
+		console.log("[LayerMapView] Map not ready, skipping update");
+		return;
+	}
+
+	console.log("[LayerMapView] Starting map redraw...");
+	isLoadingLayers.value = true;
+
+	// Delay per garantire che il rendering dello spinner avvenga
+	await new Promise((resolve) => setTimeout(resolve, 100));
+
+	clearMap();
+	const mapInstance = map.value;
+
+	const results = mapStore.getFeaturedLayersState;
+	console.log("[LayerMapView] Adding", results.length, "featured layers");
+
+	results.forEach((fState) => {
+		if (fState.fetchStatus !== "idle" || !fState.geojsonData) {
+			console.log("[LayerMapView] Skipping layer (status:", fState.fetchStatus, ")");
 			return;
 		}
-		isLoadingLayers.value = true;
-		await new Promise((resolve) => setTimeout(resolve, 50));
-		clearMap();
-		const mapInstance = map.value;
+		const { geonodeLayer, geojsonData, styles } = fState;
+		const sourceId = `source-${geonodeLayer.pk}`;
 
-		const results = mapStore.getFeaturedLayersState;
-		results.forEach((fState) => {
-			if (fState.fetchStatus !== "idle" || !fState.geojsonData) {
-				return;
+		console.log("[LayerMapView] Adding WFS/GeoJSON source:", sourceId, "with", geojsonData.features.length, "features");
+
+		mapInstance.addSource(sourceId, {
+			type: "geojson",
+			data: geojsonData,
+		});
+		dynamicSourceIds.value.push(sourceId);
+
+		if (styles.length === 0) {
+			const geometryType = geojsonData.features?.[0]?.geometry?.type;
+			function getLayerConfig(): LayerSpecification {
+				if (
+					geometryType === "Polygon" ||
+					geometryType === "MultiPolygon"
+				) {
+					return {
+						id: `layer-${geonodeLayer.pk}`,
+						source: sourceId,
+						type: "fill",
+						paint: {
+							"fill-color": "#088",
+							"fill-opacity": 0.5,
+						},
+					};
+				} else if (
+					geometryType === "LineString" ||
+					geometryType === "MultiLineString"
+				) {
+					return {
+						id: `layer-${geonodeLayer.pk}`,
+						source: sourceId,
+						type: "line",
+						paint: { "line-color": "#000000", "line-width": 2 },
+					};
+				} else if (
+					geometryType === "Point" ||
+					geometryType === "MultiPoint"
+				) {
+					return {
+						id: `layer-${geonodeLayer.pk}`,
+						source: sourceId,
+						type: "circle",
+						paint: {
+							"circle-color": "#FF0000",
+							"circle-radius": 6,
+						},
+					};
+				} else {
+					return {
+						id: `layer-${geonodeLayer.pk}`,
+						source: sourceId,
+						type: "fill",
+						paint: {
+							"fill-color": "#02Ae23",
+							"fill-opacity": 0.3,
+						},
+					};
+				}
 			}
-			const { geonodeLayer, geojsonData, styles } = fState;
-			const sourceId = `source-${geonodeLayer.pk}`;
-			if (mapInstance.getSource(sourceId) !== undefined) {
-				console.log("source already set; skip it " + sourceId);
-				return;
-			}
-			console.log(
-				"now add WFS/GeoJSON source! ",
-				geojsonData.features.length,
-			);
-			mapInstance.addSource(sourceId, {
-				type: "geojson",
-				data: geojsonData,
+			const layerConfig = getLayerConfig();
+			mapInstance.addLayer(layerConfig);
+			dynamicLayerIds.value.push(layerConfig.id);
+			console.log("[LayerMapView] Added default layer:", layerConfig.id);
+		} else {
+			styles.forEach((s) => {
+				s.source = sourceId;
+				console.log("[LayerMapView] Adding styled layer:", s.id);
+				mapInstance.addLayer(s);
+				dynamicLayerIds.value.push(s.id);
 			});
-			dynamicSourceIds.value.push(sourceId);
-			console.log("found styles: ", styles.length);
-			if (styles.length === 0) {
-				const geometryType = geojsonData.features?.[0]?.geometry?.type;
-				function getLayerConfig(): LayerSpecification {
-					if (
-						geometryType === "Polygon" ||
-						geometryType === "MultiPolygon"
-					) {
-						return {
-							id: `layer-${geonodeLayer.pk}`,
-							source: sourceId,
-							type: "fill",
-							paint: {
-								"fill-color": "#088",
-								"fill-opacity": 0.5,
-							},
-						};
-					} else if (
-						geometryType === "LineString" ||
-						geometryType === "MultiLineString"
-					) {
-						return {
-							id: `layer-${geonodeLayer.pk}`,
-							source: sourceId,
-							type: "line",
-							paint: { "line-color": "#000000", "line-width": 2 },
-						};
-					} else if (
-						geometryType === "Point" ||
-						geometryType === "MultiPoint"
-					) {
-						return {
-							id: `layer-${geonodeLayer.pk}`,
-							source: sourceId,
-							type: "circle",
-							paint: {
-								"circle-color": "#FF0000",
-								"circle-radius": 6,
-							},
-						};
-					} else {
-						// Default a symbol se il tipo non è riconosciuto
-						return {
-							id: `layer-${geonodeLayer.pk}`,
-							source: sourceId,
-							type: "fill",
-							paint: {
-								"fill-color": "#02Ae23",
-								"fill-opacity": 0.3,
-							},
-						};
-					}
-				}
-				const layerConfig = getLayerConfig();
-				mapInstance.addLayer(layerConfig);
-				dynamicLayerIds.value.push(layerConfig.id);
-			} else {
-				let sCount = 0;
-				styles.forEach((s) => {
-					s.source = sourceId;
-					console.log("adding styled layer for " + s.id);
-					mapInstance.addLayer(s);
-					dynamicLayerIds.value.push(s.id);
-				});
-			}
-		});
-
-		mapStore.getRasterLayersState.forEach((lState) => {
-			const sourceId = `source-${lState.geonodeLayer.pk}`;
-			const layerId = `layer-${lState.geonodeLayer.pk}`;
-
-			if (!mapInstance.getSource(sourceId)) {
-				console.log("now add WMS source! ", lState.geonodeLayer.name);
-				mapInstance.addSource(sourceId, {
-					type: "raster",
-					tiles: lState.rasterTiles,
-					tileSize: 256,
-				});
-				dynamicSourceIds.value.push(sourceId);
-				mapInstance.addLayer({
-					id: layerId,
-					type: "raster",
-					source: sourceId,
-					paint: {
-						"raster-opacity": 1,
-					},
-				});
-				dynamicLayerIds.value.push(layerId);
-			}
-		});
-
-		// --- FASE 3: Centratura della mappa (una volta che tutto è aggiunto) ---
-		let boundsAdded = false;
-		mapStore.getGnLayers.forEach((layer) => {
-			if (!boundsAdded && layer.ll_bbox_polygon) {
-				const bBox = convertLLBoxToMapLibreBbox(layer);
-				if (bBox) {
-					mapInstance.fitBounds(bBox, {
-						padding: 20,
-						duration: 1000,
-					});
-					boundsAdded = true;
-				}
-			}
-		});
-		isLoadingLayers.value = false;
-	}
-
-	onMounted(initializeMap);
-	onUnmounted(() => {
-		if (map.value) map.value.remove();
+		}
 	});
 
-	function updateMapInfo() {
-		if (map.value) {
-			const center = map.value.getCenter();
-			centerCoords.value = [center.lng, center.lat];
-			zoomLevel.value = map.value.getZoom();
-		}
+	const rasterLayers = mapStore.getRasterLayersState;
+	console.log("[LayerMapView] Adding", rasterLayers.length, "raster layers");
+
+	let layersAdded = results.filter(fState => fState.fetchStatus === "idle" && fState.geojsonData).length + rasterLayers.length;
+
+	rasterLayers.forEach((lState) => {
+		const sourceId = `source-${lState.geonodeLayer.pk}`;
+		const layerId = `layer-${lState.geonodeLayer.pk}`;
+
+		console.log("[LayerMapView] Adding WMS source:", sourceId);
+		mapInstance.addSource(sourceId, {
+			type: "raster",
+			tiles: lState.rasterTiles,
+			tileSize: 256,
+		});
+		dynamicSourceIds.value.push(sourceId);
+
+		mapInstance.addLayer({
+			id: layerId,
+			type: "raster",
+			source: sourceId,
+			paint: {
+				"raster-opacity": 1,
+			},
+		});
+		dynamicLayerIds.value.push(layerId);
+		console.log("[LayerMapView] Added raster layer:", layerId);
+	});
+
+	console.log("[LayerMapView] Map redraw complete -", layersAdded, "total layers rendered on map");
+	isLoadingLayers.value = false;
+}
+
+onMounted(initializeMap);
+onUnmounted(() => {
+	if (map.value) map.value.remove();
+});
+
+function updateMapInfo() {
+	if (map.value) {
+		const center = map.value.getCenter();
+		centerCoords.value = [center.lng, center.lat];
+		zoomLevel.value = map.value.getZoom();
 	}
-	function getBoundingBox(): [number, number, number, number] | null {
-		if (!map.value) return null;
-		const bounds = map.value.getBounds();
-		return [
-			bounds.getWest(), // minX
-			bounds.getSouth(), // minY
-			bounds.getEast(), // maxX
-			bounds.getNorth(), // maxY
-		];
-	}
+}
+function getBoundingBox(): [number, number, number, number] | null {
+	if (!map.value) return null;
+	const bounds = map.value.getBounds();
+	return [
+		bounds.getWest(), // minX
+		bounds.getSouth(), // minY
+		bounds.getEast(), // maxX
+		bounds.getNorth(), // maxY
+	];
+}
 </script>
 
 <template>
@@ -274,21 +317,12 @@
 		<div ref="mapContainer" class="map-container"></div>
 
 		<!-- Overlay di caricamento Vuetify -->
-		<v-overlay
-			:model-value="mapStore.isAnyLayerLoading || isLoadingLayers"
-			class="align-center justify-center loading-overlay"
-			persistent
-			contained
-		>
+		<v-overlay :model-value="mapStore.isAnyLayerLoading || isLoadingLayers"
+			class="align-center justify-center loading-overlay" persistent contained>
 			<div class="tw:flex tw:flex-col tw:items-center">
-				<v-progress-circular
-					color="primary"
-					indeterminate
-					size="64"
-				></v-progress-circular>
+				<v-progress-circular color="primary" indeterminate size="64"></v-progress-circular>
 				<span class="tw:mt-4 tw:text-white tw:font-bold tw:text-sm">
-					loading geographic data...</span
-				>
+					loading geographic data...</span>
 			</div>
 		</v-overlay>
 
@@ -301,33 +335,43 @@
 </template>
 
 <style scoped>
-	.map-container-wrapper {
-		position: relative;
-		/* Importante per 'contained' di v-overlay */
-		height: 600px;
-		/* Imposta un'altezza fissa o gestiscila con flexbox */
-		width: 100%;
-		overflow: hidden;
-	}
-	:deep(.loading-overlay) {
-		z-index: 9999 !important;
-	}
-	:deep(.v-overlay__scrim) {
-		background: rgba(0, 0, 0, 0.4) !important; /* Nero semitrasparente */
-		opacity: 1 !important;
-	}
-	.map-container {
-		width: 100%;
-		height: 100%;
-	}
+.map-container-wrapper {
+	position: relative;
+	height: 100%;
+	min-height: 100%;
+	width: 100%;
+	overflow: hidden;
+}
 
-	.map-info {
-		position: absolute;
-		bottom: 10px;
-		left: 10px;
-		background: rgba(255, 255, 255, 0.8);
-		padding: 5px 10px;
-		border-radius: 4px;
-		z-index: 10;
-	}
+:deep(.loading-overlay) {
+	z-index: 9999 !important;
+}
+
+:deep(.v-overlay__scrim) {
+	background: rgba(0, 0, 0, 0.4) !important;
+	/* Nero semitrasparente */
+	opacity: 1 !important;
+}
+
+.map-container {
+	width: 100%;
+	height: 100%;
+}
+
+:deep(.maplibregl-map),
+:deep(.maplibregl-canvas-container),
+:deep(.maplibregl-canvas) {
+	width: 100%;
+	height: 100%;
+}
+
+.map-info {
+	position: absolute;
+	bottom: 10px;
+	left: 10px;
+	background: rgba(255, 255, 255, 0.8);
+	padding: 5px 10px;
+	border-radius: 4px;
+	z-index: 10;
+}
 </style>

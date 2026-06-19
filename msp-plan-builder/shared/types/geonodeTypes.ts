@@ -287,66 +287,6 @@ export interface GeoNodeDatasetsResponse {
 	results?: Dataset[];
 }
 
-/**
- * Interfaccia per l'oggetto Layer principale
- */
-/**
- * Interfaccia leggera per la lista mappe (catalogo GeoNode maps).
- */
-export interface GeonodeMapListItem {
-	pk: string;
-	uuid?: string;
-	title: string;
-	abstract: string;
-	attribution?: string | null;
-	owner?: User;
-	owner_username: string;
-	poc?: User;
-	metadata_author?: User;
-	created: string;
-	last_updated?: string;
-	date?: string;
-	date_type?: string;
-	temporal_extent_start?: string | null;
-	temporal_extent_end?: string | null;
-	group?: string | null;
-	language?: string;
-	popular_count: string;
-	share_count: string;
-	rating: string;
-	featuredurl?: string;
-	featured?: boolean;
-	is_published?: boolean;
-	is_approved?: boolean;
-	detail_url: string;
-	thumbnail_url: string;
-	embed_url?: string;
-	resource_type?: 'map';
-	urlsuffix?: string;
-	projection?: string;
-	zoom?: number;
-	center_x?: number;
-	center_y?: number;
-}
-
-export interface GeonodeMapListResponse {
-	links: { next: string | null; previous: string | null };
-	total: number;
-	page: number;
-	page_size: number;
-	maps: GeonodeMapListItem[];
-}
-
-/**
- * Interfaccia per la risposta JSON completa che contiene l'oggetto Layer
- */
-export interface LayerDetailsResponse {
-	layer: Dataset;
-}
-
-/**
- * Interfaccia per l'oggetto Map principale di GeoNode (/api/v2/maps)
- */
 export interface GeonodeMap {
 	pk: string;
 	uuid: string;
@@ -359,6 +299,7 @@ export interface GeonodeMap {
 	resource_type: "map";
 	polymorphic_ctype_id: string;
 	owner: User;
+	owner_username: string;
 	poc: User;
 	metadata_author: User;
 	title: string;
@@ -420,4 +361,11 @@ export interface GeonodeMapsResponse {
 	page: number;
 	page_size: number;
 	maps: GeonodeMap[];
+}
+
+/**
+ * Interfaccia per la risposta JSON completa che contiene l'oggetto Layer
+ */
+export interface LayerDetailsResponse {
+	layer: Dataset;
 }

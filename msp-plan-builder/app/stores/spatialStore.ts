@@ -1,5 +1,5 @@
 
-import type { Dataset, DatasetListItem, GeonodeMapListItem, GeonodeMapListResponse } from '#/shared/types/geonodeTypes';
+import type { Dataset, DatasetListItem, GeonodeMap, GeonodeMapsResponse } from '#/shared/types/geonodeTypes';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
@@ -13,7 +13,7 @@ export const useSpatialResourceStore = defineStore('remote-spatial-resources', (
 	const layers = ref<DatasetListItem[]>([]);
 	const mapDatasets = ref<DatasetListItem[]>([]);
 	const spatialResourceGroups = ref<SpatialResourceGroup[]>([]);
-	const maps = ref<GeonodeMapListItem[]>([]);
+	const maps = ref<GeonodeMap[]>([]);
 	const selectedDatasetDetails = ref<Dataset | null>(null);
 	const selectedMapId = ref<string | null>(null);
 	const error = ref<Error | null>(null);
@@ -46,7 +46,7 @@ export const useSpatialResourceStore = defineStore('remote-spatial-resources', (
 				currentSearchText.value = '';
 			}
 
-			const response = await $fetch<GeonodeMapListResponse>('/api/geonode/maps', {
+			const response = await $fetch<GeonodeMapsResponse>('/api/geonode/maps', {
 				method: 'GET',
 				query,
 			});

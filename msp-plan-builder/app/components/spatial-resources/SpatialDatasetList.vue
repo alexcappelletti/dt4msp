@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import SpatialDatasetCard from "@/components/spatial-resources/SpatialDatasetCard.vue";
 import type { SpatialResourceGroup } from "@/stores/spatialStore";
+import { computed } from "vue";
 
 const props = defineProps<{
 	groups: SpatialResourceGroup[];
@@ -30,6 +31,14 @@ const updateSortBy = (value: "title" | "popular" | "created" | null) => {
 
 const isDescriptionExpanded = (pk: string) =>
 	props.expandedDescriptionPks.includes(pk);
+
+const specificGroup = computed(
+	() => props.groups.find((group) => group.group === "specific") ?? null,
+);
+
+const generalGroup = computed(
+	() => props.groups.find((group) => group.group === "general") ?? null,
+);
 </script>
 
 <template>
@@ -69,24 +78,41 @@ const isDescriptionExpanded = (pk: string) =>
 		</div>
 
 		<div v-else>
-			<div
-				v-for="group in groups"
-				:key="group.group"
+			<section
+				v-if="specificGroup"
 				class="resource-group"
 			>
-				<h3 class="group-label">{{ group.label }}</h3>
+				<h3 class="group-label">Layer definiti per l'area</h3>
 				<div class="datasets-grid">
 					<SpatialDatasetCard
-						v-for="item in group.items"
+						v-for="item in specificGroup.items"
 						:key="item.pk"
 						:item="item"
-						:group="group.group"
+						:group="specificGroup.group"
 						:description-expanded="isDescriptionExpanded(item.pk)"
 						@select="emit('select-dataset', $event)"
 						@toggle-description="emit('toggle-description', $event)"
 					/>
 				</div>
-			</div>
+			</section>
+
+			<section
+				v-if="generalGroup"
+				class="resource-group"
+			>
+				<h3 class="group-label">{{ generalGroup.label }}</h3>
+				<div class="datasets-grid">
+					<SpatialDatasetCard
+						v-for="item in generalGroup.items"
+						:key="item.pk"
+						:item="item"
+						:group="generalGroup.group"
+						:description-expanded="isDescriptionExpanded(item.pk)"
+						@select="emit('select-dataset', $event)"
+						@toggle-description="emit('toggle-description', $event)"
+					/>
+				</div>
+			</section>
 		</div>
 	</div>
 </template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import MapListLayout from '#/app/components/layouts/MapListLayout.vue';
-import type { GeonodeMapListItem } from '#/shared/types/geonodeTypes';
+import type { GeonodeMap } from '#/shared/types/geonodeTypes';
 import type { GeonodeMapReference } from '#/shared/types/msp-project';
 import { useSpatialResourceStore } from '@/stores/spatialStore';
 import { computed, onMounted, ref, watch } from 'vue';
@@ -13,7 +13,7 @@ const emit = defineEmits<{
 }>();
 
 const mapStore = useSpatialResourceStore();
-const selectedMap = ref<GeonodeMapListItem | null>(null);
+const selectedMap = ref<GeonodeMap | null>(null);
 const searchText = ref<string | null>('');
 const sortBy = ref<'date_desc' | 'popular_desc' | 'title_asc' | 'title_desc'>('date_desc');
 const isLoading = computed(() => mapStore.busy);
@@ -68,7 +68,7 @@ const formatDate = (dateValue: string) => {
 const stripHtml = (value: string) => value.replace(/<[^>]*>/g, '').trim();
 const NO_DESCRIPTION = 'Nessuna descrizione disponibile.';
 
-const selectMap = (item: GeonodeMapListItem) => {
+const selectMap = (item: GeonodeMap) => {
 	selectedMap.value = item;
 	emit('update:modelValue', {
 		pk: item.pk,
@@ -78,7 +78,7 @@ const selectMap = (item: GeonodeMapListItem) => {
 	});
 };
 
-const isActiveMap = (item: GeonodeMapListItem): boolean => {
+const isActiveMap = (item: GeonodeMap): boolean => {
 	const activePk = props.modelValue?.pk ?? selectedMap.value?.pk;
 	if (!activePk) return false;
 	return String(item.pk) === String(activePk);

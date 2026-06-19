@@ -57,21 +57,35 @@ export const useLayeredMapStore = defineStore('layeredMap', () => {
 	}
 
 	async function fetchOGCLayerData(gnLayers: Dataset[], typeFilter?: OGCType): Promise<void> {
+		console.log("[layeredMapStore] fetchOGCLayerData called with", gnLayers.length, "layers:", gnLayers.map(l => ({ pk: l.pk, name: l.name })));
+
 		if (currentAbortController) {
 			currentAbortController.abort();
 		}
 		currentAbortController = new AbortController();
 		const signal = currentAbortController.signal;
+
 		resetStore();
+		console.log("[layeredMapStore] Store reset");
+
 		const tasks: Promise<void>[] = [];
 		gnLayers.forEach(layer => {
 			const types = ogcTypes(layer) as OGCType[];
-			const targetType = typeFilter || (types.includes('wfs') ? 'wfs' : 'wms');
+			console.log("[layeredMapStore] Layer", layer.pk, "available types:", types);
 
-			if (typeFilter === 'wfs' && (types.includes('wfs') || types.includes('geojson'))) {
+			const targetType = typeFilter
+				|| (types.includes('wms')
+					? 'wms'
+					: ((types.includes('wfs') || types.includes('geojson')) ? 'wfs' : 'wms'));
+
+			console.log("[layeredMapStore] Layer", layer.pk, "target type:", targetType);
+
+			if (targetType === 'wfs' && (types.includes('wfs') || types.includes('geojson'))) {
+				console.log("[layeredMapStore] Fetching WFS for", layer.pk);
 				tasks.push(fetchWFSLayerData(layer, signal));
 			}
-			else if (typeFilter === 'wms' && types.includes('wms')) {
+			else if (targetType === 'wms' && types.includes('wms')) {
+				console.log("[layeredMapStore] Fetching WMS for", layer.pk);
 				fetchWMSLayerData(layer);
 			}
 		});
@@ -81,6 +95,10 @@ export const useLayeredMapStore = defineStore('layeredMap', () => {
 		} catch (error: any) {
 			if (error.name !== 'AbortError') throw error;
 		}
+
+		console.log("[layeredMapStore] fetchOGCLayerData complete. Store state:");
+		console.log("  - Featured layers:", getFeaturedLayersState.value.length, getFeaturedLayersState.value.map(l => l.geonodeLayer.pk));
+		console.log("  - Raster layers:", getRasterLayersState.value.length, getRasterLayersState.value.map(l => l.geonodeLayer.pk));
 	}
 	async function fetchWFSLayerData(layer: Dataset, signal: AbortSignal): Promise<void> {
 		layersData[layer.pk] = {
@@ -122,9 +140,11 @@ export const useLayeredMapStore = defineStore('layeredMap', () => {
 				fetchStatus: 'idle',
 				loading: false // Spegne lo spinner
 			};
+			console.log("[layeredMapStore] WFS data stored for", layer.pk, "features:", geojsonData.features.length);
 
 		} catch (error: any) {
 			if (error.name === 'AbortError') return;
+			console.error("[layeredMapStore] Error fetching WFS for", layer.pk, error);
 			layersData[layer.pk] = {
 				...layersData[layer.pk]!,
 				loading: false,
@@ -144,6 +164,7 @@ export const useLayeredMapStore = defineStore('layeredMap', () => {
 			error: null,
 			fetchStatus: 'idle'
 		};
+		console.log("[layeredMapStore] WMS data stored for", layer.pk);
 	}
 
 	function resetStore() {
