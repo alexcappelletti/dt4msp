@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import type { Aspect, DomainEffect, DomainMeasure, Measure, Theme } from '#/shared/types/msp-project';
+import type { Aspect, DomainEffect, DomainMeasure, MapLayer, Measure, Theme } from '#/shared/types/msp-project';
 import { useScenarioStore } from '@/stores/scenarioStore';
 import { computed, onMounted, ref } from 'vue';
 import MeasurePicker from './MeasurePicker.vue';
 import type { MeasureType } from './DomainMeasures.vue';
 import { useThemesStore } from '@/stores/themesStore';
+import SpatialResourcesPanel from './SpatialResourcesPanel.vue';
 
 const store = useScenarioStore();
 const themesStore = useThemesStore();
@@ -115,6 +116,28 @@ const affectedModel = computed({
 	},
 });
 
+const effectGeospatialResources = computed<MapLayer[]>(() => {
+	if (effectType.value !== "Spatial") return [];
+
+	const merged = new Map<string, MapLayer>();
+	for (const measure of affectedModel.value) {
+		if (measure.type !== "Spatial") continue;
+		for (const resource of measure.geospatialResources ?? []) {
+			const key = String(
+				resource.id
+				?? resource.pk
+				?? resource.datasetPk
+				?? resource.name
+				?? resource.title
+				?? "",
+			).trim();
+			if (!key) continue;
+			merged.set(key, resource);
+		}
+	}
+	return [...merged.values()];
+});
+
 
 
 
@@ -196,6 +219,18 @@ const affectedModel = computed({
 						<v-col cols="12" class="d-flex flex-column">
 							<measure-picker class="flex-grow-1" :available="availableMeasures" v-model="affectedModel"
 								label="Measure" />
+						</v-col>
+					</v-row>
+				</v-expand-transition>
+
+				<v-expand-transition>
+					<v-row v-if="effectType === 'Spatial'" class="mt-4">
+						<v-col cols="12">
+							<SpatialResourcesPanel
+								:model-value="effectGeospatialResources"
+								title="Layer derivati dalle misure coinvolte"
+								readonly
+							/>
 						</v-col>
 					</v-row>
 				</v-expand-transition>

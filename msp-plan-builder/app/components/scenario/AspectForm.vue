@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import type { DomainMeasure } from '#/shared/types/msp-project';
+import SpatialResourcesPanel from './SpatialResourcesPanel.vue';
 //import { useAspectStore } from '@/stores/aspectStore'; // Importa il tuo store Pinia
 // import { useScenarioStore } from '@/stores/scenarioStore';
 
@@ -82,17 +83,27 @@ const cancelForm = () => {
 							hint="Long title of the measure" persistent-hint></v-text-field>
 					</v-col>
 				</v-row>
-				<v-expand-transition>
+				<!-- <v-expand-transition>
 					<v-row v-if="formData.type === 'Spatial'">
 						<v-col cols="12">
 							<v-text-field v-model="formData.impact" label="Impatto" variant="outlined" />
 						</v-col>
 					</v-row><v-row v-if="formData.type === 'Spatial'">
 						<v-col cols="12">
-							MAppa con selezione dei layers
+							<SpatialResourcesPanel
+								v-model="formData.geospatialResources"
+								title="Layer della misura"
+							/>
 						</v-col>
 					</v-row>
 				</v-expand-transition>
+ -->
+
+				<v-row v-if="formData.type === 'Spatial'">
+					<v-col cols="12">
+						<SpatialResourcesPanel v-model="formData.geospatialResources" />
+					</v-col>
+				</v-row>
 
 
 				<v-row>
