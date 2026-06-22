@@ -4,6 +4,7 @@ import { useOgcHelper } from "@/composables/useOgcHelper";
 import maplibregl, {
 	Map as MaplibreMap,
 	type LayerSpecification,
+	type GeoJSONSource,
 } from "maplibre-gl";
 import { onMounted, onUnmounted, ref, shallowRef, watch } from "vue";
 import { useLayeredMapStore } from "~/stores/layeredMapStore";
@@ -52,6 +53,9 @@ const zoomLevel = ref<number>(0);
 const dynamicLayerIds = shallowRef<string[]>([]);
 const dynamicSourceIds = shallowRef<string[]>([]);
 const isLoadingLayers = ref(false);
+let requestedRenderId = 0;
+let processedRenderId = 0;
+let isRenderingMap = false;
 
 const initializeMap = () => {
 	// ... (logica inizializzazione mappa) ...
@@ -73,18 +77,32 @@ const initializeMap = () => {
 	});
 };
 
-watch(
-	[() => mapStore.getFeaturedLayersState, () => mapStore.getRasterLayersState],
-	async () => {
-		const featured = mapStore.getFeaturedLayersState;
-		const raster = mapStore.getRasterLayersState;
-		console.log(
-			"[LayerMapView] Layer state changed - redrawing map",
-			"Featured:", featured.length, featured.map(l => l.geonodeLayer.pk),
-			"Raster:", raster.length, raster.map(l => l.geonodeLayer.pk)
-		);
-		try {
+const requestMapUpdate = async () => {
+	requestedRenderId += 1;
+	if (isRenderingMap) {
+		return;
+	}
+
+	isRenderingMap = true;
+	try {
+		while (processedRenderId !== requestedRenderId) {
+			processedRenderId = requestedRenderId;
 			await updateMap();
+		}
+	} finally {
+		isRenderingMap = false;
+	}
+};
+
+watch(
+	[
+		() => mapStore.getFeaturedLayersState,
+		() => mapStore.getRasterLayersState,
+		() => mapStore.getRenderOrder,
+	],
+	async () => {
+		try {
+			await requestMapUpdate();
 		} catch (err) {
 			console.error(
 				"Errore durante l'aggiornamento della mappa: ",
@@ -155,135 +173,227 @@ function clearMap() {
 	console.log("[LayerMapView] Map cleared");
 }
 
+function buildDefaultLayerConfig(
+	sourceId: string,
+	geonodeLayerPk: string,
+	geometryType?: string,
+): LayerSpecification {
+	if (geometryType === "Polygon" || geometryType === "MultiPolygon") {
+		return {
+			id: `layer-${geonodeLayerPk}`,
+			source: sourceId,
+			type: "fill",
+			paint: {
+				"fill-color": "#088",
+				"fill-opacity": 0.5,
+			},
+		};
+	}
+
+	if (geometryType === "LineString" || geometryType === "MultiLineString") {
+		return {
+			id: `layer-${geonodeLayerPk}`,
+			source: sourceId,
+			type: "line",
+			paint: { "line-color": "#000000", "line-width": 2 },
+		};
+	}
+
+	if (geometryType === "Point" || geometryType === "MultiPoint") {
+		return {
+			id: `layer-${geonodeLayerPk}`,
+			source: sourceId,
+			type: "circle",
+			paint: {
+				"circle-color": "#FF0000",
+				"circle-radius": 6,
+			},
+		};
+	}
+
+	return {
+		id: `layer-${geonodeLayerPk}`,
+		source: sourceId,
+		type: "fill",
+		paint: {
+			"fill-color": "#02Ae23",
+			"fill-opacity": 0.3,
+		},
+	};
+}
+
+function syncTrackedIds(mapInstance: MaplibreMap) {
+	const style = mapInstance.getStyle();
+	if (!style) return;
+
+	dynamicLayerIds.value = dynamicLayerIds.value.filter((id) =>
+		Boolean(mapInstance.getLayer(id)),
+	);
+	dynamicSourceIds.value = dynamicSourceIds.value.filter((id) =>
+		Boolean(mapInstance.getSource(id)),
+	);
+
+	const knownLayerIds = new Set(dynamicLayerIds.value);
+	const knownSourceIds = new Set(dynamicSourceIds.value);
+
+	for (const layer of style.layers ?? []) {
+		if (layer.id?.startsWith("layer-") && !knownLayerIds.has(layer.id)) {
+			dynamicLayerIds.value.push(layer.id);
+		}
+	}
+
+	for (const sourceId of Object.keys(style.sources ?? {})) {
+		if (sourceId.startsWith("source-") && !knownSourceIds.has(sourceId)) {
+			dynamicSourceIds.value.push(sourceId);
+		}
+	}
+}
+
+function removeObsoleteMapItems(
+	mapInstance: MaplibreMap,
+	desiredLayerIds: Set<string>,
+	desiredSourceIds: Set<string>,
+) {
+	for (const layerId of [...dynamicLayerIds.value]) {
+		if (!desiredLayerIds.has(layerId) && mapInstance.getLayer(layerId)) {
+			mapInstance.removeLayer(layerId);
+		}
+	}
+
+	dynamicLayerIds.value = dynamicLayerIds.value.filter((id) =>
+		desiredLayerIds.has(id) && Boolean(mapInstance.getLayer(id)),
+	);
+
+	for (const sourceId of [...dynamicSourceIds.value]) {
+		if (!desiredSourceIds.has(sourceId) && mapInstance.getSource(sourceId)) {
+			mapInstance.removeSource(sourceId);
+		}
+	}
+
+	dynamicSourceIds.value = dynamicSourceIds.value.filter((id) =>
+		desiredSourceIds.has(id) && Boolean(mapInstance.getSource(id)),
+	);
+}
+
+function applyLayerOrder(mapInstance: MaplibreMap) {
+	const renderOrder = mapStore.getRenderOrder;
+	if (!renderOrder.length) return;
+
+	for (const layerPk of renderOrder) {
+		const exactLayerId = `layer-${layerPk}`;
+		if (mapInstance.getLayer(exactLayerId)) {
+			mapInstance.moveLayer(exactLayerId);
+		}
+
+		dynamicLayerIds.value
+			.filter((layerId) =>
+				layerId.startsWith(`layer-${layerPk}`) && layerId !== exactLayerId,
+			)
+			.forEach((layerId) => {
+				if (mapInstance.getLayer(layerId)) {
+					mapInstance.moveLayer(layerId);
+				}
+			});
+	}
+}
+
 async function updateMap() {
 	if (!map.value || !map.value.isStyleLoaded()) {
-		console.log("[LayerMapView] Map not ready, skipping update");
 		return;
 	}
 
-	console.log("[LayerMapView] Starting map redraw...");
 	isLoadingLayers.value = true;
 
 	// Delay per garantire che il rendering dello spinner avvenga
 	await new Promise((resolve) => setTimeout(resolve, 100));
 
-	clearMap();
 	const mapInstance = map.value;
+	syncTrackedIds(mapInstance);
 
 	const results = mapStore.getFeaturedLayersState;
-	console.log("[LayerMapView] Adding", results.length, "featured layers");
+	const desiredLayerIds = new Set<string>();
+	const desiredSourceIds = new Set<string>();
 
 	results.forEach((fState) => {
 		if (fState.fetchStatus !== "idle" || !fState.geojsonData) {
-			console.log("[LayerMapView] Skipping layer (status:", fState.fetchStatus, ")");
 			return;
 		}
 		const { geonodeLayer, geojsonData, styles } = fState;
 		const sourceId = `source-${geonodeLayer.pk}`;
+		desiredSourceIds.add(sourceId);
 
-		console.log("[LayerMapView] Adding WFS/GeoJSON source:", sourceId, "with", geojsonData.features.length, "features");
-
-		mapInstance.addSource(sourceId, {
-			type: "geojson",
-			data: geojsonData,
-		});
-		dynamicSourceIds.value.push(sourceId);
+		const existingSource = mapInstance.getSource(sourceId) as
+			| GeoJSONSource
+			| undefined;
+		if (existingSource) {
+			existingSource.setData(geojsonData);
+		} else {
+			mapInstance.addSource(sourceId, {
+				type: "geojson",
+				data: geojsonData,
+			});
+			dynamicSourceIds.value.push(sourceId);
+		}
 
 		if (styles.length === 0) {
 			const geometryType = geojsonData.features?.[0]?.geometry?.type;
-			function getLayerConfig(): LayerSpecification {
-				if (
-					geometryType === "Polygon" ||
-					geometryType === "MultiPolygon"
-				) {
-					return {
-						id: `layer-${geonodeLayer.pk}`,
-						source: sourceId,
-						type: "fill",
-						paint: {
-							"fill-color": "#088",
-							"fill-opacity": 0.5,
-						},
-					};
-				} else if (
-					geometryType === "LineString" ||
-					geometryType === "MultiLineString"
-				) {
-					return {
-						id: `layer-${geonodeLayer.pk}`,
-						source: sourceId,
-						type: "line",
-						paint: { "line-color": "#000000", "line-width": 2 },
-					};
-				} else if (
-					geometryType === "Point" ||
-					geometryType === "MultiPoint"
-				) {
-					return {
-						id: `layer-${geonodeLayer.pk}`,
-						source: sourceId,
-						type: "circle",
-						paint: {
-							"circle-color": "#FF0000",
-							"circle-radius": 6,
-						},
-					};
-				} else {
-					return {
-						id: `layer-${geonodeLayer.pk}`,
-						source: sourceId,
-						type: "fill",
-						paint: {
-							"fill-color": "#02Ae23",
-							"fill-opacity": 0.3,
-						},
-					};
-				}
+			const layerConfig = buildDefaultLayerConfig(
+				sourceId,
+				geonodeLayer.pk,
+				geometryType,
+			);
+			desiredLayerIds.add(layerConfig.id);
+			if (!mapInstance.getLayer(layerConfig.id)) {
+				mapInstance.addLayer(layerConfig);
+				dynamicLayerIds.value.push(layerConfig.id);
 			}
-			const layerConfig = getLayerConfig();
-			mapInstance.addLayer(layerConfig);
-			dynamicLayerIds.value.push(layerConfig.id);
-			console.log("[LayerMapView] Added default layer:", layerConfig.id);
 		} else {
 			styles.forEach((s) => {
-				s.source = sourceId;
-				console.log("[LayerMapView] Adding styled layer:", s.id);
-				mapInstance.addLayer(s);
-				dynamicLayerIds.value.push(s.id);
+				const styledLayer = {
+					...s,
+					source: sourceId,
+				} as LayerSpecification;
+				desiredLayerIds.add(styledLayer.id);
+				if (!mapInstance.getLayer(styledLayer.id)) {
+					mapInstance.addLayer(styledLayer);
+					dynamicLayerIds.value.push(styledLayer.id);
+				}
 			});
 		}
 	});
 
 	const rasterLayers = mapStore.getRasterLayersState;
-	console.log("[LayerMapView] Adding", rasterLayers.length, "raster layers");
-
-	let layersAdded = results.filter(fState => fState.fetchStatus === "idle" && fState.geojsonData).length + rasterLayers.length;
 
 	rasterLayers.forEach((lState) => {
 		const sourceId = `source-${lState.geonodeLayer.pk}`;
 		const layerId = `layer-${lState.geonodeLayer.pk}`;
+		desiredSourceIds.add(sourceId);
+		desiredLayerIds.add(layerId);
 
-		console.log("[LayerMapView] Adding WMS source:", sourceId);
-		mapInstance.addSource(sourceId, {
-			type: "raster",
-			tiles: lState.rasterTiles,
-			tileSize: 256,
-		});
-		dynamicSourceIds.value.push(sourceId);
+		if (!mapInstance.getSource(sourceId)) {
+			mapInstance.addSource(sourceId, {
+				type: "raster",
+				tiles: lState.rasterTiles,
+				tileSize: 256,
+			});
+			dynamicSourceIds.value.push(sourceId);
+		}
 
-		mapInstance.addLayer({
-			id: layerId,
-			type: "raster",
-			source: sourceId,
-			paint: {
-				"raster-opacity": 1,
-			},
-		});
-		dynamicLayerIds.value.push(layerId);
-		console.log("[LayerMapView] Added raster layer:", layerId);
+		if (!mapInstance.getLayer(layerId)) {
+			mapInstance.addLayer({
+				id: layerId,
+				type: "raster",
+				source: sourceId,
+				paint: {
+					"raster-opacity": 1,
+				},
+			});
+			dynamicLayerIds.value.push(layerId);
+		}
 	});
 
-	console.log("[LayerMapView] Map redraw complete -", layersAdded, "total layers rendered on map");
+	applyLayerOrder(mapInstance);
+	removeObsoleteMapItems(mapInstance, desiredLayerIds, desiredSourceIds);
 	isLoadingLayers.value = false;
 }
 

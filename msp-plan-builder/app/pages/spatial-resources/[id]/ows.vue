@@ -20,7 +20,11 @@ const mapId = computed(() => String(route.params.id || ""));
 const isLoading = ref(false);
 const isSyncingMap = ref(false);
 const selectedPks = ref<Set<string>>(new Set());
+const selectedPkOrder = ref<string[]>([]);
 const datasetCache = ref<Record<string, Dataset>>({});
+const latestSelectionIntent = ref<Record<string, boolean>>({});
+let latestSyncRequestId = 0;
+const draggedPk = ref<string | null>(null);
 
 const associatedMapTitle = computed(
 	() => currentProject.value?.areaOfInterest?.associatedMap?.title || "Mappa",
@@ -30,14 +34,26 @@ const allItems = computed(() =>
 	availableSpatialResources.value.flatMap((group) => group.items),
 );
 
+const activeItems = computed(() =>
+	[...selectedPkOrder.value]
+		.reverse()
+		.map((pk) => allItems.value.find((item) => item.pk === pk))
+		.filter((item): item is DatasetListItem => Boolean(item)),
+);
+
+const availableItems = computed(() =>
+	allItems.value.filter((item) => !selectedPks.value.has(item.pk)),
+);
+
 const selectedLayers = computed(() =>
-	Array.from(selectedPks.value)
+	selectedPkOrder.value
 		.map((pk) => datasetCache.value[pk])
 		.filter((dataset): dataset is Dataset => Boolean(dataset)),
 );
 
 const loadDatasetsForMap = async (mapIdValue: string) => {
 	selectedPks.value = new Set();
+	selectedPkOrder.value = [];
 	datasetCache.value = {};
 	layeredMapStore.resetStore();
 
@@ -68,52 +84,91 @@ const ensureDatasetDetails = async (summary: DatasetListItem) => {
 };
 
 const syncMapLayers = async () => {
+	const requestId = ++latestSyncRequestId;
 	isSyncingMap.value = true;
 	try {
 		const layersToSync = selectedLayers.value;
-		console.log(
-			"[ows.vue] syncMapLayers - selected pks:", Array.from(selectedPks.value),
-			"dataset count:", layersToSync.length,
-			"datasets:", layersToSync.map(d => ({ pk: d.pk, name: d.name }))
-		);
 
 		if (layersToSync.length === 0) {
-			console.log("[ows.vue] No layers selected, resetting store");
 			layeredMapStore.resetStore();
 			return;
 		}
 
-		console.log("[ows.vue] Fetching OGC data for", layersToSync.length, "layers");
+		layeredMapStore.setRenderOrder(selectedPkOrder.value);
 		await layeredMapStore.fetchOGCLayerData(layersToSync);
-		console.log("[ows.vue] Store after fetch - featured:", layeredMapStore.getFeaturedLayersState.length, "raster:", layeredMapStore.getRasterLayersState.length);
 	} finally {
-		isSyncingMap.value = false;
+		if (requestId === latestSyncRequestId) {
+			isSyncingMap.value = false;
+		}
 	}
 };
 
 const toggleDataset = async (summary: DatasetListItem, checked: boolean) => {
 	if (!summary.canVisualize) return;
-
-	console.log("[ows.vue] toggleDataset:", summary.pk, summary.name, "checked:", checked);
+	latestSelectionIntent.value = {
+		...latestSelectionIntent.value,
+		[summary.pk]: checked,
+	};
 
 	const next = new Set(selectedPks.value);
+	const nextOrder = [...selectedPkOrder.value];
 	if (checked) {
 		await ensureDatasetDetails(summary);
+		if (!latestSelectionIntent.value[summary.pk]) {
+			return;
+		}
 		next.add(summary.pk);
-		console.log("[ows.vue] Added to selectedPks, cache now has:", Object.keys(datasetCache.value));
+		if (!nextOrder.includes(summary.pk)) {
+			nextOrder.push(summary.pk);
+		}
 	} else {
 		next.delete(summary.pk);
-		console.log("[ows.vue] Removed from selectedPks");
+		const nextIndex = nextOrder.indexOf(summary.pk);
+		if (nextIndex >= 0) {
+			nextOrder.splice(nextIndex, 1);
+		}
 	}
 
 	selectedPks.value = next;
-	console.log("[ows.vue] selectedPks is now:", Array.from(selectedPks.value));
-	console.log("[ows.vue] selectedLayers computed result:", selectedLayers.value.map(d => ({ pk: d.pk, name: d.name })));
-
+	selectedPkOrder.value = nextOrder;
 	await syncMapLayers();
 };
 
 const isDatasetSelected = (pk: string) => selectedPks.value.has(pk);
+
+const onDragStart = (event: DragEvent, pk: string) => {
+	draggedPk.value = pk;
+	if (event.dataTransfer) {
+		event.dataTransfer.effectAllowed = "move";
+		event.dataTransfer.setData("text/plain", pk);
+	}
+};
+
+const onDragOver = (event: DragEvent) => {
+	event.preventDefault();
+};
+
+const onDrop = async (targetPk: string) => {
+	const sourcePk = draggedPk.value;
+	draggedPk.value = null;
+	if (!sourcePk || sourcePk === targetPk) return;
+
+	const nextVisualOrder = [...selectedPkOrder.value].reverse();
+	const fromIndex = nextVisualOrder.indexOf(sourcePk);
+	const toIndex = nextVisualOrder.indexOf(targetPk);
+	if (fromIndex < 0 || toIndex < 0) return;
+
+	nextVisualOrder.splice(fromIndex, 1);
+	nextVisualOrder.splice(toIndex, 0, sourcePk);
+
+	const nextOrder = [...nextVisualOrder].reverse();
+	selectedPkOrder.value = nextOrder;
+	layeredMapStore.setRenderOrder(nextOrder);
+};
+
+const onDragEnd = () => {
+	draggedPk.value = null;
+};
 
 watch(
 	mapId,
@@ -161,26 +216,80 @@ onBeforeUnmount(() => {
 				</div>
 
 				<div v-else class="ows-browser-page__dataset-list">
-					<div
-						v-for="item in allItems"
-						:key="item.pk"
-						class="ows-browser-page__dataset-row"
-						:class="{ 'ows-browser-page__dataset-row--disabled': !item.canVisualize }"
-					>
-						<div class="ows-browser-page__dataset-checkbox">
-							<v-checkbox-btn
-								v-if="item.canVisualize"
-								:model-value="isDatasetSelected(item.pk)"
-								:disabled="!item.canVisualize"
-								color="primary"
-								@update:model-value="toggleDataset(item, Boolean($event))"
-							/>
+					<section class="ows-browser-page__dataset-group">
+						<div class="ows-browser-page__dataset-group-header">
+							<h3>Layer attivi</h3>
+							<v-chip size="x-small" variant="flat">{{ activeItems.length }}</v-chip>
 						</div>
 
-						<div class="ows-browser-page__dataset-copy">
-							<span class="ows-browser-page__dataset-title">{{ item.title }}</span>
+						<p v-if="activeItems.length === 0" class="ows-browser-page__group-empty">
+							Nessun layer attivo.
+						</p>
+
+						<div
+							v-for="item in activeItems"
+							:key="`active-${item.pk}`"
+							class="ows-browser-page__dataset-row"
+							:class="{
+								'ows-browser-page__dataset-row--disabled': !item.canVisualize,
+								'ows-browser-page__dataset-row--dragging': draggedPk === item.pk,
+							}"
+							draggable="true"
+							@dragstart="onDragStart($event, item.pk)"
+							@dragover="onDragOver"
+							@drop="onDrop(item.pk)"
+							@dragend="onDragEnd"
+						>
+							<div class="ows-browser-page__drag-handle" aria-hidden="true">
+								<v-icon size="16">mdi-drag</v-icon>
+							</div>
+							<div class="ows-browser-page__dataset-checkbox">
+								<v-checkbox-btn
+									v-if="item.canVisualize"
+									:model-value="true"
+									:disabled="!item.canVisualize"
+									color="primary"
+									@update:model-value="toggleDataset(item, Boolean($event))"
+								/>
+							</div>
+
+							<div class="ows-browser-page__dataset-copy">
+								<span class="ows-browser-page__dataset-title">{{ item.title }}</span>
+							</div>
 						</div>
-					</div>
+					</section>
+
+					<section class="ows-browser-page__dataset-group">
+						<div class="ows-browser-page__dataset-group-header">
+							<h3>Layer disponibili</h3>
+							<v-chip size="x-small" variant="flat">{{ availableItems.length }}</v-chip>
+						</div>
+
+						<p v-if="availableItems.length === 0" class="ows-browser-page__group-empty">
+							Nessun layer disponibile.
+						</p>
+
+						<div
+							v-for="item in availableItems"
+							:key="`available-${item.pk}`"
+							class="ows-browser-page__dataset-row"
+							:class="{ 'ows-browser-page__dataset-row--disabled': !item.canVisualize }"
+						>
+							<div class="ows-browser-page__dataset-checkbox">
+								<v-checkbox-btn
+									v-if="item.canVisualize"
+									:model-value="false"
+									:disabled="!item.canVisualize"
+									color="primary"
+									@update:model-value="toggleDataset(item, Boolean($event))"
+								/>
+							</div>
+
+							<div class="ows-browser-page__dataset-copy">
+								<span class="ows-browser-page__dataset-title">{{ item.title }}</span>
+							</div>
+						</div>
+					</section>
 				</div>
 			</aside>
 		</div>
@@ -300,9 +409,36 @@ onBeforeUnmount(() => {
 	flex: 1 1 auto;
 	min-height: 0;
 	flex-direction: column;
-	gap: 0.45rem;
+	gap: 0.9rem;
 	overflow-y: auto;
 	padding-right: 0.2rem;
+}
+
+.ows-browser-page__dataset-group {
+	display: flex;
+	flex-direction: column;
+	gap: 0.45rem;
+}
+
+.ows-browser-page__dataset-group-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+
+	h3 {
+		margin: 0;
+		font-size: 0.9rem;
+		font-weight: 700;
+		color: rgba(0, 0, 0, 0.72);
+	}
+}
+
+.ows-browser-page__group-empty {
+	margin: 0;
+	padding: 0.25rem 0.15rem;
+	font-size: 0.82rem;
+	color: rgba(0, 0, 0, 0.55);
 }
 
 .ows-browser-page__dataset-row {
@@ -322,6 +458,20 @@ onBeforeUnmount(() => {
 		background: rgba($selection-light-color, 0.92);
 		border-color: rgba(0, 0, 0, 0.1);
 	}
+}
+
+.ows-browser-page__dataset-row--dragging {
+	opacity: 0.55;
+}
+
+.ows-browser-page__drag-handle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+	padding-top: 0.3rem;
+	color: rgba(0, 0, 0, 0.42);
+	cursor: grab;
 }
 
 .ows-browser-page__dataset-checkbox {

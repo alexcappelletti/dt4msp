@@ -25,6 +25,7 @@ export const useLayeredMapStore = defineStore('layeredMap', () => {
 
 	const ogcType = ref<OGCType | null>(null);
 	const selectedGnLayer = ref<string | null>(null);
+	const renderOrder = ref<string[]>([]);
 	const layersData = reactive<Record<string, LayerState>>({});
 
 	// Getter per il tipo selezionato (ritorna il ref o un default)
@@ -58,6 +59,8 @@ export const useLayeredMapStore = defineStore('layeredMap', () => {
 
 	async function fetchOGCLayerData(gnLayers: Dataset[], typeFilter?: OGCType): Promise<void> {
 		console.log("[layeredMapStore] fetchOGCLayerData called with", gnLayers.length, "layers:", gnLayers.map(l => ({ pk: l.pk, name: l.name })));
+		const nextRenderOrder = gnLayers.map((layer) => layer.pk);
+		renderOrder.value = nextRenderOrder;
 
 		if (currentAbortController) {
 			currentAbortController.abort();
@@ -66,6 +69,7 @@ export const useLayeredMapStore = defineStore('layeredMap', () => {
 		const signal = currentAbortController.signal;
 
 		resetStore();
+		renderOrder.value = nextRenderOrder;
 		console.log("[layeredMapStore] Store reset");
 
 		const tasks: Promise<void>[] = [];
@@ -168,13 +172,19 @@ export const useLayeredMapStore = defineStore('layeredMap', () => {
 	}
 
 	function resetStore() {
+		renderOrder.value = [];
 		for (const key in layersData) delete layersData[key];
+	}
+
+	function setRenderOrder(layerPks: string[]) {
+		renderOrder.value = [...layerPks];
 	}
 
 	// --- GETTERS ---
 	const getRasterLayersState = computed(() => Object.values(layersData).filter(s => s.rasterTiles.length > 0));
 	const getFeaturedLayersState = computed(() => Object.values(layersData).filter(s => s.geojsonData !== null));
 	const getGnLayers = computed(() => Object.values(layersData).map(state => state.geonodeLayer));
+	const getRenderOrder = computed(() => renderOrder.value);
 	const isAnyLayerLoading = computed(() => Object.values(layersData).some(l => l?.loading === true));
 
 	return {
@@ -182,9 +192,11 @@ export const useLayeredMapStore = defineStore('layeredMap', () => {
 		setSelectedOGCType,
 		selectGnLayer,
 		fetchOGCLayerData,
+		setRenderOrder,
 		getRasterLayersState,
 		getFeaturedLayersState,
 		getGnLayers,
+		getRenderOrder,
 		isAnyLayerLoading,
 		resetStore
 	}

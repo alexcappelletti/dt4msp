@@ -43,13 +43,21 @@ const toastMessage = ref('');
 const hasArea = computed(() => Boolean(area.value));
 const isBusy = computed(() => props.loading || isHydrating.value);
 const canPersist = computed(() => Boolean(props.projectId) && hasArea.value);
+const hasAssociatedMapReference = computed(() =>
+	Boolean(String(area.value?.associatedMap?.pk || '').trim()),
+);
 const areaAssociatedMap = computed(() => {
 	const associatedPk = String(area.value?.associatedMap?.pk || '').trim();
 	if (!associatedPk) return null;
 	return spatialStore.availableMaps.find((item) => String(item.pk) === associatedPk) || null;
 });
+const isLoadingAssociatedMap = computed(() =>
+	hasAssociatedMapReference.value
+	&& !areaAssociatedMap.value
+	&& spatialStore.busy,
+);
 const mapAssociationButtonLabel = computed(() =>
-	areaAssociatedMap.value ? 'Associa una mappa differente' : 'Associa una mappa',
+	hasAssociatedMapReference.value ? 'Associa una mappa differente' : 'Associa una mappa',
 );
 const latestQueuedPayload = ref<AreaOfInterest | null>(null);
 let isPersisting = false;
@@ -342,8 +350,15 @@ watch(
 					<p v-else class="pa-4">Nessun statements disponibile.</p>
 				</v-window-item>
 				<v-window-item v-if="!editingMap" value="map">
+					<div
+						v-if="isLoadingAssociatedMap"
+						class="map-preview-tab map-preview-tab--loading"
+					>
+						<v-progress-circular indeterminate color="primary" size="36" />
+						<p>Caricamento mappa associata...</p>
+					</div>
 					<div class="map-preview-tab" 
-						v-if="areaAssociatedMap">
+						v-else-if="areaAssociatedMap">
 						<div class="tw:flex tw:flex-row tw:items-center tw:gap-2 tw:mb-2 tw:text-md">
 							Mappa geonode associata:
 							<strong>{{ areaAssociatedMap.title }}</strong>
@@ -443,6 +458,15 @@ watch(
 	min-height: 0;
 	padding: 12px;
 	box-sizing: border-box;
+}
+
+.map-preview-tab--loading {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.75rem;
+	color: rgba(0, 0, 0, 0.66);
 }
 
 .map-preview-tab__empty {
