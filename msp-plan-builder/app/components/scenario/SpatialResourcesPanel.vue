@@ -294,29 +294,39 @@ defineExpose({
 		<div v-else class="tw:relative tw:w-full">
 			<div class="tw:relative tw:h-[500px] tw:w-full">
 				<LayerMapView ref="layerMapView" class="tw:h-full tw:w-full" />
-				<!-- <div
+				<div
 					v-if="isLoading || isSyncingMap"
-					class="scenario-spatial-panel__map-loading"
+					class="tw:absolute tw:inset-0 tw:flex tw:items-center tw:justify-center tw:bg-white/20 tw:backdrop-blur-[2px] tw:pointer-events-none"
 				>
-					<v-progress-circular indeterminate color="primary" size="28" />
-				</div> -->
+					<v-progress-circular indeterminate color="primary" size="38" />
+				</div>
 				<aside
 					class="tw:absolute 
 				tw:right-4 
 				tw:top-4 
-				tw:z-10 tw:flex tw:max-h-[calc(100%-2rem)] tw:w-[min(360px,92%)] tw:flex-col tw:overflow-hidden tw:rounded-[18px] tw:border tw:border-black/10 tw:bg-white/85 tw:p-4 tw:shadow-[0_24px_48px_rgba(0,0,0,0.12)] max-[960px]:tw:relative max-[960px]:tw:right-auto max-[960px]:tw:top-auto max-[960px]:tw:mt-4 max-[960px]:tw:max-h-none max-[960px]:tw:w-full max-[960px]:tw-shadow-none">
-					<div v-if="isLoading && !hasLoadedDatasets">
-						<v-progress-linear indeterminate color="primary" class="tw:mb-3" />
+				tw:z-10 tw:flex tw:max-h-[calc(100%-2rem)] tw:w-[min(360px,92%)] tw:flex-col tw:overflow-hidden tw:rounded-[8px] tw:border tw:border-black/30 tw:bg-white/85 tw:p-4 
+				max-[960px]:tw:relative 
+				max-[960px]:tw:right-auto 
+				max-[960px]:tw:top-auto 
+				max-[960px]:tw:mt-4 max-[960px]:tw:max-h-none ">
+					<div v-if="isLoading && !hasLoadedDatasets" class="scenario-spatial-panel__state">
+						<p class="scenario-spatial-panel__state-title">Caricamento layer in corso</p>
+						<p class="scenario-spatial-panel__state-copy">
+							Stiamo recuperando le risorse spaziali disponibili per la mappa associata.
+						</p>
 					</div>
 
-					<div v-if="allItems.length === 0" class="scenario-spatial-panel__empty">
-						{{ props.emptyLabel }}
+					<div v-else-if="allItems.length === 0" class="scenario-spatial-panel__state">
+						<p class="scenario-spatial-panel__state-title">Nessun layer disponibile</p>
+						<p class="scenario-spatial-panel__state-copy">
+							{{ props.emptyLabel }}
+						</p>
 					</div>
 
-					<div v-else class="scenario-spatial-panel__list">
+					<div v-else class="tw:text-xs scenario-spatial-panel__list">
 						<section class="scenario-spatial-panel__group">
 							<div class="scenario-spatial-panel__group-header">
-								<h4>Layer attivi</h4>
+								<h4 class="tw:text-xs tw:font-medium">Layer attivi</h4>
 								<v-chip size="x-small" variant="flat">{{ activeItems.length }}</v-chip>
 							</div>
 
@@ -325,20 +335,20 @@ defineExpose({
 							</p>
 
 							<div v-for="item in activeItems" :key="`active-${item.pk}`"
-								class="scenario-spatial-panel__row">
-								<div class="scenario-spatial-panel__checkbox">
+								class="scenario-spatial-panel__row tw:items-center">
+								<div class="tw:flex tw:flex-none tw:items-center tw:justify-center">
 									<v-checkbox-btn :model-value="true" :disabled="props.readonly || !item.canVisualize"
 										color="primary" @update:model-value="toggleDataset(item, Boolean($event))" />
 								</div>
-								<div class="scenario-spatial-panel__copy">
-									<span class="scenario-spatial-panel__title">{{ item.title }}</span>
+								<div class="tw:flex tw:min-w-0 tw:flex-1 tw:items-center">
+									<span class=" tw:text-sm tw:font-medium">{{ item.title }}</span>
 								</div>
 							</div>
 						</section>
 
 						<section v-if="!props.readonly" class="scenario-spatial-panel__group">
 							<div class="scenario-spatial-panel__group-header">
-								<h4>Layer disponibili</h4>
+								<h4 class="tw:text-xs tw:font-medium">Layer disponibili</h4>
 								<v-chip size="x-small" variant="flat">{{ availableItems.length }}</v-chip>
 							</div>
 
@@ -347,13 +357,13 @@ defineExpose({
 							</p>
 
 							<div v-for="item in availableItems" :key="`available-${item.pk}`"
-								class="scenario-spatial-panel__row">
-								<div class="scenario-spatial-panel__checkbox">
+								class="scenario-spatial-panel__row tw:items-center">
+								<div class="tw:flex tw:flex-none tw:items-center tw:justify-center">
 									<v-checkbox-btn :model-value="false" :disabled="!item.canVisualize" color="primary"
 										@update:model-value="toggleDataset(item, Boolean($event))" />
 								</div>
-								<div class="scenario-spatial-panel__copy">
-									<span class="scenario-spatial-panel__title">{{ item.title }}</span>
+								<div class="tw:flex tw:min-w-0 tw:flex-1 tw:items-center">
+									<span class="tw:text-sm tw:font-medium">{{ item.title }}</span>
 								</div>
 							</div>
 						</section>
@@ -374,54 +384,11 @@ defineExpose({
 	min-height: 0;
 }
 
-.scenario-spatial-panel__header {
-	display: flex;
-	align-items: flex-start;
-	justify-content: space-between;
-	gap: 0.75rem;
-	flex-wrap: wrap;
-
-	h3 {
-		margin: 0;
-		font-size: 1rem;
-	}
-}
-
-.scenario-spatial-panel__eyebrow {
-	margin: 0 0 0.3rem;
-	font-size: 0.76rem;
-	font-weight: 700;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
-	color: rgba(0, 0, 0, 0.45);
-}
-
 .scenario-spatial-panel__body {
 	display: grid;
 	grid-template-columns: minmax(0, 1.9fr) minmax(280px, 0.75fr);
 	gap: 1rem;
 	min-height: 0;
-}
-
-.scenario-spatial-panel__map-shell {
-	position: relative;
-	height: 500px;
-	min-height: 500px;
-	border-radius: 18px;
-	overflow: hidden;
-	border: 1px solid rgba(0, 0, 0, 0.08);
-	background: rgba(255, 255, 255, 0.72);
-}
-
-.scenario-spatial-panel__map-loading {
-	position: absolute;
-	inset: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background: rgba(255, 255, 255, 0.18);
-	backdrop-filter: blur(2px);
-	pointer-events: none;
 }
 
 .scenario-spatial-panel__sidebar {
@@ -464,31 +431,42 @@ defineExpose({
 .scenario-spatial-panel__group-empty,
 .scenario-spatial-panel__empty {
 	margin: 0;
+	color: rgba(0, 0, 0, 0.58);
+}
+
+.scenario-spatial-panel__state {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.35rem;
+	min-height: 220px;
+	padding: 1rem 0.5rem;
+	text-align: center;
+}
+
+.scenario-spatial-panel__state-title {
+	margin: 0;
+	font-size: 0.95rem;
+	font-weight: 700;
+	color: rgba(0, 0, 0, 0.82);
+}
+
+.scenario-spatial-panel__state-copy {
+	margin: 0;
 	font-size: 0.84rem;
+	line-height: 1.45;
 	color: rgba(0, 0, 0, 0.58);
 }
 
 .scenario-spatial-panel__row {
 	display: flex;
-	align-items: flex-start;
 	gap: 6px;
 	padding: 0.65rem 0.75rem;
-	border-radius: 14px;
-	background: rgba(255, 255, 255, 0.82);
+	border-radius: 0.5rem;
+	background: $main-rose-color;
 	border: 1px solid rgba(0, 0, 0, 0.06);
-}
-
-.scenario-spatial-panel__checkbox {
-	display: flex;
-	flex: 0 0 auto;
-	align-items: flex-start;
-	justify-content: center;
-	margin-top: -0.1rem;
-}
-
-.scenario-spatial-panel__copy {
-	flex: 1 1 auto;
-	min-width: 0;
 }
 
 .scenario-spatial-panel__title {
