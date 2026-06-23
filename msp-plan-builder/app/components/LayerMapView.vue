@@ -57,6 +57,28 @@ let requestedRenderId = 0;
 let processedRenderId = 0;
 let isRenderingMap = false;
 
+const waitForMapIdle = async () => {
+	if (!map.value) return;
+	if (map.value.loaded() && !mapStore.isAnyLayerLoading && !isLoadingLayers.value) {
+		return;
+	}
+
+	await new Promise<void>((resolve) => {
+		const mapInstance = map.value;
+		if (!mapInstance) {
+			resolve();
+			return;
+		}
+
+		const handleIdle = () => {
+			mapInstance.off("idle", handleIdle);
+			resolve();
+		};
+
+		mapInstance.on("idle", handleIdle);
+	});
+};
+
 const initializeMap = () => {
 	// ... (logica inizializzazione mappa) ...
 	map.value = new maplibregl.Map({
@@ -64,6 +86,7 @@ const initializeMap = () => {
 		style: `${basemapURL}/${basemapEnum}?token=${ESRI_APIKEY}`,
 		center: MarMediterraneo.center,
 		zoom: MarMediterraneo.zoom,
+		preserveDrawingBuffer: true,
 	});
 	map.value.on("load", async () => {
 		console.log("loaded map ");
@@ -419,6 +442,28 @@ function getBoundingBox(): [number, number, number, number] | null {
 		bounds.getNorth(), // maxY
 	];
 }
+
+const captureThumbnail = async (): Promise<string | null> => {
+	if (!map.value || !map.value.isStyleLoaded()) return null;
+
+	await waitForMapIdle();
+	map.value.resize();
+	map.value.triggerRepaint();
+	await new Promise((resolve) => requestAnimationFrame(resolve));
+	await new Promise((resolve) => requestAnimationFrame(resolve));
+	const canvas = map.value.getCanvas();
+	if (!canvas.width || !canvas.height) return null;
+	try {
+		return canvas.toDataURL("image/png");
+	} catch (error) {
+		console.error("Errore durante la cattura thumbnail della mappa:", error);
+		return null;
+	}
+};
+
+defineExpose({
+	captureThumbnail,
+});
 </script>
 
 <template>

@@ -165,9 +165,18 @@ const menuItems = (measure: DomainMeasure): MenuItem[] => [
 					</div>
 				</v-card-item>
 
-				<!-- Parte centrale con immagine segnaposto (come da immagine) -->
-				<div v-if="measure.type === 'Spatial'" class="image-placeholder bg-grey-lighten-3">
-					<v-icon size="64" color="grey-darken-1">mdi-image</v-icon>
+				<div v-if="measure.type === 'Spatial'">
+					<v-img
+						v-if="measure.thumbnail"
+						:src="measure.thumbnail"
+						:alt="measure.name"
+						height="120"
+						cover
+						class="measure-card__thumbnail"
+					/>
+					<div v-else class="image-placeholder bg-grey-lighten-3">
+						<v-icon size="64" color="grey-darken-1">mdi-image</v-icon>
+					</div>
 				</div>
 
 				<v-card-text>
@@ -225,6 +234,12 @@ const menuItems = (measure: DomainMeasure): MenuItem[] => [
 	align-items: center;
 	margin: 0 16px;
 	border-radius: 4px;
+}
+
+.measure-card__thumbnail {
+	margin: 0 16px;
+	border-radius: 4px;
+	overflow: hidden;
 }
 
 /* Posizionamento del FAB fisso in basso a destra, come nell'immagine finale */

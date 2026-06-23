@@ -6,7 +6,8 @@ import { useLayeredMapStore } from "@/stores/layeredMapStore";
 import { useScenarioStore } from "@/stores/scenarioStore";
 import { useSpatialResourceStore } from "@/stores/spatialStore";
 import { storeToRefs } from "pinia";
-import { computed, onBeforeUnmount, ref, watch } from "vue";
+import { computed, onBeforeUnmount, ref, useTemplateRef, watch } from "vue";
+import { createThumbnail } from "~/utils/createThumbnail";
 
 const props = withDefaults(
 	defineProps<{
@@ -31,14 +32,20 @@ const scenarioStore = useScenarioStore();
 const spatialResourceStore = useSpatialResourceStore();
 const layeredMapStore = useLayeredMapStore();
 
-const { currentProject } = storeToRefs(scenarioStore);
+const { currentProject, selectedScenario } = storeToRefs(scenarioStore);
 const { availableSpatialResources } = storeToRefs(spatialResourceStore);
 
 const mapId = computed(() =>
-	String(currentProject.value?.areaOfInterest?.associatedMap?.pk || ""),
+	String(
+		selectedScenario.value?.areaOfInterest?.associatedMap?.pk
+		|| currentProject.value?.areaOfInterest?.associatedMap?.pk
+		|| "",
+	),
 );
 const isLoading = ref(false);
 const isSyncingMap = ref(false);
+const hasLoadedDatasets = ref(false);
+const layerMapView = useTemplateRef<InstanceType<typeof LayerMapView>>("layerMapView");
 const selectedPks = ref<Set<string>>(new Set());
 const selectedPkOrder = ref<string[]>([]);
 const datasetCache = ref<Record<string, Dataset>>({});
@@ -86,274 +93,273 @@ const toMapLayerResource = (item: DatasetListItem): MapLayer => ({
 });
 
 const syncSelectionFromModel = () => {
-	// const nextOrder: string[] = [];
-	// const nextSet = new Set<string>();
+	const nextOrder: string[] = [];
+	const nextSet = new Set<string>();
 
-	// for (const resource of props.modelValue ?? []) {
-	// 	const key = resourceKey(resource);
-	// 	if (!key) continue;
+	for (const resource of props.modelValue ?? []) {
+		const key = resourceKey(resource);
+		if (!key) continue;
 
-	// 	const match = allItems.value.find(
-	// 		(item) =>
-	// 			String(item.pk) === key
-	// 			|| item.title === key,
-	// 	);
-	// 	const resolvedPk = match?.pk ?? key;
-	// 	if (nextSet.has(resolvedPk)) continue;
-	// 	nextSet.add(resolvedPk);
-	// 	nextOrder.push(resolvedPk);
-	// }
+		const match = allItems.value.find(
+			(item) =>
+				String(item.pk) === key
+				|| item.title === key,
+		);
+		const resolvedPk = match?.pk ?? key;
+		if (nextSet.has(resolvedPk)) continue;
+		nextSet.add(resolvedPk);
+		nextOrder.push(resolvedPk);
+	}
 
-	// selectedPks.value = nextSet;
-	// selectedPkOrder.value = nextOrder;
+	selectedPks.value = nextSet;
+	selectedPkOrder.value = nextOrder;
 };
 
 const emitModelValue = () => {
-	// const nextValue = selectedPkOrder.value
-	// 	.map((pk) => allItems.value.find((item) => item.pk === pk))
-	// 	.filter((item): item is DatasetListItem => Boolean(item))
-	// 	.map(toMapLayerResource);
+	const nextValue = selectedPkOrder.value
+		.map((pk) => allItems.value.find((item) => item.pk === pk))
+		.filter((item): item is DatasetListItem => Boolean(item))
+		.map(toMapLayerResource);
 
-	// emit("update:modelValue", nextValue);
+	emit("update:modelValue", nextValue);
 };
 
 const getSelectionSignature = () => selectedPkOrder.value.join("|");
 
 const hydrateSelectedDatasets = async () => {
-	// const nextSignature = getSelectionSignature();
-	// if (nextSignature === latestHydratedSignature) {
-	// 	return;
-	// }
+	const nextSignature = getSelectionSignature();
+	if (nextSignature === latestHydratedSignature) {
+		return;
+	}
 
-	// const selectedItems = selectedPkOrder.value
-	// 	.map((pk) => allItems.value.find((item) => item.pk === pk))
-	// 	.filter((item): item is DatasetListItem => Boolean(item));
+	const selectedItems = selectedPkOrder.value
+		.map((pk) => allItems.value.find((item) => item.pk === pk))
+		.filter((item): item is DatasetListItem => Boolean(item));
 
-	// if (selectedItems.length === 0) {
-	// 	latestHydratedSignature = "";
-	// 	layeredMapStore.resetStore();
-	// 	return;
-	// }
+	if (selectedItems.length === 0) {
+		latestHydratedSignature = "";
+		layeredMapStore.resetStore();
+		return;
+	}
 
-	// await Promise.all(selectedItems.map((item) => ensureDatasetDetails(item)));
-	// latestHydratedSignature = nextSignature;
-	// await syncMapLayers();
+	await Promise.all(selectedItems.map((item) => ensureDatasetDetails(item)));
+	latestHydratedSignature = nextSignature;
+	await syncMapLayers();
 };
 
 const loadDatasetsForMap = async (mapIdValue: string) => {
-	// selectedPks.value = new Set();
-	// selectedPkOrder.value = [];
-	// datasetCache.value = {};
-	// latestHydratedSignature = "";
-	// layeredMapStore.resetStore();
+	selectedPks.value = new Set();
+	selectedPkOrder.value = [];
+	datasetCache.value = {};
+	latestHydratedSignature = "";
+	hasLoadedDatasets.value = false;
+	layeredMapStore.resetStore();
 
-	// if (!mapIdValue) {
-	// 	spatialResourceStore.resetMapDatasets();
-	// 	return;
-	// }
+	if (!mapIdValue) {
+		spatialResourceStore.resetMapDatasets();
+		return;
+	}
 
-	// isLoading.value = true;
-	// try {
-	// 	await spatialResourceStore.loadMapDatasets(mapIdValue);
-	// 	syncSelectionFromModel();
-	// 	await hydrateSelectedDatasets();
-	// } finally {
-	// 	isLoading.value = false;
-	// }
+	isLoading.value = true;
+	try {
+		await spatialResourceStore.loadMapDatasets(mapIdValue);
+		hasLoadedDatasets.value = true;
+		syncSelectionFromModel();
+		await hydrateSelectedDatasets();
+	} finally {
+		isLoading.value = false;
+	}
 };
 
 const ensureDatasetDetails = async (summary: DatasetListItem) => {
-	// if (datasetCache.value[summary.pk]) {
-	// 	return datasetCache.value[summary.pk]!;
-	// }
+	if (datasetCache.value[summary.pk]) {
+		return datasetCache.value[summary.pk]!;
+	}
 
-	// const details = await spatialResourceStore.getDataset(summary.pk);
-	// datasetCache.value = {
-	// 	...datasetCache.value,
-	// 	[summary.pk]: details,
-	// };
-	// return details;
+	const details = await spatialResourceStore.getDataset(summary.pk);
+	datasetCache.value = {
+		...datasetCache.value,
+		[summary.pk]: details,
+	};
+	return details;
 };
 
 const syncMapLayers = async () => {
-	// const requestId = ++latestSyncRequestId;
-	// isSyncingMap.value = true;
-	// try {
-	// 	const layersToSync = selectedLayers.value;
+	const requestId = ++latestSyncRequestId;
+	isSyncingMap.value = true;
+	try {
+		const layersToSync = selectedLayers.value;
 
-	// 	if (layersToSync.length === 0) {
-	// 		layeredMapStore.resetStore();
-	// 		return;
-	// 	}
+		if (layersToSync.length === 0) {
+			layeredMapStore.resetStore();
+			return;
+		}
 
-	// 	layeredMapStore.setRenderOrder(selectedPkOrder.value);
-	// 	await layeredMapStore.fetchOGCLayerData(layersToSync);
-	// } finally {
-	// 	if (requestId === latestSyncRequestId) {
-	// 		isSyncingMap.value = false;
-	// 	}
-	// }
+		layeredMapStore.setRenderOrder(selectedPkOrder.value);
+		await layeredMapStore.fetchOGCLayerData(layersToSync);
+	} finally {
+		if (requestId === latestSyncRequestId) {
+			isSyncingMap.value = false;
+		}
+	}
 };
 
 const toggleDataset = async (summary: DatasetListItem, checked: boolean) => {
-	// if (props.readonly || !summary.canVisualize) return;
+	if (props.readonly || !summary.canVisualize) return;
 
-	// latestSelectionIntent.value = {
-	// 	...latestSelectionIntent.value,
-	// 	[summary.pk]: checked,
-	// };
+	latestSelectionIntent.value = {
+		...latestSelectionIntent.value,
+		[summary.pk]: checked,
+	};
 
-	// const next = new Set(selectedPks.value);
-	// const nextOrder = [...selectedPkOrder.value];
+	const next = new Set(selectedPks.value);
+	const nextOrder = [...selectedPkOrder.value];
 
-	// if (checked) {
-	// 	await ensureDatasetDetails(summary);
-	// 	if (!latestSelectionIntent.value[summary.pk]) return;
-	// 	next.add(summary.pk);
-	// 	if (!nextOrder.includes(summary.pk)) {
-	// 		nextOrder.push(summary.pk);
-	// 	}
-	// } else {
-	// 	next.delete(summary.pk);
-	// 	const nextIndex = nextOrder.indexOf(summary.pk);
-	// 	if (nextIndex >= 0) {
-	// 		nextOrder.splice(nextIndex, 1);
-	// 	}
-	// }
+	if (checked) {
+		await ensureDatasetDetails(summary);
+		if (!latestSelectionIntent.value[summary.pk]) return;
+		next.add(summary.pk);
+		if (!nextOrder.includes(summary.pk)) {
+			nextOrder.push(summary.pk);
+		}
+	} else {
+		next.delete(summary.pk);
+		const nextIndex = nextOrder.indexOf(summary.pk);
+		if (nextIndex >= 0) {
+			nextOrder.splice(nextIndex, 1);
+		}
+	}
 
-	// selectedPks.value = next;
-	// selectedPkOrder.value = nextOrder;
-	// latestHydratedSignature = "";
-	// emitModelValue();
-	// await syncMapLayers();
+	selectedPks.value = next;
+	selectedPkOrder.value = nextOrder;
+	latestHydratedSignature = "";
+	emitModelValue();
+	await syncMapLayers();
 };
 
-// watch(
-// 	mapId,
-// 	async (newMapId, oldMapId) => {
-// 		if (!newMapId || newMapId === oldMapId) return;
-// 		await loadDatasetsForMap(newMapId);
-// 	},
-// 	{ immediate: true },
-// );
+watch(
+	mapId,
+	async (newMapId) => {
+		if (!newMapId) return;
+		await loadDatasetsForMap(newMapId);
+	},
+	{ immediate: true },
+);
 
-// watch(
-// 	() => props.modelValue,
-// 	async () => {
-// 		syncSelectionFromModel();
-// 		await hydrateSelectedDatasets();
-// 	},
-// 	{ deep: true },
-// );
+watch(
+	() => props.modelValue,
+	async () => {
+		syncSelectionFromModel();
+		await hydrateSelectedDatasets();
+	},
+	{ deep: true },
+);
 
-// watch(
-// 	allItems,
-// 	async () => {
-// 		syncSelectionFromModel();
-// 		await hydrateSelectedDatasets();
-// 	},
-// 	{ deep: true },
-// );
+watch(
+	allItems,
+	async () => {
+		syncSelectionFromModel();
+		await hydrateSelectedDatasets();
+	},
+	{ deep: true },
+);
 
 onBeforeUnmount(() => {
-	//layeredMapStore.resetStore();
+	layeredMapStore.resetStore();
+});
+
+const generateThumbnail = async () => {
+	if (!mapId.value) return null;
+	const originalThumbnail = await layerMapView.value?.captureThumbnail?.();
+	if (!originalThumbnail) return null;
+	return await createThumbnail(originalThumbnail, {
+		maxWidth: 640,
+		maxHeight: 360,
+		quality: 0.72,
+	});
+};
+
+defineExpose({
+	generateThumbnail,
 });
 </script>
 
 <template>
 	<section class="tw:flex tw:flex-col tw:gap-4 tw:min-h-0">
-		<header class="tw:flex tw:items-start tw:justify-between tw:gap-4">
-			<div>
-				<p>{{ props.title }}</p>
-			</div>
-			<v-chip size="small" variant="outlined">
-				{{ selectedPkOrder.length }} attivi
-			</v-chip>
-		</header>
 
 		<div v-if="!mapId" class="scenario-spatial-panel__empty">
-			Associare prima una mappa all'area di studio.
+			Tematismi non disponibili, associare prima una mappa all'area di studio.
 		</div>
 
-		<div v-else class="">
-			<div class="">
-				<LayerMapView class="tw:h-full tw:w-full" />
+		<div v-else class="tw:relative tw:w-full">
+			<div class="tw:relative tw:h-[500px] tw:w-full">
+				<LayerMapView ref="layerMapView" class="tw:h-full tw:w-full" />
 				<!-- <div
 					v-if="isLoading || isSyncingMap"
 					class="scenario-spatial-panel__map-loading"
 				>
 					<v-progress-circular indeterminate color="primary" size="28" />
 				</div> -->
+				<aside
+					class="tw:absolute 
+				tw:right-4 
+				tw:top-4 
+				tw:z-10 tw:flex tw:max-h-[calc(100%-2rem)] tw:w-[min(360px,92%)] tw:flex-col tw:overflow-hidden tw:rounded-[18px] tw:border tw:border-black/10 tw:bg-white/85 tw:p-4 tw:shadow-[0_24px_48px_rgba(0,0,0,0.12)] max-[960px]:tw:relative max-[960px]:tw:right-auto max-[960px]:tw:top-auto max-[960px]:tw:mt-4 max-[960px]:tw:max-h-none max-[960px]:tw:w-full max-[960px]:tw-shadow-none">
+					<div v-if="isLoading && !hasLoadedDatasets">
+						<v-progress-linear indeterminate color="primary" class="tw:mb-3" />
+					</div>
+
+					<div v-if="allItems.length === 0" class="scenario-spatial-panel__empty">
+						{{ props.emptyLabel }}
+					</div>
+
+					<div v-else class="scenario-spatial-panel__list">
+						<section class="scenario-spatial-panel__group">
+							<div class="scenario-spatial-panel__group-header">
+								<h4>Layer attivi</h4>
+								<v-chip size="x-small" variant="flat">{{ activeItems.length }}</v-chip>
+							</div>
+
+							<p v-if="activeItems.length === 0" class="scenario-spatial-panel__group-empty">
+								Nessun layer attivo.
+							</p>
+
+							<div v-for="item in activeItems" :key="`active-${item.pk}`"
+								class="scenario-spatial-panel__row">
+								<div class="scenario-spatial-panel__checkbox">
+									<v-checkbox-btn :model-value="true" :disabled="props.readonly || !item.canVisualize"
+										color="primary" @update:model-value="toggleDataset(item, Boolean($event))" />
+								</div>
+								<div class="scenario-spatial-panel__copy">
+									<span class="scenario-spatial-panel__title">{{ item.title }}</span>
+								</div>
+							</div>
+						</section>
+
+						<section v-if="!props.readonly" class="scenario-spatial-panel__group">
+							<div class="scenario-spatial-panel__group-header">
+								<h4>Layer disponibili</h4>
+								<v-chip size="x-small" variant="flat">{{ availableItems.length }}</v-chip>
+							</div>
+
+							<p v-if="availableItems.length === 0" class="scenario-spatial-panel__group-empty">
+								Nessun layer disponibile.
+							</p>
+
+							<div v-for="item in availableItems" :key="`available-${item.pk}`"
+								class="scenario-spatial-panel__row">
+								<div class="scenario-spatial-panel__checkbox">
+									<v-checkbox-btn :model-value="false" :disabled="!item.canVisualize" color="primary"
+										@update:model-value="toggleDataset(item, Boolean($event))" />
+								</div>
+								<div class="scenario-spatial-panel__copy">
+									<span class="scenario-spatial-panel__title">{{ item.title }}</span>
+								</div>
+							</div>
+						</section>
+					</div>
+				</aside>
 			</div>
-
-			<!-- <aside class="scenario-spatial-panel__sidebar">
-				<div v-if="allItems.length === 0" class="scenario-spatial-panel__empty">
-					{{ props.emptyLabel }}
-				</div>
-
-				<div v-else class="scenario-spatial-panel__list">
-					<section class="scenario-spatial-panel__group">
-						<div class="scenario-spatial-panel__group-header">
-							<h4>Layer attivi</h4>
-							<v-chip size="x-small" variant="flat">{{ activeItems.length }}</v-chip>
-						</div>
-
-						<p v-if="activeItems.length === 0" class="scenario-spatial-panel__group-empty">
-							Nessun layer attivo.
-						</p>
-
-						<div
-							v-for="item in activeItems"
-							:key="`active-${item.pk}`"
-							class="scenario-spatial-panel__row"
-						>
-							<div class="scenario-spatial-panel__checkbox">
-								<v-checkbox-btn
-									:model-value="true"
-									:disabled="props.readonly || !item.canVisualize"
-									color="primary"
-									@update:model-value="toggleDataset(item, Boolean($event))"
-								/>
-							</div>
-							<div class="scenario-spatial-panel__copy">
-								<span class="scenario-spatial-panel__title">{{ item.title }}</span>
-							</div>
-						</div>
-					</section>
-
-					<section v-if="!props.readonly" class="scenario-spatial-panel__group">
-						<div class="scenario-spatial-panel__group-header">
-							<h4>Layer disponibili</h4>
-							<v-chip size="x-small" variant="flat">{{ availableItems.length }}</v-chip>
-						</div>
-
-						<p
-							v-if="availableItems.length === 0"
-							class="scenario-spatial-panel__group-empty"
-						>
-							Nessun layer disponibile.
-						</p>
-
-						<div
-							v-for="item in availableItems"
-							:key="`available-${item.pk}`"
-							class="scenario-spatial-panel__row"
-						>
-							<div class="scenario-spatial-panel__checkbox">
-								<v-checkbox-btn
-									:model-value="false"
-									:disabled="!item.canVisualize"
-									color="primary"
-									@update:model-value="toggleDataset(item, Boolean($event))"
-								/>
-							</div>
-							<div class="scenario-spatial-panel__copy">
-								<span class="scenario-spatial-panel__title">{{ item.title }}</span>
-							</div>
-						</div>
-					</section>
-				</div>
-			</aside> -->
 		</div>
 	</section>
 </template>

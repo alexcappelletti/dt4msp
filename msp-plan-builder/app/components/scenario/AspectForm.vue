@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, useTemplateRef } from 'vue';
 import type { DomainMeasure } from '#/shared/types/msp-project';
 import SpatialResourcesPanel from './SpatialResourcesPanel.vue';
 //import { useAspectStore } from '@/stores/aspectStore'; // Importa il tuo store Pinia
@@ -28,10 +28,17 @@ const formData = ref<Partial<DomainMeasure>>({
 	...props.initialData,
 	referenceThemes: props.initialData.referenceThemes ? [...props.initialData.referenceThemes] : []
 });
+const spatialResourcesPanel = useTemplateRef<InstanceType<typeof SpatialResourcesPanel>>('spatialResourcesPanel');
 const canSave = computed(() => formData.value.name?.trim() && formData.value.longName?.trim());
 
-const saveForm = () => {
+const saveForm = async () => {
 	if (canSave.value) {
+		if (formData.value.type === 'Spatial') {
+			const thumbnail = await spatialResourcesPanel.value?.generateThumbnail?.();
+			if (thumbnail) {
+				formData.value.thumbnail = thumbnail;
+			}
+		}
 		emit('save', formData.value);
 	}
 };
@@ -43,8 +50,8 @@ const cancelForm = () => {
 </script>
 <template>
 	
-	<v-card class="pa-4 " flat>
-		<v-toolbar color="background" flat>
+	<v-card class="pa-4 d-flex flex-column h-100" flat>
+		<v-toolbar color="background" flat class="tw:sticky tw:top-0 tw:z-10 tw:bg-white">
 			<v-btn icon @click="cancelForm">
 				<v-icon>mdi-arrow-left</v-icon>
 			</v-btn>
@@ -68,17 +75,15 @@ const cancelForm = () => {
 			</v-btn>
 		</v-toolbar>
 
-		<v-card-text>
-			<v-form>
+		<v-card-text class="d-flex flex-column flex-grow-1 tw:overflow-y-auto">
+			<v-form class="d-flex flex-column flex-grow-1">
 				<v-row>
-					<v-col cols="12" md="6">
+					<v-col cols="12" md="3">
 						<!-- Short Name -->
 						<v-text-field v-model="formData.name" label="Short name" variant="outlined" clearable
 							hint="Short title of the measure" persistent-hint></v-text-field>
 					</v-col>
-				</v-row>
-				<v-row>
-					<v-col cols="12">
+					<v-col cols="12" md="9">
 						<v-text-field v-model="formData.longName" label="long title" variant="outlined" clearable
 							hint="Long title of the measure" persistent-hint></v-text-field>
 					</v-col>
@@ -101,7 +106,7 @@ const cancelForm = () => {
 
 				<v-row v-if="formData.type === 'Spatial'">
 					<v-col cols="12">
-						<SpatialResourcesPanel v-model="formData.geospatialResources" />
+						<SpatialResourcesPanel ref="spatialResourcesPanel" v-model="formData.geospatialResources" />
 					</v-col>
 				</v-row>
 

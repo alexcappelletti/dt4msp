@@ -100,6 +100,7 @@ export interface Measure extends Omit<Aspect, "type"> {
 	readonly type: "Spatial";
 	impact: string;
 	geospatialResources: MapLayer[];
+	thumbnail?: string;
 }
 export interface Effect <T extends DomainMeasure> {
 	name: string;
@@ -192,6 +193,7 @@ export function populateMeasure(measure: Partial<Measure> = {}): Measure {
 		description: "",
 		impact: "",
 		geospatialResources: [],
+		thumbnail: "",
 		referenceThemes: [],
 		longName: "",
 	};

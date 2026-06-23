@@ -62,7 +62,25 @@ const handleNewStatement = (type: 'General' | 'Sector-specific') => {
 		sectorThemes: type === 'Sector-specific' ? [] : undefined
 	} as Statement;
 };
-const handleSaveStatement = (formData: Partial<Statement>) => {
+const syncSelectedScenarioInList = () => {
+	if (!selectedScenario.value) return;
+	const index = scenarios.value.findIndex((item) => item.id === selectedScenario.value!.id);
+	if (index >= 0) {
+		scenarios.value[index] = selectedScenario.value;
+		return;
+	}
+	scenarios.value.unshift(selectedScenario.value);
+};
+
+const persistSelectedScenarioNow = async () => {
+	if (!selectedScenario.value || isLoading.value) return;
+	syncSelectedScenarioInList();
+	scheduleScenarioPersist.cancel();
+	queueScenarioPersist(JSON.parse(JSON.stringify(selectedScenario.value)));
+	await flushScenarioPersistQueue();
+};
+
+const handleSaveStatement = async (formData: Partial<Statement>) => {
 	if (!selectedScenario.value) return;
 	if (!selectedScenario.value.statements) selectedScenario.value.statements = [];
 
@@ -79,6 +97,7 @@ const handleSaveStatement = (formData: Partial<Statement>) => {
 	}
 	viewMode.value = 'tab-view';
 	selectedStatement.value = null;
+	await persistSelectedScenarioNow();
 };
 
 
@@ -87,9 +106,10 @@ const handleEditStatement = (statement: Statement) => {
 	selectedStatement.value = statement;
 };
 
-const handleDeleteStatement = (statementId: string) => {
+const handleDeleteStatement = async (statementId: string) => {
 	if (!selectedScenario.value?.statements) return;
 	selectedScenario.value.statements = selectedScenario.value.statements.filter(s => s.id !== statementId);
+	await persistSelectedScenarioNow();
 };
 ///logica Measures/Aspects
 const handleNewMeasure = (type: MeasureType) => {
@@ -116,20 +136,16 @@ const handleEditMeasure = (measure: DomainMeasure) => {
 	viewMode.value = 'edit';
 	selectedMeasure.value = measure;
 };
-const handleSaveAspect = (formData: Partial<DomainMeasure>) => {
+const handleSaveAspect = async (formData: Partial<DomainMeasure>) => {
 	if (!selectedScenario.value) return;
 	if (!selectedScenario.value.domainMeasures) selectedScenario.value.domainMeasures = [];
 
 	if (selectedMeasure.value?.id) {
 		const index = selectedScenario.value.domainMeasures.findIndex(m => m.id === selectedMeasure.value!.id);
-		console.log("1")
 		if (index !== -1) {
-			console.log("2")
 			selectedScenario.value.domainMeasures[index] = { ...selectedMeasure.value, ...formData } as DomainMeasure;
-
 		}
 	} else {
-		console.log("3")
 		selectedScenario.value.domainMeasures.push({
 			...formData,
 			id: generateUUID(),
@@ -137,16 +153,18 @@ const handleSaveAspect = (formData: Partial<DomainMeasure>) => {
 	}
 	viewMode.value = 'tab-view';
 	selectedMeasure.value = null;
+	await persistSelectedScenarioNow();
 };
 const handleCloneMeasure = (measure: DomainMeasure) => {
 	const { id, ...clonedMeasureData } = measure;
 	selectedMeasure.value = { ...clonedMeasureData, id: '' }; // Reset id for new measure
 	viewMode.value = 'edit';
 };
-const handleDeleteMeasure = (measure: DomainMeasure) => {
+const handleDeleteMeasure = async (measure: DomainMeasure) => {
 	if (!selectedScenario.value?.domainMeasures) return;
 	selectedScenario.value.domainMeasures = selectedScenario.value.domainMeasures
 		.filter(m => m.id !== measure.id);
+	await persistSelectedScenarioNow();
 };
 
 
@@ -198,7 +216,7 @@ const handleEditEffect = (effect: DomainEffect) => {
 	selectedEffect.value = effect;
 };
 
-const handleSaveEffect = (formData: Partial<DomainEffect>) => {
+const handleSaveEffect = async (formData: Partial<DomainEffect>) => {
 	if (!selectedScenario.value) return;
 	if (!selectedScenario.value.domainEffects) {selectedScenario.value.domainEffects = [];}
 
@@ -220,11 +238,13 @@ const handleSaveEffect = (formData: Partial<DomainEffect>) => {
 
 	viewMode.value = "tab-view";
 	selectedEffect.value = null;
+	await persistSelectedScenarioNow();
 };
 
-const handleDeleteEffect = (effect: DomainEffect) => {
+const handleDeleteEffect = async (effect: DomainEffect) => {
 	if (!selectedScenario.value?.domainEffects) return;
 	selectedScenario.value.domainEffects = selectedScenario.value.domainEffects.filter((e) => e.id !== effect.id);
+	await persistSelectedScenarioNow();
 };
 const handleCloneEffect = (effect: DomainEffect) => {
 	const { id, ...rest } = effect;
@@ -265,7 +285,7 @@ const handleCloneFeedback = (feedback: Feedback) => {
 	} as Feedback;
 };
 
-const handleSaveFeedback = (formData: Partial<Feedback>) => {
+const handleSaveFeedback = async (formData: Partial<Feedback>) => {
 	if (!selectedScenario.value) return;
 	if (!selectedScenario.value.feedbacks) selectedScenario.value.feedbacks = [];
 
@@ -286,11 +306,13 @@ const handleSaveFeedback = (formData: Partial<Feedback>) => {
 
 	viewMode.value = 'tab-view';
 	selectedFeedback.value = null;
+	await persistSelectedScenarioNow();
 };
 
-const handleDeleteFeedback = (feedback: Feedback) => {
+const handleDeleteFeedback = async (feedback: Feedback) => {
 	if (!selectedScenario.value?.feedbacks) return;
 	selectedScenario.value.feedbacks = selectedScenario.value.feedbacks.filter((f) => f.id !== feedback.id);
+	await persistSelectedScenarioNow();
 };
 
 
