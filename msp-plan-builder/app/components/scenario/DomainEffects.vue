@@ -62,6 +62,11 @@ function isSpatialEffect(effect: DomainEffect) {
 	return effectType(effect) === "Spatial";
 }
 
+function effectThumbnail(effect: DomainEffect): string {
+	if (!isSpatialEffect(effect)) return "";
+	return effect.affected[0]?.thumbnail || "";
+}
+
 // Unione dei temi degli affected
 function themesForEffect(effect: DomainEffect): Theme[] {
 	const all = (effect.affected ?? []).flatMap((m) => m.referenceThemes ?? []);
@@ -174,9 +179,18 @@ const menuItems = (effect: DomainEffect): MenuItem[] => [
 					</div>
 				</v-card-item>
 
-				<!-- placeholder immagine SOLO per Spatial -->
-				<div v-if="isSpatialEffect(effect)" class="image-placeholder bg-grey-lighten-3">
-					<v-icon size="64" color="grey-darken-1">mdi-image</v-icon>
+				<div v-if="isSpatialEffect(effect)">
+					<v-img
+						v-if="effectThumbnail(effect)"
+						:src="effectThumbnail(effect)"
+						:alt="effect.name"
+						height="120"
+						cover
+						class="measure-card__thumbnail"
+					/>
+					<div v-else class="image-placeholder bg-grey-lighten-3">
+						<v-icon size="64" color="grey-darken-1">mdi-image</v-icon>
+					</div>
 				</div>
 
 				<v-card-text>
@@ -229,5 +243,11 @@ const menuItems = (effect: DomainEffect): MenuItem[] => [
 	align-items: center;
 	margin: 0 16px;
 	border-radius: 4px;
+}
+
+.measure-card__thumbnail {
+	margin: 0 16px;
+	border-radius: 4px;
+	overflow: hidden;
 }
 </style>
