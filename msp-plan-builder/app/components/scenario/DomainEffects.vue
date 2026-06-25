@@ -64,7 +64,8 @@ function isSpatialEffect(effect: DomainEffect) {
 
 function effectThumbnail(effect: DomainEffect): string {
 	if (!isSpatialEffect(effect)) return "";
-	return effect.affected[0]?.thumbnail || "";
+	const firstAffected = effect.affected[0] as (DomainMeasure & { thumbnail?: string }) | undefined;
+	return firstAffected?.thumbnail || "";
 }
 
 // Unione dei temi degli affected

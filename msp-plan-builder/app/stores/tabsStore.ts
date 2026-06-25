@@ -3,7 +3,7 @@ import { ref } from 'vue';
 
 export const useTabsStore = defineStore('tabs', () => {
 	// Tab state per diverse sezioni
-	const areaTab = ref<'general' | 'statements' | 'map'>('general');
+	const areaTab = ref<'general' | 'statements' | 'map' | 'inconsistencies'>('general');
 	const scenarioTab = ref<'general' | 'statements' | 'measures' | 'effects' | 'feedback'>('general');
 	const spatialTab = ref<string>('datasets');
 
@@ -15,7 +15,7 @@ export const useTabsStore = defineStore('tabs', () => {
 	};
 
 	// Setters con type safety
-	const setAreaTab = (tab: 'general' | 'statements' | 'map') => {
+	const setAreaTab = (tab: 'general' | 'statements' | 'map' | 'inconsistencies') => {
 		areaTab.value = tab;
 	};
 

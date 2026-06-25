@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import StatementList from './StatementList.vue';
 import StatementForm from './StatementForm.vue';
-import type { AreaOfInterest, Statement } from '#/shared/types/msp-project';
+import type {
+	AreaOfInterest,
+	DomainMeasure,
+	GeonodeMapReference,
+	MapLayer,
+	Scenario,
+	Statement,
+} from '#/shared/types/msp-project';
 import type { GeonodeMap } from '#/shared/types/geonodeTypes';
 import { generateUUID } from '#/shared/utils/generateUUID';
 import { debounce } from 'lodash-es';
@@ -35,10 +42,14 @@ const statementView = ref<'list' | 'form' | 'link-map'>('list');
 const editedStatement = ref<Statement | null>(null);
 const activeMap = ref<GeonodeMap | null>(null);
 const editingMap = ref<boolean>(false);
+const mapChooserKey = ref(0);
 
 const showToast = ref(false);
 const toastColor = ref<'success' | 'error'>('success');
 const toastMessage = ref('');
+const isValidatingMapAssociation = ref(false);
+const pendingAssociatedMap = ref<GeonodeMapReference | null>(null);
+const missingLayerDependencies = ref<MissingLayerDependency[]>([]);
 
 const hasArea = computed(() => Boolean(area.value));
 const isBusy = computed(() => props.loading || isHydrating.value);
@@ -59,6 +70,7 @@ const isLoadingAssociatedMap = computed(() =>
 const mapAssociationButtonLabel = computed(() =>
 	hasAssociatedMapReference.value ? 'Associa una mappa differente' : 'Associa una mappa',
 );
+const hasInconsistencies = computed(() => missingLayerDependencies.value.length > 0);
 const latestQueuedPayload = ref<AreaOfInterest | null>(null);
 let isPersisting = false;
 const missingDataMessage = computed(() => {
@@ -72,6 +84,20 @@ const notify = (message: string, color: 'success' | 'error' = 'success') => {
 	toastColor.value = color;
 	showToast.value = true;
 };
+
+interface LayerUsageItem {
+	id: string;
+	name: string;
+	scenarioId: string;
+	scenarioName: string;
+}
+
+interface MissingLayerDependency {
+	key: string;
+	label: string;
+	measures: LayerUsageItem[];
+	effects: LayerUsageItem[];
+}
 
 const cloneArea = (value: AreaOfInterest | null): AreaOfInterest | null => {
 	if (!value) return null;
@@ -221,21 +247,240 @@ const closeMapDetails = () => {
 	activeMap.value = null;
 };
 
+const resourceCandidates = (resource: Partial<MapLayer> | null | undefined): string[] => {
+	if (!resource) return [];
+
+	return [
+		resource.id,
+		resource.pk as string | undefined,
+		resource.datasetPk as string | undefined,
+		resource.name as string | undefined,
+		resource.title as string | undefined,
+	]
+		.map((value) => String(value || '').trim())
+		.filter(Boolean);
+};
+
+const isDefinedDatasetResource = (resource: Partial<MapLayer> | null | undefined): boolean =>
+	resourceCandidates(resource).length > 0;
+
+const resourceLabel = (resource: Partial<MapLayer> | null | undefined): string =>
+	String(
+		resource?.title
+		?? resource?.name
+		?? resource?.id
+		?? resource?.pk
+		?? resource?.datasetPk
+		?? 'Layer senza nome',
+	).trim() || 'Layer senza nome';
+
+const getMeasureResources = (measure: DomainMeasure | null | undefined): MapLayer[] => {
+	if (!measure) return [];
+	if (measure.type !== 'Spatial') return [];
+	const resources = (measure as DomainMeasure & { geospatialResources?: MapLayer[] }).geospatialResources;
+	return Array.isArray(resources) ? resources : [];
+};
+
+const isLayerAvailable = (resource: MapLayer, availableKeys: Set<string>) =>
+	resourceCandidates(resource).some((candidate) => availableKeys.has(candidate));
+
+const addLayerUsage = (
+	target: MissingLayerDependency[],
+	resource: MapLayer,
+	usageType: 'measure' | 'effect',
+	item: LayerUsageItem,
+) => {
+	const key = resourceCandidates(resource)[0] || resourceLabel(resource);
+	let dependency = target.find((entry) => entry.key === key);
+	if (!dependency) {
+		dependency = {
+			key,
+			label: resourceLabel(resource),
+			measures: [],
+			effects: [],
+		};
+		target.push(dependency);
+	}
+
+	const usageList = usageType === 'measure' ? dependency.measures : dependency.effects;
+	if (!usageList.some((entry) => entry.id === item.id && entry.scenarioId === item.scenarioId)) {
+		usageList.push(item);
+	}
+};
+
+const getScenariosForValidation = (): Scenario[] => {
+	const fromArea = area.value?.scenarios;
+	if (Array.isArray(fromArea) && fromArea.length > 0) return fromArea;
+
+	const fromProjectArea = projectStore.currentProject?.areaOfInterest?.scenarios;
+	if (Array.isArray(fromProjectArea) && fromProjectArea.length > 0) return fromProjectArea;
+
+	return Array.isArray(projectStore.currentProject?.scenarios)
+		? projectStore.currentProject.scenarios
+		: [];
+};
+
+const buildMissingLayerDependencies = (availableLayers: MapLayer[]): MissingLayerDependency[] => {
+	const availableKeys = new Set(
+		availableLayers.flatMap((resource) => resourceCandidates(resource)),
+	);
+	const dependencies: MissingLayerDependency[] = [];
+
+	for (const scenario of getScenariosForValidation()) {
+		for (const measure of scenario.domainMeasures ?? []) {
+			for (const resource of getMeasureResources(measure)) {
+				if (!isDefinedDatasetResource(resource)) continue;
+				if (isLayerAvailable(resource, availableKeys)) continue;
+				addLayerUsage(dependencies, resource, 'measure', {
+					id: measure.id,
+					name: measure.name || measure.longName || measure.id,
+					scenarioId: scenario.id,
+					scenarioName: scenario.name || scenario.id,
+				});
+			}
+		}
+
+		for (const effect of scenario.domainEffects ?? []) {
+			const effectResources = new Map<string, MapLayer>();
+			for (const measure of effect.affected ?? []) {
+				for (const resource of getMeasureResources(measure)) {
+					if (!isDefinedDatasetResource(resource)) continue;
+					const key = resourceCandidates(resource)[0] || resourceLabel(resource);
+					if (!key) continue;
+					effectResources.set(key, resource);
+				}
+			}
+
+			for (const resource of effectResources.values()) {
+				if (isLayerAvailable(resource, availableKeys)) continue;
+				addLayerUsage(dependencies, resource, 'effect', {
+					id: effect.id,
+					name: effect.name || effect.id,
+					scenarioId: scenario.id,
+					scenarioName: scenario.name || scenario.id,
+				});
+			}
+		}
+	}
+
+	return dependencies.sort((left, right) => left.label.localeCompare(right.label, 'it-IT'));
+};
+
+const fetchAvailableLayersForMap = async (mapPk: string): Promise<MapLayer[]> => {
+	const [specificResult, generalResult] = await Promise.allSettled([
+		$fetch<Array<{ pk: string; title: string }>>('/api/geonode/map-datasets', {
+			method: 'GET',
+			query: { mapId: mapPk },
+		}),
+		$fetch<Array<{ pk: string; title: string }>>('/api/geonode/datasets', {
+			method: 'GET',
+		}),
+	]);
+
+	const allLayers: Array<{ pk: string; title: string }> = [];
+	if (specificResult.status === 'fulfilled') {
+		allLayers.push(...specificResult.value);
+	}
+	if (generalResult.status === 'fulfilled') {
+		allLayers.push(...generalResult.value);
+	}
+
+	if (allLayers.length === 0) {
+		const firstError = specificResult.status === 'rejected'
+			? specificResult.reason
+			: (generalResult.status === 'rejected' ? generalResult.reason : null);
+		throw firstError ?? new Error('Impossibile recuperare i layer della mappa selezionata.');
+	}
+
+	const uniqueLayers = new Map<string, MapLayer>();
+	for (const layer of allLayers) {
+		const key = String(layer.pk || '').trim();
+		if (!key || uniqueLayers.has(key)) continue;
+		uniqueLayers.set(key, {
+			id: key,
+			pk: key,
+			name: layer.title,
+			title: layer.title,
+		});
+	}
+
+	return [...uniqueLayers.values()];
+};
+
+const mapToReference = (map: GeonodeMap): GeonodeMapReference => ({
+	pk: map.pk,
+	title: map.title,
+	detailUrl: map.detail_url,
+	thumbnailUrl: map.thumbnail_url,
+});
+
+const applyAssociatedMap = (mapReference: GeonodeMapReference) => {
+	if (!area.value) return;
+	area.value.associatedMap = mapReference;
+};
+
+const clearMapInconsistencies = () => {
+	pendingAssociatedMap.value = null;
+	missingLayerDependencies.value = [];
+	mapChooserKey.value += 1;
+};
+
+const cancelPendingMapAssociation = () => {
+	clearMapInconsistencies();
+	activeTab.value = 'map';
+	notify('Sostituzione mappa annullata');
+};
+
+const confirmPendingMapAssociation = () => {
+	if (!pendingAssociatedMap.value) return;
+	applyAssociatedMap(pendingAssociatedMap.value);
+	clearMapInconsistencies();
+	activeTab.value = 'map';
+	notify('Mappa associata all\'area');
+};
+
+const validateAndAssociateMap = async (nextMap: GeonodeMapReference | null) => {
+	if (!area.value || !nextMap) return;
+	if (String(area.value.associatedMap?.pk || '') === String(nextMap.pk)) {
+		applyAssociatedMap(nextMap);
+		return;
+	}
+
+	isValidatingMapAssociation.value = true;
+	try {
+		const availableLayers = await fetchAvailableLayersForMap(String(nextMap.pk));
+		const dependencies = buildMissingLayerDependencies(availableLayers);
+		if (dependencies.length === 0) {
+			clearMapInconsistencies();
+			applyAssociatedMap(nextMap);
+			notify('Mappa associata all\'area');
+			return;
+		}
+
+		pendingAssociatedMap.value = nextMap;
+		missingLayerDependencies.value = dependencies;
+		editingMap.value = false;
+		statementView.value = 'list';
+		closeMapDetails();
+		activeTab.value = 'inconsistencies';
+	} catch (error) {
+		console.error('Errore durante la validazione della nuova mappa:', error);
+		notify('Errore durante il controllo dei layer della nuova mappa', 'error');
+	} finally {
+		isValidatingMapAssociation.value = false;
+	}
+};
+
 
 
 
 const associateActiveMapToArea = () => {
-	if (!area.value || !activeMap.value) return;
-	area.value.associatedMap = {
-		pk: activeMap.value.pk,
-		title: activeMap.value.title,
-		detailUrl: activeMap.value.detail_url,
-		thumbnailUrl: activeMap.value.thumbnail_url,
-	};
+	if (!activeMap.value) return;
+	void validateAndAssociateMap(mapToReference(activeMap.value));
 };
 
 watch(activeTab, (tab) => {
-	if (tab !== 'map2') {
+	if (tab !== 'map') {
 		closeMapDetails();
 	}
 });
@@ -272,6 +517,7 @@ watch(
 <template>
 	<div class="container-panel">
 		<v-progress-linear v-if="isBusy" indeterminate color="primary" />
+		<v-progress-linear v-if="isValidatingMapAssociation" indeterminate color="secondary" />
 
 		<v-snackbar v-model="showToast" :color="toastColor" timeout="3000">
 			{{ toastMessage }}
@@ -306,6 +552,9 @@ watch(
 				<v-tab value="general">Generale</v-tab>
 				<v-tab value="statements">Statements</v-tab>
 				<v-tab value="map">Mappa</v-tab>
+				<v-tab v-if="hasInconsistencies" value="inconsistencies" color="error">
+					Inconsistenze
+				</v-tab>
 			</v-tabs>
 
 			<v-window v-model="activeTab" class="area-form-window">
@@ -348,6 +597,65 @@ watch(
 						class="pa-4"
 					/>
 					<p v-else class="pa-4">Nessun statements disponibile.</p>
+				</v-window-item>
+				<v-window-item v-if="hasInconsistencies" value="inconsistencies">
+					<section class="dependency-panel">
+						<v-alert
+							type="warning"
+							variant="tonal"
+							icon="mdi-alert-outline"
+							class="dependency-panel__intro"
+						>
+							La nuova mappa
+							<strong>{{ pendingAssociatedMap?.title || 'selezionata' }}</strong>
+							non contiene tutti i layer oggi usati in misure, aspetti o effetti.
+						</v-alert>
+
+						<div class="dependency-panel__actions">
+							<v-btn variant="text" @click="cancelPendingMapAssociation">
+								Annulla sostituzione
+							</v-btn>
+							<v-btn color="primary" variant="flat" @click="confirmPendingMapAssociation">
+								Sostituisci comunque
+							</v-btn>
+						</div>
+
+						<div class="dependency-panel__list">
+							<div
+								v-for="dependency in missingLayerDependencies"
+								:key="dependency.key"
+								class="dependency-dialog__item"
+							>
+								<div class="dependency-dialog__header">
+									<strong>{{ dependency.label }}</strong>
+								</div>
+
+								<div v-if="dependency.measures.length" class="dependency-dialog__section">
+									<div class="dependency-dialog__label">Misure</div>
+									<ul class="dependency-dialog__list">
+										<li
+											v-for="measure in dependency.measures"
+											:key="`measure-${dependency.key}-${measure.scenarioId}-${measure.id}`"
+										>
+											{{ measure.name }} <span>({{ measure.scenarioName }})</span>
+										</li>
+									</ul>
+								</div>
+
+								<div v-if="dependency.effects.length" class="dependency-dialog__section">
+									<div class="dependency-dialog__label">Effetti</div>
+									<ul class="dependency-dialog__list">
+										<li
+											v-for="effect in dependency.effects"
+											:key="`effect-${dependency.key}-${effect.scenarioId}-${effect.id}`"
+										>
+											{{ effect.name }} <span>({{ effect.scenarioName }})</span>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</section>
 				</v-window-item>
 				<v-window-item v-if="!editingMap" value="map">
 					<div
@@ -394,10 +702,10 @@ watch(
 		</div>
 
 		<div v-else-if="editingMap && statementView === 'link-map'" class="map-browser-panel">
-			<MapChooser class="tw:size-full" v-model:selected-geonode-map="area!.associatedMap"
+			<MapChooser :key="mapChooserKey" class="tw:size-full" :selected-geonode-map="area!.associatedMap"
 				@close="closeMapsBrowser"
 				@open-details="activeMap = $event"
-				@update:selected-geonode-map=""
+				@update:selected-geonode-map="validateAndAssociateMap"
 			>	
 				<transition name="map-details-zoom" appear>
 					<GeonodeMapDetailsPanel
@@ -477,6 +785,77 @@ watch(
 	position: relative;
 	height: 100%;
 	min-height: 0;
+}
+
+.dependency-panel {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 16px;
+}
+
+.dependency-panel__intro {
+	margin: 0;
+}
+
+.dependency-panel__actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.dependency-panel__list {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.dependency-dialog {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+
+	p {
+		margin: 0;
+		line-height: 1.5;
+	}
+}
+
+.dependency-dialog__item {
+	padding: 12px 14px;
+	border: 1px solid rgba(0, 0, 0, 0.08);
+	border-radius: 10px;
+	background: rgba(0, 0, 0, 0.02);
+}
+
+.dependency-dialog__header {
+	margin-bottom: 8px;
+}
+
+.dependency-dialog__section + .dependency-dialog__section {
+	margin-top: 10px;
+}
+
+.dependency-dialog__label {
+	font-size: 0.8rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	color: rgba(0, 0, 0, 0.56);
+	margin-bottom: 6px;
+}
+
+.dependency-dialog__list {
+	margin: 0;
+	padding-left: 18px;
+
+	li + li {
+		margin-top: 4px;
+	}
+
+	span {
+		color: rgba(0, 0, 0, 0.62);
+	}
 }
 
 .map-details-zoom-enter-active,

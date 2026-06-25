@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, useTemplateRef } from 'vue';
-import type { DomainMeasure } from '#/shared/types/msp-project';
+import type { DomainMeasure, Measure } from '#/shared/types/msp-project';
 import SpatialResourcesPanel from './SpatialResourcesPanel.vue';
 //import { useAspectStore } from '@/stores/aspectStore'; // Importa il tuo store Pinia
 // import { useScenarioStore } from '@/stores/scenarioStore';
@@ -26,18 +26,25 @@ onMounted(async () => {
 });
 const formData = ref<Partial<DomainMeasure>>({
 	...props.initialData,
-	referenceThemes: props.initialData.referenceThemes ? [...props.initialData.referenceThemes] : []
+	referenceThemes: props.initialData.referenceThemes ? [...props.initialData.referenceThemes] : [],
 });
 const spatialResourcesPanel = useTemplateRef<InstanceType<typeof SpatialResourcesPanel>>('spatialResourcesPanel');
 const canSave = computed(() => formData.value.name?.trim() && formData.value.longName?.trim());
+const isSpatialMeasure = computed(() => formData.value.type === 'Spatial');
+const measureKindLabel = computed(() => isSpatialMeasure.value ? 'Misura spaziale' : 'Misura non spaziale');
 
 const saveForm = async () => {
 	if (canSave.value) {
-		if (formData.value.type === 'Spatial') {
+		if (isSpatialMeasure.value) {
 			const thumbnail = await spatialResourcesPanel.value?.generateThumbnail?.();
 			if (thumbnail) {
 				formData.value.thumbnail = thumbnail;
 			}
+			const currentResources = (formData.value as Partial<Measure>).geospatialResources;
+			(formData.value as Partial<Measure>).geospatialResources = Array.isArray(currentResources) ? currentResources : [];
+		} else {
+			delete (formData.value as Partial<Measure>).geospatialResources;
+			delete formData.value.thumbnail;
 		}
 		emit('save', formData.value);
 	}
@@ -56,12 +63,12 @@ const cancelForm = () => {
 				<v-icon>mdi-arrow-left</v-icon>
 			</v-btn>
 			<v-toolbar-title class="font-weight-bold">
-				<div v-if="formData.type==='Spatial'">
+				<div v-if="isSpatialMeasure">
 					<v-chip size="small" color="primary" variant="flat" class="mr-2">Spaziale</v-chip>
-					Misura spaziale</div>
+					{{ measureKindLabel }}</div>
 				<div v-else>
 					<v-chip size="small" color="primary" variant="flat" class="mr-2">N-S</v-chip>
-					Misura non spaziale</div>
+					{{ measureKindLabel }}</div>
 				
 			</v-toolbar-title>
 
@@ -103,10 +110,13 @@ const cancelForm = () => {
 					</v-row>
 				</v-expand-transition>
  -->
-
-				<v-row v-if="formData.type === 'Spatial'">
+				<v-row v-if="isSpatialMeasure">
 					<v-col cols="12">
-						<SpatialResourcesPanel ref="spatialResourcesPanel" v-model="formData.geospatialResources" />
+						<SpatialResourcesPanel
+							ref="spatialResourcesPanel"
+							v-model="formData.geospatialResources"
+							title="Layer della misura"
+						/>
 					</v-col>
 				</v-row>
 
@@ -140,8 +150,4 @@ const cancelForm = () => {
 
 
 <style scoped>
-/* Stili minimi, Vuetify gestisce la maggior parte dell'UI */
-.themes-section {
-	/* Per mantenere un po' di spaziatura visiva */
-}
 </style>

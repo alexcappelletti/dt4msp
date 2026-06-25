@@ -551,7 +551,7 @@ onBeforeRouteLeave(async () => {
 		<!-- Forms di editing -->
 		<scenario-statement-form v-if="viewMode === 'edit' && tab === 'statements' && selectedStatement"
 			:initial-data="selectedStatement" @save="handleSaveStatement" @cancel="viewMode = 'tab-view'" />
-		<scenario-aspect-form v-if="viewMode === 'edit' && tab === 'measures' && selectedMeasure"
+		<scenario-domain-measure-editor v-if="viewMode === 'edit' && tab === 'measures' && selectedMeasure"
 			:initial-data="selectedMeasure" @save="handleSaveAspect" @cancel="viewMode = 'tab-view'" />
 		<scenario-effect-editor v-if="viewMode === 'edit' && tab === 'effects' && selectedEffect"
 			:initial-data="initEffectData" @save="handleSaveEffect" @cancel="viewMode = 'tab-view'" />
