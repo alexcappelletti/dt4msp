@@ -32,19 +32,24 @@ const spatialResourcesPanel = useTemplateRef<InstanceType<typeof SpatialResource
 const canSave = computed(() => formData.value.name?.trim() && formData.value.longName?.trim());
 const isSpatialMeasure = computed(() => formData.value.type === 'Spatial');
 const measureKindLabel = computed(() => isSpatialMeasure.value ? 'Misura spaziale' : 'Misura non spaziale');
+const spatialFormData = computed(() => formData.value as Partial<Measure>);
+const handleThumbnailUpdated = (thumbnail: string | null) => {
+	if (!isSpatialMeasure.value) return;
+	spatialFormData.value.thumbnail = thumbnail || "";
+};
 
 const saveForm = async () => {
 	if (canSave.value) {
 		if (isSpatialMeasure.value) {
 			const thumbnail = await spatialResourcesPanel.value?.generateThumbnail?.();
 			if (thumbnail) {
-				formData.value.thumbnail = thumbnail;
+				spatialFormData.value.thumbnail = thumbnail;
 			}
-			const currentResources = (formData.value as Partial<Measure>).geospatialResources;
-			(formData.value as Partial<Measure>).geospatialResources = Array.isArray(currentResources) ? currentResources : [];
+			const currentResources = spatialFormData.value.geospatialResources;
+			spatialFormData.value.geospatialResources = Array.isArray(currentResources) ? currentResources : [];
 		} else {
-			delete (formData.value as Partial<Measure>).geospatialResources;
-			delete formData.value.thumbnail;
+			delete spatialFormData.value.geospatialResources;
+			delete spatialFormData.value.thumbnail;
 		}
 		emit('save', formData.value);
 	}
@@ -114,8 +119,9 @@ const cancelForm = () => {
 					<v-col cols="12">
 						<SpatialResourcesPanel
 							ref="spatialResourcesPanel"
-							v-model="formData.geospatialResources"
+							v-model="spatialFormData.geospatialResources"
 							title="Layer della misura"
+							@thumbnail-updated="handleThumbnailUpdated"
 						/>
 					</v-col>
 				</v-row>

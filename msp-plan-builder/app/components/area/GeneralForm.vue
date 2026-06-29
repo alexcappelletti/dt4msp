@@ -251,9 +251,8 @@ const resourceCandidates = (resource: Partial<MapLayer> | null | undefined): str
 	if (!resource) return [];
 
 	return [
-		resource.id,
-		resource.pk as string | undefined,
 		resource.datasetPk as string | undefined,
+		resource.id,
 		resource.name as string | undefined,
 		resource.title as string | undefined,
 	]
@@ -268,9 +267,8 @@ const resourceLabel = (resource: Partial<MapLayer> | null | undefined): string =
 	String(
 		resource?.title
 		?? resource?.name
-		?? resource?.id
-		?? resource?.pk
 		?? resource?.datasetPk
+		?? resource?.id
 		?? 'Layer senza nome',
 	).trim() || 'Layer senza nome';
 
@@ -397,8 +395,7 @@ const fetchAvailableLayersForMap = async (mapPk: string): Promise<MapLayer[]> =>
 		const key = String(layer.pk || '').trim();
 		if (!key || uniqueLayers.has(key)) continue;
 		uniqueLayers.set(key, {
-			id: key,
-			pk: key,
+			datasetPk: key,
 			name: layer.title,
 			title: layer.title,
 		});

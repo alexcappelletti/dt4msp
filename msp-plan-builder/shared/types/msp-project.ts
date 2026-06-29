@@ -281,8 +281,17 @@ export function isMeasureEffect(effect: DomainEffect): effect is Effect<Measure>
 	return effect.affected.every((item) => item.type === "Spatial");
 }
 
+export interface MapViewport {
+	center?: [number, number];
+	zoom?: number;
+}
+
 export interface MapLayer {
 	id?: string;
 	name?: string;
+	title?: string;
+	datasetPk?: string;
+	center?: [number, number];
+	zoom?: number;
 	[key: string]: unknown;
 }

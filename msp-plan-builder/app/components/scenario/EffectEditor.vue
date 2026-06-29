@@ -124,9 +124,8 @@ const effectGeospatialResources = computed<MapLayer[]>(() => {
 		if (measure.type !== "Spatial") continue;
 		for (const resource of measure.geospatialResources ?? []) {
 			const key = String(
-				resource.id
-				?? resource.pk
-				?? resource.datasetPk
+				resource.datasetPk
+				?? resource.id
 				?? resource.name
 				?? resource.title
 				?? "",

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Dataset, DatasetListItem } from "#/shared/types/geonodeTypes";
-import type { MapLayer } from "#/shared/types/msp-project";
+import type { MapLayer, MapViewport } from "#/shared/types/msp-project";
 import LayerMapView from "@/components/LayerMapView.vue";
 import { useLayeredMapStore } from "@/stores/layeredMapStore";
 import { useScenarioStore } from "@/stores/scenarioStore";
@@ -26,6 +26,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{
 	(e: "update:modelValue", value: MapLayer[]): void;
+	(e: "thumbnail-updated", value: string | null): void;
 }>();
 
 const scenarioStore = useScenarioStore();
@@ -52,6 +53,7 @@ const datasetCache = ref<Record<string, Dataset>>({});
 const latestSelectionIntent = ref<Record<string, boolean>>({});
 let latestSyncRequestId = 0;
 let latestHydratedSignature = "";
+const currentViewport = ref<MapViewport | null>(null);
 
 const allItems = computed(() =>
 
@@ -77,24 +79,35 @@ const selectedLayers = computed(() =>
 
 const resourceKey = (resource: MapLayer) =>
 	String(
-		resource.id
-		?? resource.pk
-		?? resource.datasetPk
+		resource.datasetPk
+		?? resource.id
 		?? resource.name
 		?? resource.title
 		?? "",
 	).trim();
 
-const toMapLayerResource = (item: DatasetListItem): MapLayer => ({
-	id: item.pk,
-	pk: item.pk,
+const viewportFromResource = (resource: MapLayer | null | undefined): MapViewport | null => {
+	if (!resource) return null;
+	if (!Array.isArray(resource.center) || resource.center.length !== 2) return null;
+	if (typeof resource.zoom !== "number") return null;
+	return {
+		center: [Number(resource.center[0]), Number(resource.center[1])],
+		zoom: resource.zoom,
+	};
+};
+
+const toMapLayerResource = (item: DatasetListItem, viewport?: MapViewport | null): MapLayer => ({
+	datasetPk: item.pk,
 	name: item.title,
 	title: item.title,
+	center: viewport?.center ? [...viewport.center] as [number, number] : undefined,
+	zoom: typeof viewport?.zoom === "number" ? viewport.zoom : undefined,
 });
 
 const syncSelectionFromModel = () => {
 	const nextOrder: string[] = [];
 	const nextSet = new Set<string>();
+	const nextViewport = viewportFromResource(props.modelValue?.[0]);
 
 	for (const resource of props.modelValue ?? []) {
 		const key = resourceKey(resource);
@@ -113,13 +126,20 @@ const syncSelectionFromModel = () => {
 
 	selectedPks.value = nextSet;
 	selectedPkOrder.value = nextOrder;
+	currentViewport.value = nextViewport;
 };
 
+const getEffectiveViewport = (): MapViewport | null =>
+	currentViewport.value
+		?? layerMapView.value?.getCurrentViewport?.()
+		?? null;
+
 const emitModelValue = () => {
+	const viewport = getEffectiveViewport();
 	const nextValue = selectedPkOrder.value
 		.map((pk) => allItems.value.find((item) => item.pk === pk))
 		.filter((item): item is DatasetListItem => Boolean(item))
-		.map(toMapLayerResource);
+		.map((item) => toMapLayerResource(item, viewport));
 
 	emit("update:modelValue", nextValue);
 };
@@ -237,6 +257,21 @@ const toggleDataset = async (summary: DatasetListItem, checked: boolean) => {
 	await syncMapLayers();
 };
 
+const refreshThumbnail = async () => {
+	if (props.readonly || selectedPkOrder.value.length === 0) return;
+	const thumbnail = await generateThumbnail();
+	emit("thumbnail-updated", thumbnail);
+};
+
+const handleViewportChange = async (viewport: Required<MapViewport>) => {
+	currentViewport.value = {
+		center: [...viewport.center] as [number, number],
+		zoom: viewport.zoom,
+	};
+	emitModelValue();
+	await refreshThumbnail();
+};
+
 watch(
 	mapId,
 	async (newMapId) => {
@@ -293,7 +328,12 @@ defineExpose({
 
 		<div v-else class="tw:relative tw:w-full">
 			<div class="tw:relative tw:h-[500px] tw:w-full">
-				<LayerMapView ref="layerMapView" class="tw:h-full tw:w-full" />
+				<LayerMapView
+					ref="layerMapView"
+					class="tw:h-full tw:w-full"
+					:viewport="currentViewport"
+					@viewport-change="handleViewportChange"
+				/>
 				<div
 					v-if="isLoading || isSyncingMap"
 					class="tw:absolute tw:inset-0 tw:flex tw:items-center tw:justify-center tw:bg-white/20 tw:backdrop-blur-[2px] tw:pointer-events-none"

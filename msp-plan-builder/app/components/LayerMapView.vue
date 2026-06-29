@@ -8,6 +8,7 @@ import maplibregl, {
 } from "maplibre-gl";
 import { onMounted, onUnmounted, ref, shallowRef, watch } from "vue";
 import { useLayeredMapStore } from "~/stores/layeredMapStore";
+import type { MapViewport } from "#/shared/types/msp-project";
 //@ts-ignore
 maplibregl.config.FILL_LARGE_MESH_ARRAYS = true;
 const config = useRuntimeConfig();
@@ -44,6 +45,12 @@ const MAP_STYLE = {
 };
 const mapStore = useLayeredMapStore();
 const { convertLLBoxToMapLibreBbox } = useOgcHelper();
+const props = defineProps<{
+	viewport?: MapViewport | null;
+}>();
+const emit = defineEmits<{
+	(e: "viewport-change", viewport: Required<MapViewport>): void;
+}>();
 
 const mapContainer = shallowRef(null);
 const map = shallowRef<MaplibreMap | null>(null);
@@ -56,6 +63,39 @@ const isLoadingLayers = ref(false);
 let requestedRenderId = 0;
 let processedRenderId = 0;
 let isRenderingMap = false;
+let isApplyingViewport = false;
+
+const getResolvedViewport = (): Required<MapViewport> => ({
+	center: Array.isArray(props.viewport?.center) && props.viewport?.center.length === 2
+		? [Number(props.viewport.center[0]), Number(props.viewport.center[1])]
+		: [8.01419, 37.89222],
+	zoom: typeof props.viewport?.zoom === "number"
+		? props.viewport.zoom
+		: MarMediterraneo.zoom,
+});
+
+const applyViewport = (viewport: MapViewport | null | undefined) => {
+	if (!map.value) return;
+	const center = Array.isArray(viewport?.center) && viewport.center.length === 2
+		? [Number(viewport.center[0]), Number(viewport.center[1])] as [number, number]
+		: null;
+	const zoom = typeof viewport?.zoom === "number" ? viewport.zoom : null;
+	if (!center || zoom === null) return;
+
+	const currentCenter = map.value.getCenter();
+	const currentZoom = map.value.getZoom();
+	const sameCenter = Math.abs(currentCenter.lng - center[0]) < 0.000001
+		&& Math.abs(currentCenter.lat - center[1]) < 0.000001;
+	const sameZoom = Math.abs(currentZoom - zoom) < 0.000001;
+	if (sameCenter && sameZoom) return;
+
+	isApplyingViewport = true;
+	map.value.jumpTo({ center, zoom });
+	updateMapInfo();
+	requestAnimationFrame(() => {
+		isApplyingViewport = false;
+	});
+};
 
 const waitForMapIdle = async () => {
 	if (!map.value) return;
@@ -81,15 +121,17 @@ const waitForMapIdle = async () => {
 
 const initializeMap = () => {
 	// ... (logica inizializzazione mappa) ...
+	const initialViewport = getResolvedViewport();
 	map.value = new maplibregl.Map({
 		container: mapContainer.value!,
 		style: `${basemapURL}/${basemapEnum}?token=${ESRI_APIKEY}`,
-		center: MarMediterraneo.center,
-		zoom: MarMediterraneo.zoom,
+		center: initialViewport.center,
+		zoom: initialViewport.zoom,
 		preserveDrawingBuffer: true,
 	});
 	map.value.on("load", async () => {
 		console.log("loaded map ");
+		updateMapInfo();
 		await updateMap();
 	});
 	map.value.on("error", (e) => {
@@ -97,6 +139,11 @@ const initializeMap = () => {
 	});
 	map.value.on("move", () => {
 		updateMapInfo();
+	});
+	map.value.on("moveend", () => {
+		updateMapInfo();
+		if (isApplyingViewport) return;
+		emit("viewport-change", getCurrentViewport());
 	});
 };
 
@@ -425,12 +472,31 @@ onUnmounted(() => {
 	if (map.value) map.value.remove();
 });
 
+watch(
+	() => props.viewport,
+	(viewport) => {
+		applyViewport(viewport);
+	},
+	{ deep: true },
+);
+
 function updateMapInfo() {
 	if (map.value) {
 		const center = map.value.getCenter();
 		centerCoords.value = [center.lng, center.lat];
 		zoomLevel.value = map.value.getZoom();
 	}
+}
+
+function getCurrentViewport(): Required<MapViewport> {
+	if (!map.value) {
+		return getResolvedViewport();
+	}
+	const center = map.value.getCenter();
+	return {
+		center: [center.lng, center.lat],
+		zoom: map.value.getZoom(),
+	};
 }
 function getBoundingBox(): [number, number, number, number] | null {
 	if (!map.value) return null;
@@ -463,6 +529,7 @@ const captureThumbnail = async (): Promise<string | null> => {
 
 defineExpose({
 	captureThumbnail,
+	getCurrentViewport,
 });
 </script>
 
